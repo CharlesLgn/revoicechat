@@ -239,7 +239,7 @@ export default class ServerController {
                     </select>
                 </div>
             </form>`,
-            didOpen: async () => {
+            didOpen: () => {
                 this.#popupData = { name: null, serverType: "PRIVATE" };
                 document.getElementById('modal-server-name').oninput = () => { this.#popupData.name = document.getElementById('modal-server-name').value };
                 document.getElementById('modal-server-type').oninput = () => { this.#popupData.serverType = document.getElementById('modal-server-type').value };
@@ -258,20 +258,39 @@ export default class ServerController {
     }
 
     #delete() {
+        let confirm = false;
         Modal.toggle({
             title: i18n.translateOne("server.delete.title"),
             focusConfirm: false,
             confirmButtonText: i18n.translateOne("server.delete.confirm"),
             confirmButtonClass: "background-red",
             showCancelButton: true,
-            cancelButtonText: i18n.translateOne("server.create.cancel"),
+            cancelButtonText: i18n.translateOne("common.cancel"),
             width: "30rem",
+            html: `
+            <form class='popup'>
+                <div>
+                    <label for="modal-server-name" data-i18n="server.delete.title">${i18n.translateOne("server.delete.confirm.input", this.name)}</label>
+                    <br/>
+                    <input type="text" id="modal-server-name">
+                </div>
+            </form>`,
+            didOpen: () => {
+                document.getElementById("modal-server-name").oninput = () => {
+                    confirm = (document.getElementById("modal-server-name").value === this.name);
+                }
+            }
         }).then(async (result) => {
             if (result.isConfirmed) {
-                if (await CoreServer.fetch(`/server/${this.id}`, 'DELETE')) {
-                    this.id = null;
-                    await this.load();
-                    this.router.routeTo('app');
+                if (confirm) {
+                    if (await CoreServer.fetch(`/server/${this.id}`, 'DELETE')) {
+                        this.id = null;
+                        await this.load();
+                        this.router.routeTo('app');
+                    }
+                }
+                else {
+                    Modal.toggleError(i18n.translateOne("server.delete.abort", this.name))
                 }
             }
         });
