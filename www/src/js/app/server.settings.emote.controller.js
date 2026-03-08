@@ -25,12 +25,6 @@ export class ServerSettingsEmoteController {
     async #emotesLoad() {
         /** @type {EmoteRepresentation[]} */
         const response = await CoreServer.fetch(`/emote/server/${this.serverSettings.server.id}`);
-
-        const oldManager = document.getElementById("server-setting-emotes-form");
-        if (oldManager) {
-            oldManager.remove();
-        }
-
         const emoji_manager = document.createElement('revoice-emoji-manager');
         emoji_manager.setAttribute('path', `server/${this.serverSettings.server.id}`);
         emoji_manager.id = "server-setting-emotes-form";
