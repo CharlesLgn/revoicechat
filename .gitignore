@@ -15,5 +15,9 @@ server.core.properties
 settings.media.ini
 .env
 
+### i18n ###
+/.generated
+/.tmp-i18n
+
 ### Sonar ###
 .scannerwork
