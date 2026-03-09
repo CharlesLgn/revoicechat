@@ -18,10 +18,10 @@ bash "./.scripts/update-i18n.sh" -src ../.tmp-i18n || { printf "${RED}update-i18
 
 step "Updating README progress table..."
 bash "./.scripts/generate-progress.sh" || { printf "${RED}generate-progress.sh failed${NC}\n"; cd ..; exit 1; }
-cd ..
 
 step "Generating .generated files..."
-bash "./ReVoiceChat-i18n/.scripts/generate-i18n.sh" || { printf "${RED}generate-i18n.sh failed${NC}\n"; exit 1; }
+bash "./.scripts/generate-i18n.sh" || { printf "${RED}generate-i18n.sh failed${NC}\n"; cd ..; exit 1; }
+cd ..
 
 step "Importing back to source projects..."
 bash "./scripts/i18n/import-i18n.sh" || { printf "${RED}import-i18n.sh failed${NC}\n"; exit 1; }

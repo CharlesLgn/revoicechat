@@ -17,7 +17,7 @@ declare -A generated_to_source=(
 count=0
 for name in "${!generated_to_source[@]}"; do
   dest="${generated_to_source[$name]}"
-  for file in .generated/${name}_*.properties; do
+  for file in ReVoiceChat-i18n/.generated/${name}_*.properties; do
     [ -f "$file" ] || continue
     if [ ! -d "$dest" ]; then
       printf "${RED}Missing destination directory: ${dest}${NC}\n"
