@@ -37,11 +37,6 @@ repos=(
 )
 
 for repo in "${repos[@]}"; do
-  if [ ! -d "$repo/.git" ]; then
-    printf "${RED}Not a git repository: ${repo}${NC}\n"
-    continue
-  fi
-
   cd "$repo"
   if git diff --quiet && git diff --cached --quiet; then
     printf "⏭️  ${repo}: nothing to commit\n"
