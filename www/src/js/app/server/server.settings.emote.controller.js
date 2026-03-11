@@ -1,4 +1,4 @@
-import CoreServer from "./core/core.server.js";
+import CoreServer from "../core/core.server.js";
 
 export class ServerSettingsEmoteController {
 

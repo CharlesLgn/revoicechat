@@ -4,8 +4,8 @@ import { ServerSettingsEmoteController } from "./server.settings.emote.controlle
 import { ServerSettingsInvitationController } from "./server.settings.invitation.controller.js";
 import { ServerSettingsRoleController } from "./server.settings.role.controller.js";
 import { ServerSettingsMemberController } from "./server.settings.member.controller.js";
-import CoreServer from "./core/core.server.js";
-import Router from "./router.js";
+import CoreServer from "../core/core.server.js";
+import Router from "../router.js";
 
 export default class ServerSettingsController {
     /** @type {ServerController} */

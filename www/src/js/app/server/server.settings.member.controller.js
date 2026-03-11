@@ -1,5 +1,5 @@
-import MediaServer from "./media/media.server.js";
-import CoreServer from "./core/core.server.js";
+import MediaServer from "../media/media.server.js";
+import CoreServer from "../core/core.server.js";
 
 export class ServerSettingsMemberController {
 

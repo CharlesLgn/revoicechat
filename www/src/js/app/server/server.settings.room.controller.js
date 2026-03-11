@@ -1,7 +1,7 @@
-import {SpinnerOnButton} from "../component/button.spinner.component.js";
-import {i18n} from "../lib/i18n.js";
-import CoreServer from "./core/core.server.js";
-import Modal from "../component/modal.component.js";
+import {SpinnerOnButton} from "../../component/button.spinner.component.js";
+import {i18n} from "../../lib/i18n.js";
+import CoreServer from "../core/core.server.js";
+import Modal from "../../component/modal.component.js";
 
 export class ServerSettingsRoomController {
 
