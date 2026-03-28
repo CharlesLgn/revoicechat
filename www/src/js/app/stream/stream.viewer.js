@@ -1,4 +1,4 @@
-import { LargePacketReceiver } from "../packet.js";
+import { LargePacketReceiver } from "../utils/packet.js";
 import { Demultiplexer } from "./stream.multiplexing.js";
 import Codec from "../utils/codec.js";
 

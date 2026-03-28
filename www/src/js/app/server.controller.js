@@ -1,4 +1,4 @@
-import ServerSettingsController from "./server.settings.controller.js";
+import ServerSettingsController from "./server/server.settings.controller.js";
 import { statusToColor } from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";

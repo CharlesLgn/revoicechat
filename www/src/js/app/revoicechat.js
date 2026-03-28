@@ -3,7 +3,7 @@ import State from './state.js';
 import Alert from './utils/alert.js';
 import Router from './router.js';
 import UserController from './user.controller.js';
-import Room from './room.js';
+import PublicRoom from './public.room.controller.js';
 import ServerController from './server.controller.js';
 import MobileController from "./utils/mobile.js";
 import { reloadEmojis } from './emoji.js';
@@ -21,9 +21,9 @@ export default class ReVoiceChat {
     router = new Router();
     /** @type {UserController} */
     user;
-    /** @type {Room} */
+    /** @type {PublicRoom} */
     room;
-    /** @type ServerController */
+    /** @type {ServerController} */
     server;
     /** @type {State} */
     state;
@@ -47,7 +47,7 @@ export default class ReVoiceChat {
 
         // Instantiate other classes
         this.user = new UserController();
-        this.room = new Room(this.user);
+        this.room = new PublicRoom(this.user);
         this.server = new ServerController(this.room, this.router, this.user);
         this.state = new State(this);
         this.adminSettings = new AdminSettingsController(this.user);

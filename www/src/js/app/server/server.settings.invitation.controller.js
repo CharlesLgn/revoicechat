@@ -1,7 +1,7 @@
-import {copyToClipboard} from "../lib/tools.js";
-import CoreServer from "./core/core.server.js";
-import Modal from "../component/modal.component.js";
-import {i18n} from "../lib/i18n.js";
+import {copyToClipboard} from "../../lib/tools.js";
+import CoreServer from "../core/core.server.js";
+import Modal from "../../component/modal.component.js";
+import {i18n} from "../../lib/i18n.js";
 
 export class ServerSettingsInvitationController {
     /**

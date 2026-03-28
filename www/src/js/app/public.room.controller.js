@@ -5,7 +5,7 @@ import MediaServer from './media/media.server.js';
 import { statusToColor } from "../lib/tools.js";
 import { i18n } from '../lib/i18n.js';
 
-export default class Room {
+export default class PublicRoom {
     /** @type {TextController} */
     textController;
     /** @type {VoiceController} */
@@ -281,7 +281,7 @@ export default class Room {
                 <revoice-status-dot name="dot-${id}" color="${statusToColor(status)}"></revoice-status-dot>
             </div>
             <div class="user">
-                <h2 class="name" name="user-name-${id}" style="color:${color}">${name}</h2>
+                <h2 class="name" name="user-name-${id}" title="${name}" style="color:${color}">${name}</h2>
             </div>
         `;
 

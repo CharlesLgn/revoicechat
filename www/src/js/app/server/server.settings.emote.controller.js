@@ -1,4 +1,4 @@
-import CoreServer from "./core/core.server.js";
+import CoreServer from "../core/core.server.js";
 
 export class ServerSettingsEmoteController {
 
@@ -23,6 +23,11 @@ export class ServerSettingsEmoteController {
     }
 
     async #emotesLoad() {
+        const oldManager = document.getElementById("server-setting-emotes-form");
+        if (oldManager) {
+            oldManager.remove();
+        }
+        
         /** @type {EmoteRepresentation[]} */
         const response = await CoreServer.fetch(`/emote/server/${this.serverSettings.server.id}`);
         const emoji_manager = document.createElement('revoice-emoji-manager');

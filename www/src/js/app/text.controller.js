@@ -26,26 +26,52 @@ export default class TextController {
     /** @type {MutationObserver|null} */
     #observer = null;
 
-    #cachedElements = {
+    #core = {
+        send: null,
+        load: null,
+        loadMore: null
+    }
+    #elements = {
         cacheContainer: null,
         textReplyMessage: null,
         textInput: null,
         textAttachment: null,
-        textAttachmentDiv: null
+        textAttachmentDiv: null,
+        attachmentsAdd: null,
+        attachmentsRemove: null,
     }
 
     /**
      * @param {UserController} user
      * @param {Room} room
      */
-    constructor(user, room) {
+    constructor(user, room, privateRoom = false) {
         this.#user = user;
         this.#room = room;
-        this.#cachedElements.cacheContainer = document.getElementById("cache-container");
-        this.#cachedElements.textReplyMessage = document.getElementById("text-reply-message");
-        this.#cachedElements.textInput = document.getElementById("text-input");
-        this.#cachedElements.textAttachment = document.getElementById("text-attachment");
-        this.#cachedElements.textAttachmentDiv = document.getElementById("text-attachment-div");
+        if (privateRoom) {
+            this.#elements.cacheContainer = document.getElementById("private-cache-container");
+            this.#elements.textReplyMessage = document.getElementById("private-text-reply-message");
+            this.#elements.textInput = document.getElementById("private-text-input");
+            this.#elements.textAttachment = document.getElementById("private-text-attachment");
+            this.#elements.textAttachmentDiv = document.getElementById("private-text-attachment-div");
+            this.#elements.attachmentsAdd = document.getElementById("private-attachment-button-add");
+            this.#elements.attachmentsRemove = document.getElementById("private-attachment-button-remove");
+            this.#core.send = async (roomId, data) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'PUT', data) }
+            this.#core.load = async (roomId) => { return await CoreServer.fetch(`/private-message/${roomId}/message`, 'GET') }
+            this.#core.loadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/private-message/${roomId}/message?lastMessage=${firstMessageId}`, 'GET') }
+        }
+        else {
+            this.#elements.cacheContainer = document.getElementById("cache-container");
+            this.#elements.textReplyMessage = document.getElementById("text-reply-message");
+            this.#elements.textInput = document.getElementById("text-input");
+            this.#elements.textAttachment = document.getElementById("text-attachment");
+            this.#elements.textAttachmentDiv = document.getElementById("text-attachment-div");
+            this.#elements.attachmentsAdd = document.getElementById("attachment-button-add");
+            this.#elements.attachmentsRemove = document.getElementById("attachment-button-remove");
+            this.#core.send = async (roomId, data) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'PUT', data) }
+            this.#core.load = async (roomId) => { return await CoreServer.fetch(`/room/${roomId}/message`, 'GET') }
+            this.#core.loadMore = async (roomId, firstMessageId) => { return await CoreServer.fetch(`/room/${roomId}/message?lastMessage=${firstMessageId}`, 'GET'); }
+        }
         this.#observeReply();
     }
 
@@ -55,11 +81,11 @@ export default class TextController {
         this.#observer = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-message-id') {
-                    this.#showRepliedMessage(this.#cachedElements.textReplyMessage);
+                    this.#showRepliedMessage(this.#elements.textReplyMessage);
                 }
             }
         });
-        this.#observer.observe(this.#cachedElements.textReplyMessage, {
+        this.#observer.observe(this.#elements.textReplyMessage, {
             attributes: true,
             attributeFilter: ['data-message-id']
         });
@@ -89,21 +115,19 @@ export default class TextController {
 
     #removeRepliedMessage() {
         this.#repliedMessage = null;
-        this.#cachedElements.textReplyMessage.dataset.messageId = "";
+        this.#elements.textReplyMessage.dataset.messageId = "";
     }
 
     attachEvents() {
-        this.#cachedElements.textInput.addEventListener('keydown', async (event) => await this.#eventHandler(event));
-        this.#cachedElements.textInput.addEventListener('oninput', () => this.oninput(this.#cachedElements.textInput));
-        this.#cachedElements.textInput.addEventListener('paste', (event) => this.#pasteHandler(event));
-
-        document.getElementById("attachment-button-add").addEventListener('click', () => this.#addAttachment());
-        document.getElementById("attachment-button-remove").addEventListener('click', () => this.#removeAttachment());
-
-        this.#cachedElements.cacheContainer.addEventListener("scroll", () => {
+        this.#elements.textInput.addEventListener('keydown', async (event) => await this.#eventHandler(event));
+        this.#elements.textInput.addEventListener('oninput', () => this.oninput(this.#elements.textInput));
+        this.#elements.textInput.addEventListener('paste', (event) => this.#pasteHandler(event));
+        this.#elements.attachmentsAdd.addEventListener('click', () => this.#addAttachment());
+        this.#elements.attachmentsRemove.addEventListener('click', () => this.#removeAttachment());
+        this.#elements.cacheContainer.addEventListener("scroll", () => {
             const element = this.#cachedRooms[this.#room.id];
             if (element) {
-                element.scrollTop = this.#cachedElements.cacheContainer.scrollTop;
+                element.scrollTop = this.#elements.cacheContainer.scrollTop;
             }
             this.#loadMore(element);
         });
@@ -113,12 +137,12 @@ export default class TextController {
         if (!this.#cachedRooms[roomId]) {
             const textContent = document.createElement("div");
             textContent.className = "room-content scrollbar";
-            this.#cachedElements.cacheContainer.appendChild(textContent);
+            this.#elements.cacheContainer.appendChild(textContent);
             if (roomId !== this.#room.id) {
                 textContent.classList.add('hidden');
             }
             let obj = {};
-            obj[roomId] = {content: textContent, scrollTop: null, firstMessageId: null};
+            obj[roomId] = { content: textContent, scrollTop: null, firstMessageId: null };
             Object.assign(this.#cachedRooms, obj);
 
             textContent.addEventListener('scroll', () => {
@@ -142,7 +166,7 @@ export default class TextController {
         }
 
         if (event.key === 'Escape') {
-            this.#cachedElements.textInput.value = "";
+            this.#elements.textInput.value = "";
             this.mode = TextController.MODE_SEND;
         }
     }
@@ -170,7 +194,7 @@ export default class TextController {
         // Room not loaded in cache yet
         if (!this.#cachedRooms[roomId] || reload) {
             /** @type {PageResult<MessageRepresentation>} */
-            const result = await CoreServer.fetch(`/room/${roomId}/message`, 'GET');
+            const result = await this.#core.load(roomId);
 
             if (result !== null) {
                 const element = this.#getTextContentElement(roomId);
@@ -194,11 +218,11 @@ export default class TextController {
         const room = this.#cachedRooms[roomId];
 
         if (room.scrollTop == null) {
-            room.scrollTop = this.#cachedElements.cacheContainer.scrollHeight;
+            room.scrollTop = this.#elements.cacheContainer.scrollHeight;
         }
 
         room.content.classList.remove('hidden');
-        this.#cachedElements.cacheContainer.scrollTop = room.scrollTop;
+        this.#elements.cacheContainer.scrollTop = room.scrollTop;
 
         if (this.#isAtBottom(room.content)) {
             this.#markAsRead(this.#room.id);
@@ -207,10 +231,10 @@ export default class TextController {
 
     async #loadMore(element) {
         if (element && element.scrollTop === 0) {
-            let lastScrollHeight = this.#cachedElements.cacheContainer.scrollHeight;
+            let lastScrollHeight = this.#elements.cacheContainer.scrollHeight;
 
             /** @type {PageResult<MessageRepresentation>} */
-            const result = await CoreServer.fetch(`/room/${this.#room.id}/message?lastMessage=${element.firstMessageId}`, 'GET');
+            const result = await this.#core.loadMore(this.#room.id, element.firstMessageId);
             if (result !== null) {
                 const invertedSortedResult = [...result.content].sort((a, b) => {
                     return new Date(a.createdDate) + new Date(b.createdDate);
@@ -221,7 +245,7 @@ export default class TextController {
                     element.firstMessageId = message.id;
                 }
 
-                this.#cachedElements.cacheContainer.scrollTop = this.#cachedElements.cacheContainer.scrollHeight - lastScrollHeight;
+                this.#elements.cacheContainer.scrollTop = this.#elements.cacheContainer.scrollHeight - lastScrollHeight;
             }
         }
     }
@@ -237,14 +261,14 @@ export default class TextController {
         if (room) {
             switch (data.action) {
                 case "ADD":
-                    const isAtBottom = this.#isScrollAtBottom(this.#cachedElements.cacheContainer);
+                    const isAtBottom = this.#isScrollAtBottom(this.#elements.cacheContainer);
 
                     // Add message
                     room.content.appendChild(this.create(message));
 
                     // Scroll auto
-                    if (isAtBottom && this.#cachedElements.cacheContainer.scrollTop < this.#cachedElements.cacheContainer.scrollHeight) {
-                        this.#cachedElements.cacheContainer.scrollTop = this.#cachedElements.cacheContainer.scrollHeight;
+                    if (isAtBottom && this.#elements.cacheContainer.scrollTop < this.#elements.cacheContainer.scrollHeight) {
+                        this.#elements.cacheContainer.scrollTop = this.#elements.cacheContainer.scrollHeight;
                     }
                     break;
                 case "MODIFY":
@@ -275,15 +299,15 @@ export default class TextController {
     }
 
     #addAttachment() {
-        this.#cachedElements.textAttachment.click();
-        this.#cachedElements.textAttachmentDiv.classList.remove('hidden');
-        this.#cachedElements.textInput.focus()
+        this.#elements.textAttachment.click();
+        this.#elements.textAttachmentDiv.classList.remove('hidden');
+        this.#elements.textInput.focus()
     }
 
     #removeAttachment() {
-        this.#cachedElements.textAttachment.value = "";
-        this.#cachedElements.textAttachmentDiv.classList.add('hidden');
-        this.#cachedElements.textInput.focus()
+        this.#elements.textAttachment.value = "";
+        this.#elements.textAttachmentDiv.classList.add('hidden');
+        this.#elements.textInput.focus()
     }
 
     #pasteHandler(event) {
@@ -293,7 +317,7 @@ export default class TextController {
         const dataTransfer = new DataTransfer();
 
         // Keep existing files
-        for (const existingFile of this.#cachedElements.textAttachment.files) {
+        for (const existingFile of this.#elements.textAttachment.files) {
             dataTransfer.items.add(existingFile);
         }
 
@@ -317,19 +341,19 @@ export default class TextController {
             }
         }
 
-        this.#cachedElements.textAttachment.files = dataTransfer.files;
+        this.#elements.textAttachment.files = dataTransfer.files;
 
         // Prevent default paste if files were detected
         if (hasFile) {
-            this.#cachedElements.textAttachmentDiv.classList.remove('hidden');
+            this.#elements.textAttachmentDiv.classList.remove('hidden');
             event.preventDefault();
         }
     }
 
     async send() {
-        let textInput = sanitizeString(this.#cachedElements.textInput.value);
+        let textInput = sanitizeString(this.#elements.textInput.value);
 
-        if ((textInput == "" || textInput == null) && !this.#cachedElements.textAttachment) {
+        if ((textInput == "" || textInput == null) && !this.#elements.textAttachment) {
             return;
         }
 
@@ -341,10 +365,10 @@ export default class TextController {
 
         // Attachments
         const attachments = [];
-        if (this.#cachedElements.textAttachment && this.mode === TextController.MODE_SEND) {
-            for (const element of this.#cachedElements.textAttachment.files) {
+        if (this.#elements.textAttachment && this.mode === TextController.MODE_SEND) {
+            for (const element of this.#elements.textAttachment.files) {
                 if (element.size < this.#attachmentMaxSize) {
-                    data.medias.push({name: element.name});
+                    data.medias.push({ name: element.name });
                     attachments[element.name] = element;
                 } else {
                     await Modal.toggle({
@@ -368,8 +392,8 @@ export default class TextController {
             this.#removeRepliedMessage();
 
             // Clean text input
-            this.#cachedElements.textInput.value = "";
-            this.#cachedElements.textInput.style.height = "auto";
+            this.#elements.textInput.value = "";
+            this.#elements.textInput.style.height = "auto";
 
             // Default mode
             this.mode = TextController.MODE_SEND;
@@ -378,8 +402,8 @@ export default class TextController {
         }
 
         await Modal.toggleError(
-                i18n.translateOne("attachement.error.title"),
-                i18n.translateOne("attachement.error.body")
+            i18n.translateOne("attachement.error.title"),
+            i18n.translateOne("attachement.error.body")
         );
     }
 
@@ -391,11 +415,11 @@ export default class TextController {
         let result = null;
         switch (this.mode) {
             case TextController.MODE_SEND:
-                result = await CoreServer.fetch(`/room/${this.#room.id}/message`, 'PUT', data);
+                result = await this.#core.send(this.#room.id, data);
                 break;
 
             case TextController.MODE_EDIT:
-                result = await CoreServer.fetch(`/message/${this.#editId}`, 'PATCH', data);
+                result = await CoreServer.fetch(`/message/${editId}`, 'PATCH', data);
                 break;
 
             default:
@@ -426,8 +450,9 @@ export default class TextController {
 
     /**
      * @param {MessageRepresentation} messageData
+     * @param {boolean} urlPreview
      */
-    create(messageData) {
+    create(messageData, {urlPreview = true} = {}) {
         const CONTAINER = document.createElement('div');
         CONTAINER.className = `message-container-message`;
         if (messageData.answeredTo) {
@@ -436,7 +461,7 @@ export default class TextController {
         } else {
             CONTAINER.appendChild(this.#createHeader(messageData, true));
         }
-        CONTAINER.appendChild(this.#createContent(messageData));
+        CONTAINER.appendChild(this.#createContent(messageData, urlPreview));
         const MESSAGE = document.createElement('div');
         MESSAGE.id = `container-${messageData.id}`;
         MESSAGE.className = "message-container";
@@ -471,8 +496,8 @@ export default class TextController {
 
         // Truncate text if too long
         messagePreview.textContent = answeredTo.text.length > 50
-                ? answeredTo.text.substring(0, 50) + '...'
-                : answeredTo.text;
+            ? answeredTo.text.substring(0, 50) + '...'
+            : answeredTo.text;
 
         if (answeredTo.hasMedias) {
             const mediaIndicator = document.createElement('span');
@@ -489,7 +514,7 @@ export default class TextController {
         answerDiv.onclick = () => {
             const originalMessage = document.getElementById(`container-${answeredTo.id}`);
             if (originalMessage) {
-                originalMessage.scrollIntoView({behavior: 'smooth', block: 'center'});
+                originalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 originalMessage.style.backgroundColor = 'var(--highlight-color, rgba(59, 130, 246, 0.1))';
                 setTimeout(() => {
                     originalMessage.style.backgroundColor = '';
@@ -544,11 +569,14 @@ export default class TextController {
         MESSAGE.appendChild(picture);
     }
 
-    /** @param {MessageRepresentation} messageData */
-    #createContent(messageData) {
+    /**
+     * @param {MessageRepresentation} messageData
+     * @param {boolean} urlPreview
+     */
+    #createContent(messageData, urlPreview = true) {
         const CONTENT = document.createElement('revoice-message');
         CONTENT.id = messageData.id;
-        CONTENT.setAttribute("url-preview", messageData?.messageUrlPreview?.toString())
+        CONTENT.setAttribute("url-preview", urlPreview && messageData?.messageUrlPreview?.toString())
         CONTENT.innerHTML = `
             <script type="application/json" slot="medias">
                 ${JSON.stringify(messageData.medias)}
@@ -569,8 +597,8 @@ export default class TextController {
     /** @param {MessageRepresentation} repliedMessage */
     #reply(repliedMessage) {
         this.#repliedMessage = repliedMessage;
-        this.#cachedElements.textReplyMessage.dataset.messageId = repliedMessage.id;
-        this.#cachedElements.textInput.focus();
+        this.#elements.textReplyMessage.dataset.messageId = repliedMessage.id;
+        this.#elements.textInput.focus();
     }
 
     async #edit(id) {
@@ -579,10 +607,10 @@ export default class TextController {
         if (result) {
             this.mode = TextController.MODE_EDIT;
             this.#editId = id;
-            this.#cachedElements.textInput.value = result.text;
-            this.#cachedElements.textInput.style.height = "auto";
-            this.#cachedElements.textInput.style.height = this.#cachedElements.textInput.scrollHeight + "px";
-            this.#cachedElements.textInput.focus();
+            this.#elements.textInput.value = result.text;
+            this.#elements.textInput.style.height = "auto";
+            this.#elements.textInput.style.height = this.#elements.textInput.scrollHeight + "px";
+            this.#elements.textInput.focus();
         }
     }
 

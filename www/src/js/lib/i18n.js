@@ -17,11 +17,11 @@ class I18n {
     /**
      * Parse a .properties file into a JavaScript object
      * @param {string} content - Content of the .properties file
+     * @param {Object} result - Content of the .properties file
      * @returns {Object} Object with key/value pairs
      */
-    parseProperties(content) {
+    parseProperties(content, result = {}) {
         const lines = content.split('\n');
-        const result = {};
 
         for (const line of lines) {
             const trimmed = line.trim();
@@ -46,26 +46,47 @@ class I18n {
      */
     async loadTranslations(lang) {
         try {
-            const response = await fetch(`${this.translationDir}/i18n_${lang}.properties`);
-
-            if (!response.ok) {
-                throw new Error(`File i18n_${lang}.properties not found`);
+            const files = await this.#getTranslationFiles()
+            const values = {}
+            await this.#loadTranslationsValues("en", files, values)
+            if (lang !== "en") {
+                await this.#loadTranslationsValues(lang, files, values)
             }
-
-            const content = await response.text();
-            return this.parseProperties(content);
-        } catch (error) {
-            // If file doesn't exist and it's not English, fallback to English
-            if (lang !== 'en') {
-                console.warn(`Language ${lang} not found, falling back to English`);
-                const response = await fetch(`${this.translationDir}/i18n_en.properties`);
-                const content = await response.text();
-                return this.parseProperties(content);
-            }
-            throw error;
+            return values;
         } finally {
             this.translationsLoaded = true
         }
+    }
+
+    /**
+     * @param {String}   lang
+     * @param {String[]} files
+     * @param {Object}   properties
+     */
+    async #loadTranslationsValues(lang, files, properties) {
+        for (const file of files) {
+            const response = await fetch(`${this.translationDir}/${file}_${lang}.properties`);
+            if (response.ok) {
+                const content = await response.text();
+                this.parseProperties(content, properties)
+            } else if (lang === 'en') {
+                throw new Error(`File ${file}_${lang}.properties not found`);
+            } else {
+                console.warn(`Language ${lang} not found, falling back to English`);
+                const response = await fetch(`${this.translationDir}/${file}_en.properties`);
+                const content = await response.text();
+                return this.parseProperties(content, properties);
+            }
+        }
+    }
+
+    async #getTranslationFiles() {
+        const response = await fetch(`${this.translationDir}/localizations.txt`);
+        if (!response.ok) {
+            throw new Error(`File files.txt not found`);
+        }
+        const content = await response.text();
+        return content.split("\n").map(str => str.trim()).filter(str => str !== "");
     }
 
     /**
@@ -106,8 +127,8 @@ class I18n {
             try {
                 // Parse value (can be a single value or JSON array)
                 const values = valueAttr.startsWith('[')
-                    ? JSON.parse(valueAttr)
-                    : valueAttr;
+                        ? JSON.parse(valueAttr)
+                        : valueAttr;
 
                 element.textContent = this.formatString(translation, values);
             } catch (error) {
@@ -121,7 +142,7 @@ class I18n {
 
     /**
      * Setup observer for dynamic value changes
-     * @param {HTMLElement} element - Element to observe
+     * @param {HTMLElement|ShadowRoot} element - Element to observe
      */
     observeElement(element) {
         // If already observing, disconnect first
@@ -147,7 +168,7 @@ class I18n {
 
     /**
      * Translate all elements with the data-i18n attribute
-     * @param {Document|HTMLElement} doc
+     * @param {Document|HTMLElement|ShadowRoot} doc
      */
     translatePage(doc = document) {
         if (!this.translationsLoaded) {
@@ -194,7 +215,7 @@ class I18n {
     /**
      * Translate all elements with the data-i18n attribute
      * @param {string} selector
-     * @param {Document|HTMLElement} root
+     * @param {Document|HTMLElement|ShadowRoot} root
      */
     #querySelectorAllDeep(selector, root) {
         const results = [];
@@ -263,8 +284,8 @@ class I18n {
      */
     updateValue(elementOrId, value) {
         const element = typeof elementOrId === 'string'
-            ? document.getElementById(elementOrId)
-            : elementOrId;
+                ? document.getElementById(elementOrId)
+                : elementOrId;
 
         if (typeof elementOrId === 'string' && !element) {
             console.warn(`Element not found: ${elementOrId}`);
@@ -291,7 +312,7 @@ class I18n {
 // Export for usage
 const i18n = new I18n("src/i18n");
 
-export { I18n, i18n }
+export {I18n, i18n}
 
 // Usage examples:
 // i18n.translate('fr');
