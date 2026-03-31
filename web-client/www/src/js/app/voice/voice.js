@@ -13,7 +13,7 @@ export default class VoiceCall {
              enabled: true
         },
         gate: {
-            threshold: -60,
+            threshold: -40,
         },
         self: {
             muted: false,
@@ -33,7 +33,7 @@ export default class VoiceCall {
     static GATE_SETTINGS = {
         attack: 0.01,
         release: 0.4,
-        threshold: -60
+        threshold: -40
     }
 
     #codec = structuredClone(Codec.DEFAULT_VOICE_USER);
