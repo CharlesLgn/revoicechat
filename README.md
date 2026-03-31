@@ -13,26 +13,28 @@ You can use one host per service or one host for everything.
 
 Keep in mind that ```media-server``` can get quite big if you store a lot of files.
 
-# Install using docker
+# Install using docker (or [Install manually (Debian based)](INSTALL.md) )
 
 This repository can help you run all service.
 
 - Clone the project with all submodules : 
-```shell
+```sh
 git clone https://github.com/revoicechat/revoicechat.git
 ```
+- Change directory : 
+```sh
+cd revoicechat/
+```
 - Init the project : 
-```shell
+```sh
 ./scripts/init-project.sh
 ```
 - You can modify `server.core.properties` and `settings.media.ini` if you need to override some value
 - Deploy all the docker images
-```shell
-./scripts/deploy-update.sh
+```sh
+sudo ./scripts/deploy-update.sh
 ```
 NB : this script will automatically update the project
-
-# [Install manually (Debian)](INSTALL.md)
 
 # First time setup
 
