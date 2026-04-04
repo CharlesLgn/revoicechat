@@ -80,7 +80,6 @@ class MessageComponent extends HTMLElement {
         for (const element of slottedElements) {
             if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
                 this.medias = JSON.parse(element.textContent)
-                console.log(this.medias)
                 break;
             }
         }
