@@ -39,11 +39,6 @@ public class ServerSanctionControllerImpl implements ServerSanctionController {
   }
 
   @Override
-  public List<SanctionRepresentation> getSanctions(final UUID serverId, final SanctionFilterParams params) {
-    return Mapper.mapAll(sanctionEntityService.getAll(serverId, params));
-  }
-
-  @Override
   public SanctionRepresentation getSanction(final UUID serverId, final UUID id) {
     var sanction = sanctionEntityService.get(id);
     if (!Objects.equals(sanction.getServer(), serverId)) {

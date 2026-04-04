@@ -6,6 +6,9 @@ import jakarta.ws.rs.QueryParam;
 import fr.revoicechat.moderation.model.SanctionType;
 
 public class SanctionFilterParams {
+  @QueryParam("serverId")
+  private String serverId;
+
   @QueryParam("userId")
   private UUID userId;
 
@@ -14,6 +17,14 @@ public class SanctionFilterParams {
 
   @QueryParam("type")
   private SanctionType type;
+
+  public String getServerId() {
+    return serverId;
+  }
+
+  public void setServerId(final String serverId) {
+    this.serverId = serverId;
+  }
 
   public UUID getUserId() {
     return userId;

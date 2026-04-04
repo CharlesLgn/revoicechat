@@ -37,7 +37,7 @@ public class AppSanctionControllerImpl implements AppSanctionController {
   @Override
   @RolesAllowed(RevoiceChatRoles.ROLE_USER)
   public List<SanctionRepresentation> getSanctions(final SanctionFilterParams params) {
-    return Mapper.mapAll(sanctionEntityService.getAll(null, params));
+    return Mapper.mapAll(sanctionEntityService.getAll(params));
   }
 
   @Override

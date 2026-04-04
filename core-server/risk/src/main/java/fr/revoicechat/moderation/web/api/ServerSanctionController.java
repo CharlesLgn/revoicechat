@@ -25,12 +25,6 @@ import jakarta.ws.rs.PathParam;
 @Tag(name = "server")
 public interface ServerSanctionController {
 
-  @Operation(summary = "Get all server-level sanctions with potential filter")
-  @APIResponse(responseCode = "200", description = "Sanctions retrieved successfully")
-  @GET
-  List<SanctionRepresentation> getSanctions(@PathParam("serverId") UUID serverId,
-                                            @BeanParam SanctionFilterParams params);
-
   @Operation(summary = "Get a server-level sanction by ID")
   @APIResponse(responseCode = "200", description = "Sanction retrieved successfully")
   @GET

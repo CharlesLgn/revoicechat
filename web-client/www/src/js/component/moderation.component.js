@@ -91,7 +91,7 @@ class ModerationPanel extends HTMLElement {
         this.#render();
         try {
             const [sanctions, requests] = await Promise.all([
-                await CoreServer.fetch(`${this.#apiRoute}`),
+                await CoreServer.fetch(`/sanctions?serverId=${this.#serverId}`),
                 await CoreServer.fetch(`${this.#apiRoute}/revocation-requests`),
             ]);
             this.#sanctions = sanctions;
