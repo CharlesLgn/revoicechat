@@ -5,7 +5,6 @@ import static fr.revoicechat.core.risk.RoomRiskType.SERVER_ROOM_READ;
 import java.util.UUID;
 
 import fr.revoicechat.core.model.room.ServerRoom;
-import fr.revoicechat.moderation.model.SanctionType;
 import fr.revoicechat.risk.service.RiskService;
 import fr.revoicechat.risk.technicaldata.RiskEntity;
 import fr.revoicechat.security.UserHolder;

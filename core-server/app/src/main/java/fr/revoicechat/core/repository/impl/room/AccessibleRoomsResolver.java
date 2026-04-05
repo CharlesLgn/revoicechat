@@ -4,6 +4,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import fr.revoicechat.core.model.User;
+import fr.revoicechat.core.model.room.PrivateMessageRoom;
 import fr.revoicechat.core.model.room.ServerRoom;
 import fr.revoicechat.core.repository.RoomRepository;
 import fr.revoicechat.core.service.room.RoomAccessVerifier;
@@ -19,7 +21,7 @@ public class AccessibleRoomsResolver {
 
   public AccessibleRoomsResolver(EntityManager entityManager,
                                  RoomAccessVerifier roomAccessVerifier,
-                         RoomRepository roomRepository) {
+                                 RoomRepository roomRepository) {
     this.entityManager = entityManager;
     this.roomAccessVerifier = roomAccessVerifier;
     this.roomRepository = roomRepository;
@@ -32,8 +34,19 @@ public class AccessibleRoomsResolver {
   }
 
   public Set<UUID> resolveForSpecificRoom(final UUID currentUserId, final UUID roomId) {
-    var room = entityManager.find(ServerRoom.class, roomId);
-    return roomAccessVerifier.verify(currentUserId, room) ? Set.of(roomId) : Set.of();
+    var serverRoom = entityManager.find(ServerRoom.class, roomId);
+    if (serverRoom != null) {
+      return roomAccessVerifier.verify(currentUserId, serverRoom) ? Set.of(roomId) : Set.of();
+    }
+    var privateMessageRoom = entityManager.find(PrivateMessageRoom.class, roomId);
+    return verify(privateMessageRoom, currentUserId) ? Set.of(roomId) : Set.of();
+  }
+
+  private boolean verify(final PrivateMessageRoom privateMessageRoom, final UUID currentUserId) {
+    return privateMessageRoom != null && privateMessageRoom.getUsers()
+                                                           .stream()
+                                                           .map(User::getId)
+                                                           .anyMatch(currentUserId::equals);
   }
 
   public Set<UUID> resolve(UUID currentUserId) {
