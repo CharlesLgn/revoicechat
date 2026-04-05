@@ -5,6 +5,7 @@ import MediaServer from "../media/media.server.js";
 import CoreServer from "../core/core.server.js";
 import ReVoiceChat from "../revoicechat.js";
 import Modal from "../../component/modal.component.js";
+import {getVocalSanction} from "../utils/sanctions.utils.js";
 
 export default class VoiceController {
     /** @type {VoiceCall|null} */
@@ -495,8 +496,16 @@ export default class VoiceController {
     }
 
     updateJoinButton(roomId) {
-        if (!this.#activeRoom) {
+        const sanction = getVocalSanction(RVC.server.id, this.#user.sanctions)
+        if (sanction) {
+            document.getElementById("voice-join-action").classList.add("disabled");
+            document.getElementById("voice-join-action").onclick = () => {};
+            document.getElementById("ban-voice").classList.remove("hidden")
+
+        } else if (!this.#activeRoom) {
+            document.getElementById("voice-join-action").classList.remove("disabled");
             document.getElementById("voice-join-action").onclick = () => this.join(roomId);
+            document.getElementById("ban-voice").classList.add("hidden")
         }
     }
 
