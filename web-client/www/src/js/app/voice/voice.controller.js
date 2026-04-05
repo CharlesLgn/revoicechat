@@ -6,7 +6,6 @@ import CoreServer from "../core/core.server.js";
 import ReVoiceChat from "../revoicechat.js";
 import Modal from "../../component/modal.component.js";
 import {getVocalSanction} from "../utils/sanctions.utils.js";
-import {timestampToText} from "../../lib/tools.js";
 
 export default class VoiceController {
     /** @type {VoiceCall|null} */
@@ -498,7 +497,6 @@ export default class VoiceController {
 
     updateJoinButton(roomId) {
         const sanction = getVocalSanction(RVC.server.id, this.#user.sanctions)
-        console.log(sanction);
         if (sanction) {
             document.getElementById("voice-join-action").classList.add("disabled");
             document.getElementById("voice-join-action").onclick = () => {};
