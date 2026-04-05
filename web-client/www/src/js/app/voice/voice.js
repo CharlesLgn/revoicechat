@@ -44,7 +44,7 @@ export default class VoiceCall {
     #audioTimestamp = 0;
     #compressorNode;
     #buffer = [];
-    #bufferMaxLength = 960; // 48000Hz × 0.020 sec = 960 samples
+    #bufferMaxLength = 0;
     #gainNode;
     #gateNode;
     #user;
@@ -68,14 +68,6 @@ export default class VoiceCall {
         else {
             this.#settings = VoiceCall.DEFAULT_SETTINGS;
         }
-
-        // Determine sampleRate
-        const audioCtx = new AudioContext();
-        this.#codec.sampleRate = audioCtx.sampleRate;
-        audioCtx.close();
-
-        // Determine buffer length
-        this.#bufferMaxLength = Math.round(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000));
     }
 
     async open(voiceUrl, roomId, token, controller, anormalClosureHandler) {
@@ -283,8 +275,10 @@ export default class VoiceCall {
 
         this.#encoder.configure(this.#codec)
 
-        // Init AudioContext
+        // Init AudioContext, SampleRate and bufferMaxLenght
         this.#audioContext = new AudioContext({ sampleRate: this.#codec.sampleRate });
+        this.#codec.sampleRate = this.#audioContext.sampleRate;
+        this.#bufferMaxLength = Math.round(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000));
         await this.#audioContext.audioWorklet.addModule('src/js/app/utils/audio.processors.js');
 
         /**
