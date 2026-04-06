@@ -20,9 +20,8 @@ export default class PrivateRoomController extends RoomController {
     async load() {
         const rooms = await CoreServer.fetch(`/private-message`);
         if (rooms) {
-            console.log(rooms);
-
             const list = document.getElementById('private-messages-list');
+            list.innerHTML = "";
             for (const room of rooms) {
                 list.appendChild(this.#createRoomSelector(room))
             }
@@ -38,6 +37,7 @@ export default class PrivateRoomController extends RoomController {
 
     attachEvents() {
         document.getElementById('private-message-new').addEventListener('click', () => this.#newRoom());
+        document.getElementById('private-open').addEventListener('dblclick', () => this.load());
         this.textController.attachEvents();
     }
 
@@ -110,6 +110,8 @@ export default class PrivateRoomController extends RoomController {
                 data.users.push(user);
 
                 await CoreServer.fetch(`/private-message`, 'POST', data);
+                
+                await this.load();
             }
         });
     }
