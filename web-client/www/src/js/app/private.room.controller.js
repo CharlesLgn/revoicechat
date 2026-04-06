@@ -47,8 +47,36 @@ export default class PrivateRoomController extends RoomController {
         }
 
         const id = room.id;
-        const name = room.name || room.users[0].displayName;
-        const profilePicture = MediaServer.profiles(room.users[0].id);
+        let name = "";
+        let profilePicture = null;
+
+        console.log(room)
+
+        const usersNoSelf = [...room.users].filter((user) => {
+            return user.id != this.user.id;
+        })
+
+        if(usersNoSelf.length === 0){
+            name = this.user.displayName;
+            profilePicture = MediaServer.profiles(this.user.id);
+        } else if(usersNoSelf.length === 1){
+            name = room.name || usersNoSelf[0].displayName
+            profilePicture = MediaServer.profiles(usersNoSelf[0].id);
+        } else {
+            let names = "";
+            let i = 0;
+            for(const user of usersNoSelf){
+                if(i === 0){
+                    names += user.displayName;
+                }
+                else{
+                    names += `, ${user.displayName}`;
+                }
+                i++
+            }
+
+            name = room.name || names;
+        }
 
         const DIV = document.createElement('div');
         DIV.id = id;
@@ -62,7 +90,7 @@ export default class PrivateRoomController extends RoomController {
             </div>
         `;
 
-        DIV.addEventListener('click', () => { this.#selectRoom(id) })
+        DIV.addEventListener('click', () => { this.#selectRoom(id, name, profilePicture) })
 
         return DIV;
     }
@@ -116,7 +144,7 @@ export default class PrivateRoomController extends RoomController {
         });
     }
 
-    #selectRoom(id) {
+    #selectRoom(id, name, profilePicture) {
         const lastRoom = document.getElementById(this.id);
         if (this.id && lastRoom) {
             lastRoom.classList.remove("active");
@@ -126,6 +154,9 @@ export default class PrivateRoomController extends RoomController {
 
         document.getElementById(id).classList.add("active");
         document.getElementById('private-message-controls').classList.remove('hidden');
+        document.getElementById('private-room-name').innerText = name;
+        document.getElementById('private-room-icon').src = profilePicture;
+        document.getElementById('private-room-icon').classList.remove('hidden');
 
         /*const sanction = getTextSanction(this.#serverId, this.user.sanctions)
         if (sanction) {

@@ -35,7 +35,7 @@
                 <div class="header">
                     <revoice-icon-private-discussion></revoice-icon-private-discussion>
                     <h2 data-i18n="private.messages.title">Private messages</h2>
-                     <div class="pull-right">
+                    <div class="pull-right">
                         <button id="private-message-new"><revoice-icon-circle-plus></revoice-icon-circle-plus></button>
                     </div>
                 </div>
@@ -50,7 +50,9 @@
                 <div class="room-header">
                     <button class="mobile-btn" id="privateToggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
                     <div style="display: flex; column-gap: 0.5rem">
-                        <span id="private-room-icon"></span>
+                        <div class="relative">
+                            <img src="" id="private-room-icon" class="icon ring-2 hidden">
+                        </div>
                         <h3 class="room-name" id="private-room-name"></h3>
                     </div>
                     <button class="mobile-btn" id="privateToggleUsers"><revoice-icon-users></revoice-icon-users></button>
@@ -588,9 +590,9 @@
                     <div id="admin-setting-members-list" class="config-members-list"></div>
                 </div>
 
-              <!-- Moderation -->
-              <div class="hidden" id="admin-setting-content-moderation">
-              </div>
+                <!-- Moderation -->
+                <div class="hidden" id="admin-setting-content-moderation">
+                </div>
                 <!-- Invitations -->
                 <div class="hidden" id="admin-setting-content-invitations">
                     <h1 data-i18n="server.invitations">Invitations</h1>
