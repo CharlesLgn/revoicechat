@@ -1344,21 +1344,19 @@ textarea.config-item {
 
 .preview-container {
     display: none;
-    width: 6rem;
-    height: 6rem;
-    background-color: var(--qua-bg-color);
+    background-color: var(--ter-bg-color);
     border-radius: 0.25rem;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     flex-shrink: 0;
-    border: 2px solid var(--pri-bd-color);
+    column-gap: 1rem;
+    border: 2px solid var(--ter-bg-color);
 }
 
 .preview-container img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain;
 }
 
 .emotes-form-group {
@@ -1541,6 +1539,26 @@ summary::marker {
     background-color: var(--qua-bg-color);
     color: var(--pri-placeholder-color);
     text-wrap: nowrap;
+}
+
+.emoji-preview-size-container {
+    height: 6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.only-emoji .emoji {
+    width: 2rem;
+    height: 2rem;
+    padding-right: 0.3rem;
+}
+
+.stickers-emoji .emoji {
+    width: 5rem;
+    height: 5rem;
+    padding-right: 0.3rem;
 }
 
 .emoji {
