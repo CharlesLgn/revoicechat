@@ -47,7 +47,7 @@ function rvc_download_file(string $where, string $name)
 
     if(in_array($mime_type, FORMAT_ALLOW_PREVIEW)){
         header("Content-Disposition: inline");
-        header("Content-Type: $type");
+        header("Content-Type: $mime_type");
     }
     else{
         header('Content-Disposition: attachment; filename="' . $core_info['name'] . '"');
