@@ -68,6 +68,10 @@ export default class MediaServer {
         return `${MediaServer.#instance.url}/attachments/thumbnail/${id}?t=${t}`
     }
 
+    static async preview(id) {
+        return await MediaServer.fetch(`/attachments/preview/${id}`)
+    }
+
     /**
      * @param {string} path
      * @param {HTTPMethod} method
@@ -103,8 +107,11 @@ export default class MediaServer {
                     return await response.json();
                 }
             }
-
-            return response.ok;
+            if (response.ok) {
+                return await response.text();
+            } else {
+                return false;
+            }
         }
         catch (error) {
             console.error(`fetchMedia: An error occurred while processing request \n${error}\nHost: ${(MediaServer.#instance.url)}\nPath: ${path}\nMethod: ${method}`);

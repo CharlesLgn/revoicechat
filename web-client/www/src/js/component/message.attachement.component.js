@@ -16,27 +16,27 @@ class AttachementMessageComponent extends HTMLElement {
         const type = this.getAttribute("type")
         let typeComponentRetriever = this.#TYPES[type]
         if (!typeComponentRetriever) {
-          typeComponentRetriever = this.#TYPES["OTHER"]
+            typeComponentRetriever = this.#TYPES["OTHER"]
         }
         this.appendChild(typeComponentRetriever(id, name))
     }
 
 
     #TYPES = {
-        "PICTURE"    : (id, name) => this.#picture(id, name),
-        "VIDEO"      : (id, name) => this.#video(id, name),
-        "AUDIO"      : (id, name) => this.#audio(id, name),
-        "SVG"        : (id, name) => this.#link(id, name, this.#SVG_ICON),
-        "PDF"        : (id, name) => this.#link(id, name, this.#PDF_ICON),
-        "TEXT"       : (id, name) => this.#link(id, name, this.#TEXT_ICON),
-        "OFFICE"     : (id, name) => this.#link(id, name, this.#OFFICE_ICON),
-        "ARCHIVE"    : (id, name) => this.#link(id, name, this.#ARCHIVE_ICON),
-        "CODE"       : (id, name) => this.#link(id, name, this.#CODE_ICON),
-        "FONT"       : (id, name) => this.#link(id, name, this.#FONT_ICON),
-        "MODEL"      : (id, name) => this.#link(id, name, this.#MODEL_ICON),
-        "EXECUTABLE" : (id, name) => this.#link(id, name, this.#EXECUTABLE_ICON),
-        "DATA"       : (id, name) => this.#link(id, name, this.#DATA_ICON),
-        "OTHER"      : (id, name) => this.#link(id, name, this.#OTHER_ICON),
+        "PICTURE": (id, name) => this.#picture(id, name),
+        "VIDEO": (id, name) => this.#video(id, name),
+        "AUDIO": (id, name) => this.#audio(id, name),
+        "SVG": (id, name) => this.#text(id, name, this.#SVG_ICON),
+        "PDF": (id, name) => this.#link(id, name, this.#PDF_ICON),
+        "TEXT": (id, name) => this.#text(id, name, this.#TEXT_ICON),
+        "OFFICE": (id, name) => this.#link(id, name, this.#OFFICE_ICON),
+        "ARCHIVE": (id, name) => this.#link(id, name, this.#ARCHIVE_ICON),
+        "CODE": (id, name) => this.#text(id, name, this.#CODE_ICON),
+        "FONT": (id, name) => this.#link(id, name, this.#FONT_ICON),
+        "MODEL": (id, name) => this.#link(id, name, this.#MODEL_ICON),
+        "EXECUTABLE": (id, name) => this.#link(id, name, this.#EXECUTABLE_ICON),
+        "DATA": (id, name) => this.#link(id, name, this.#DATA_ICON),
+        "OTHER": (id, name) => this.#link(id, name, this.#OTHER_ICON),
     }
 
     #picture(id, name) {
@@ -71,6 +71,82 @@ class AttachementMessageComponent extends HTMLElement {
         audio.controls = true
         audio.appendChild(source);
         return audio
+    }
+
+    #text(id, name, svgType) {
+        const header = this.#textHeader(id, name, svgType)
+        const content = this.#textContent(id)
+        const data = document.createElement('div');
+        data.appendChild(header);
+        data.appendChild(content);
+        data.style.overflowY = 'hidden';
+        return data;
+    }
+
+    #textHeader(id, name, svgType) {
+        const header = document.createElement('div');
+        header.classList.add('media', 'file-type-link')
+        header.style.width = 'auto';
+        header.style.borderRadius = '10px 10px 0 0';
+        header.style.display= 'flex';
+        header.style.justifyContent = 'space-between';
+        const div = document.createElement('div');
+        div.style.display= 'flex';
+        div.style.columnGap = '1rem'
+        div.innerHTML = svgType
+        const subDiv = document.createElement('div');
+        subDiv.innerText = name;
+        div.appendChild(subDiv);
+        header.appendChild(div);
+        const download = document.createElement('button');
+        download.innerHTML = '<revoice-icon-download></revoice-icon-download>';
+        download.style.border = 'none';
+        download.style.backgroundColor = 'transparent';
+        download.style.fill = 'var(--pri-text-color)';
+        download.style.cursor = 'pointer';
+
+        download.onclick = () => {
+            const src = MediaServer.attachments(id)
+            if (globalThis.isTauri) {
+                __TAURI__.opener.openUrl(src);
+            } else {
+                const a = document.createElement('a')
+                a.href = src
+                a.click()
+            }
+        }
+        header.appendChild(div);
+        header.appendChild(download);
+        return header
+    }
+
+    #textContent(id) {
+        const data = document.createElement('div');
+        data.style.backgroundColor = 'var(--ter-bg-color)';
+        data.style.padding = '1rem';
+        data.style.maxHeight = '3rem';
+        data.style.boxShadow = 'inset var(--pri-bg-color) 0px -20px 24px 8px';
+        data.style.cursor = 'pointer';
+        const code = document.createElement('code');
+        code.style.backgroundColor = 'transparent';
+        code.innerText = '...';
+        data.appendChild(code);
+
+        MediaServer.preview(id).then(text => {
+            code.innerText = text;
+        })
+        let minimized = true
+        data.onclick = () => {
+            minimized = !minimized;
+            if (minimized) {
+                data.style.maxHeight = '3rem';
+                data.style.boxShadow = 'inset 0px -16px 24px 2px rgba(0, 0, 0, 0.30)';
+            } else {
+                data.style.maxHeight = '';
+                data.style.boxShadow = '';
+            }
+        }
+        return data;
     }
 
     #link(id, name, svgType) {

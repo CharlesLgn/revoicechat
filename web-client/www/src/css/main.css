@@ -147,10 +147,6 @@ progress {
     font: inherit
 }
 
-summary {
-    display: list-item
-}
-
 blockquote,
 dd,
 dl,
@@ -1486,6 +1482,7 @@ input[type=file]::file-selector-button {
 }
 
 summary {
+    display: list-item;
     color: var(--pri-placeholder-color);
 }
 

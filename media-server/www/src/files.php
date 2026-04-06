@@ -29,6 +29,30 @@ function rvc_read_file(string $where, string $name)
     exit;
 }
 
+function rvc_preview_file(string $where, string $name)
+{
+    $file = __DIR__ . "/../data/$where/$name";
+
+    if (!file_exists($file)) {
+        http_response_code(404);
+        exit;
+    }
+
+    $type = mime_content_type($file);
+
+    if (strpos($type, 'text/') !== 0) {
+        http_response_code(403);
+        exit;
+    }
+
+    header("Content-Disposition: inline");
+    header("Content-Type: $type");
+
+    echo file_get_contents($file, false, null, 0, 1000);
+
+    exit;
+}
+
 function rvc_download_file(string $where, string $name)
 {
     require_once "tools.php";

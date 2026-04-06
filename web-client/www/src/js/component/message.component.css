@@ -125,6 +125,7 @@
 a.media {
     cursor: pointer;
     pointer-events: initial;
+    width: 80%;
 }
 
 img.media {

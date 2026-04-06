@@ -33,6 +33,10 @@ switch ($_SERVER["REQUEST_METHOD"]) {
                 rvc_read_file('attachments/thumbnail', $_GET['attachment']);
                 break;
             }
+            if (isset($_GET['preview'])) {
+                rvc_preview_file('attachments', $_GET['attachment']);
+                break;
+            }
 
             rvc_download_file('attachments', $_GET['attachment']);
             break;
