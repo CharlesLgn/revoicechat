@@ -97,3 +97,13 @@
     padding-left: 0.75rem;
     width: 100%;
 }
+
+@media (max-width: 768px) {
+    .custom-dialog {
+        width: -webkit-fill-available;
+    }
+    .dialog-content {
+        width: -webkit-fill-available!important;
+        padding: 1rem;
+    }
+}

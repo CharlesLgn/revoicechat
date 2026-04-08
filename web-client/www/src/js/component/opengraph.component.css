@@ -131,3 +131,9 @@
     border-radius: 1px;
     margin-right: 4px;
 }
+
+@media (max-width: 768px) {
+    .card {
+        max-width: 18rem;
+    }
+}

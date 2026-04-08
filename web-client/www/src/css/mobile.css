@@ -17,7 +17,7 @@
         min-width: 4rem;
     }
 
-    .sidebar.server.show {
+    .sidebar.togglable.show {
         left: 4rem;
     }
 
@@ -107,6 +107,29 @@
         resize: vertical;
         max-height: 8rem;
     }
+
+    .config-container-left {
+        position: absolute;
+        width: 17rem;
+        height: 100%;
+        left: -17rem;
+        transition: left 0.3s;
+    }
+
+    .config-container-left.show {
+        left: 0;
+    }
+
+    .config-container-right {
+        width: 100%;
+        padding: 0.5rem 0.5rem;
+    }
+
+    .sidebar.private-messages, .sidebar.server {
+        width: 15rem;
+    }
+
+    .name {width: auto}
 }
 
 @media (min-width: 769px) {

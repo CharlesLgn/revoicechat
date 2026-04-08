@@ -32,8 +32,9 @@
 
         <!-- Private Container -->
         <div class="private hidden" id="route-private">
+            <div class="overlay"></div>
             <!-- Sidebar Private messages-->
-            <div class="sidebar private-messages" id="private-messages">
+            <div class="sidebar togglable private-messages" id="private-messages">
                 <div class="header">
                     <revoice-icon-private-discussion></revoice-icon-private-discussion>
                     <h2 data-i18n="private.messages.title">Private messages</h2>
@@ -50,7 +51,7 @@
             <div class="room">
                 <!-- Room Header -->
                 <div class="room-header">
-                    <button class="mobile-btn" id="privateToggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
+                    <button class="mobile-btn toggleSidebar" id="privateToggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
                     <div style="display: flex; column-gap: 0.5rem">
                         <div class="relative">
                             <img src="" id="private-room-icon" class="icon hidden">
@@ -88,7 +89,7 @@
         <div class="public hidden" id="route-public">
             <div class="overlay" id="overlay"></div>
             <!-- Sidebar server -->
-            <div class="sidebar server">
+            <div class="sidebar togglable server">
                 <!-- Server info -->
                 <div class="header">
                     <img id="server-picture" src="src/img/favicon.png" alt="Server profile" />
@@ -151,7 +152,7 @@
 
                 <!-- Room Header -->
                 <div class="room-header">
-                    <button class="mobile-btn" id="toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
+                    <button class="mobile-btn toggleSidebar" id="toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
                     <div style="display: flex; column-gap: 0.5rem">
                         <span id="room-icon"></span>
                         <h3 class="room-name" id="room-name">_</h3>
@@ -209,6 +210,7 @@
 
     <!-- Server Settings Containter -->
     <div class="main config hidden" id="route-server-settings">
+        <div class="overlay"></div>
         <div class="config-container-left">
             <h2 data-i18n="server.settings">Server settings</h2>
             <div class="config-left">
@@ -266,6 +268,7 @@
         </div>
 
         <div class="config-container-right">
+            <button class="mobile-btn toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
             <div class="config-right">
                 <!-- Overview -->
                 <div class="hidden" id="server-setting-content-overview">
@@ -347,6 +350,7 @@
 
     <!-- User Settings Container -->
     <div class="main config hidden" id="route-user-settings">
+        <div class="overlay"></div>
         <div class="config-container-left">
             <h2 data-i18n="user.settings">User settings</h2>
             <div class="config-left">
@@ -395,6 +399,7 @@
         </div>
 
         <div class="config-container-right">
+            <button class="mobile-btn toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
             <div class="config-right">
                 <!-- Overview -->
                 <div class="hidden" id="user-setting-content-overview">
@@ -518,6 +523,7 @@
 
     <!-- Admin Settings Containter -->
     <div class="main config hidden" id="route-admin-setting">
+        <div class="overlay"></div>
         <div class="config-container-left">
             <h2 data-i18n="admin.title">Admin Dashboard</h2>
             <div class="config-left">
@@ -563,6 +569,7 @@
         </div>
 
         <div class="config-container-right">
+            <button class="mobile-btn toggleSidebar"><revoice-icon-menu-burger></revoice-icon-menu-burger></button>
             <div class="config-right">
                 <!-- Overview -->
                 <div class="hidden" id="admin-setting-content-overview">
