@@ -67,7 +67,6 @@ function rvc_download_file(string $where, string $name)
 
     $url = $settings['api']['media_url'] . "/$name";
     $core_info = curl_core_no_auth($url);
-    $mime_type = mime_content_type($file);
 
     header('Content-Disposition: attachment; filename="' . $core_info['name'] . '"');
     readfile($file);
