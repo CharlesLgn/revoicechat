@@ -69,14 +69,7 @@ function rvc_download_file(string $where, string $name)
     $core_info = curl_core_no_auth($url);
     $mime_type = mime_content_type($file);
 
-    if(in_array($mime_type, FORMAT_ALLOW_PREVIEW)){
-        header("Content-Disposition: inline");
-        header("Content-Type: $mime_type");
-    }
-    else{
-        header('Content-Disposition: attachment; filename="' . $core_info['name'] . '"');
-    }
-
+    header('Content-Disposition: attachment; filename="' . $core_info['name'] . '"');
     readfile($file);
     exit;
 }

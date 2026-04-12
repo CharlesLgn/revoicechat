@@ -68,6 +68,15 @@ export default class MediaServer {
         return `${MediaServer.#instance.url}/attachments/thumbnail/${id}?t=${t}`
     }
 
+        /**
+     * @param {string} id
+     * @param {string} t
+     * @return {string}
+     */
+    static attachmentsDownload(id, t = '') {
+        return `${MediaServer.#instance.url}/attachments/download/${id}?t=${t}`
+    }
+
     static async preview(id) {
         return await MediaServer.fetch(`/attachments/preview/${id}`)
     }

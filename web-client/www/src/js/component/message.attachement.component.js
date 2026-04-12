@@ -91,23 +91,25 @@ class AttachementMessageComponent extends HTMLElement {
         header.style.borderRadius = '10px 10px 0 0';
         header.style.display= 'flex';
         header.style.justifyContent = 'space-between';
+
         const div = document.createElement('div');
         div.style.display= 'flex';
         div.style.columnGap = '1rem'
         div.innerHTML = svgType
+
         const subDiv = document.createElement('div');
         subDiv.innerText = name;
         div.appendChild(subDiv);
         header.appendChild(div);
+
         const download = document.createElement('button');
         download.innerHTML = '<revoice-icon-download></revoice-icon-download>';
         download.style.border = 'none';
         download.style.backgroundColor = 'transparent';
         download.style.fill = 'var(--pri-text-color)';
         download.style.cursor = 'pointer';
-
         download.onclick = () => {
-            const src = MediaServer.attachments(id)
+            const src = MediaServer.attachmentsDownload(id)
             if (globalThis.isTauri) {
                 __TAURI__.opener.openUrl(src);
             } else {
@@ -116,6 +118,7 @@ class AttachementMessageComponent extends HTMLElement {
                 a.click()
             }
         }
+
         header.appendChild(div);
         header.appendChild(download);
         return header
