@@ -175,19 +175,19 @@ async function login(loginData, host) {
             body: JSON.stringify(loginData),
         });
 
-        if (!response.ok) {
+        if (response.ok) {
+            // Local storage
+            localStorage.setItem("lastHost", host);
+            localStorage.setItem("lastUsername", loginData.username);
+            const jwtToken = await response.text();
+            setCookie('jwtToken', jwtToken, 1);
+            spinner.success()
+            document.location.href = `app.html`;
+        } else {
             spinner.error()
-            throw new Error("Not OK");
+            const message = await response.text();
+            await Modal.toggleError(i18n.translateOne("login.error.host"), message);
         }
-
-        // Local storage
-        localStorage.setItem("lastHost", host);
-        localStorage.setItem("lastUsername", loginData.username);
-
-        const jwtToken = await response.text();
-        setCookie('jwtToken', jwtToken, 1);
-        spinner.success()
-        document.location.href = `app.html`;
     }
     catch (error) {
         console.error(error.name);
