@@ -74,7 +74,7 @@ cp revoicechat.service.example revoicechat.service
 ```
 - Link the service file
 ```sh
-sudo systemctl link /srv/revoicechat/core-server/revoicechat.service
+sudo ln -s /srv/revoicechat/core-server/revoicechat.service /etc/systemd/system/revoicechat.service
 ```
 - Reload daemon
 ```sh
