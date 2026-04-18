@@ -1,10 +1,5 @@
 #!/bin/bash
 
-to_crlf() {
-  sed -i 's/\r$//' "$1"   # normalize first (remove any existing CR)
-  sed -i 's/$/\r/' "$1"   # then add CR to every line
-}
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -46,7 +41,6 @@ find "$src" -name "*_en.properties" | sort | while read en_file; do
 
   # Regenerate en.properties
   cp "$en_file" "${out_dir}/en.properties"
-  to_crlf "${out_dir}/en.properties"
   # shellcheck disable=SC2059
   printf "✅ ${GREEN}${out_dir}/en.properties${NC} regenerated\n"
 
@@ -69,7 +63,6 @@ find "$src" -name "*_en.properties" | sort | while read en_file; do
     else
       # Create with empty values
       sed 's/=.*/=/' "$en_file" > "$target"
-      to_crlf "$target"
       # shellcheck disable=SC2059
       printf "🆕 ${GREEN}${target}${NC} created\n"
     fi

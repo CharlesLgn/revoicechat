@@ -11,8 +11,8 @@ Thank you for helping translate ReVoiceChat! This is where all translations live
 | Language | admin-dashboard | error | frontend | login | risks | server-settings | user-settings |
 |---|---|---|---|---|---|---|---|
 | `en` | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% | ✅ 100% |
-| `fr` | 🟡 66% | 🟡 87% | 🟡 50% | 🟡 60% | 🟡 81% | 🟡 87% | 🟡 83% |
-| `it` | ❌ 0% | ❌ 0% | ❌ 46% | 🟡 50% | ❌ 0% | 🟡 86% | 🟡 62% |
+| `fr` | 🟡 66% | 🟡 87% | 🟡 63% | 🟡 60% | 🟡 81% | 🟡 95% | 🟡 94% |
+| `it` | ❌ 0% | ❌ 0% | 🟡 58% | 🟡 50% | ❌ 0% | 🟡 93% | 🟡 66% |
 
 <!-- PROGRESS_END -->
 
