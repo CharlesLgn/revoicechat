@@ -9,7 +9,7 @@ import org.eclipse.microprofile.openapi.models.media.Schema;
 
 import io.quarkus.smallrye.openapi.OpenApiFilter;
 
-@OpenApiFilter(OpenApiFilter.RunStage.BUILD)
+@OpenApiFilter(stages = OpenApiFilter.RunStage.BUILD)
 public class RevoiceChatOASFilter implements OASFilter {
 
   public final List<SchemaFilterer> schemaFilterers;

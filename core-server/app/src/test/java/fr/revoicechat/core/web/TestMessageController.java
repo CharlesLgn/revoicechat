@@ -10,20 +10,19 @@ import fr.revoicechat.core.junit.CleanDatabase;
 import fr.revoicechat.core.model.FileType;
 import fr.revoicechat.core.model.MediaData;
 import fr.revoicechat.core.model.MediaDataStatus;
-import fr.revoicechat.core.model.room.RoomType;
 import fr.revoicechat.core.model.ServerType;
+import fr.revoicechat.core.model.room.RoomType;
 import fr.revoicechat.core.quarkus.profile.BasicIntegrationTestProfile;
 import fr.revoicechat.core.repository.page.PageResult;
+import fr.revoicechat.core.representation.MessageRepresentation;
 import fr.revoicechat.core.representation.RoomRepresentation;
+import fr.revoicechat.core.representation.ServerRepresentation;
+import fr.revoicechat.core.representation.ServerRoomRepresentation;
 import fr.revoicechat.core.technicaldata.media.NewMediaData;
 import fr.revoicechat.core.technicaldata.message.NewMessage;
-import fr.revoicechat.core.representation.MessageRepresentation;
 import fr.revoicechat.core.technicaldata.room.NewRoom;
-import fr.revoicechat.core.representation.ServerRoomRepresentation;
 import fr.revoicechat.core.technicaldata.server.NewServer;
-import fr.revoicechat.core.representation.ServerRepresentation;
 import fr.revoicechat.core.web.tests.RestTestUtils;
-import fr.revoicechat.opengraph.OpenGraphSchema;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.RestAssured;
@@ -144,13 +143,27 @@ class TestMessageController {
     assertThat(message.reactions()).hasSize(1);
     assertThat(message.reactions().getFirst().emoji()).isEqualTo("👽");
     assertThat(message.reactions().getFirst().users()).hasSize(2);
+  }
 
+  @Test
+  void testWithReactionsAddedAndRemoved() {
+    var token = RestTestUtils.logNewUser();
+    RestTestUtils.signup("user2", "psw");
+    var tokenUser2 = RestTestUtils.login("user2", "psw");
+    var server = createServer(token);
+    join(tokenUser2, server);
+    RestTestUtils.addAllRiskToAllUser(token);
+    var room = createRoom(token, server);
+    var message = createMessage(token, room);
+    addReaction(token, message, "👽");
+    addReaction(token, message, "😀");
+    addReaction(token, message, "😀");
+    addReaction(tokenUser2, message, "👽");
     addReaction(token, message, "👽");
     message = getPage(token, room).content().getFirst();
     assertThat(message.reactions()).hasSize(1);
     assertThat(message.reactions().getFirst().emoji()).isEqualTo("👽");
     assertThat(message.reactions().getFirst().users()).hasSize(1);
-
     addReaction(tokenUser2, message, "👽");
     message = getPage(token, room).content().getFirst();
     assertThat(message.reactions()).isEmpty();

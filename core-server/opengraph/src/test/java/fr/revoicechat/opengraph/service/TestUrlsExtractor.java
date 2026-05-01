@@ -17,6 +17,7 @@ class TestUrlsExtractor {
   public static Stream<Arguments> sources() {
     return Stream.of(
         Arguments.of("https://google.com", List.of("https://google.com")),
+        Arguments.of("https://g-o_o~g:le.com?#", List.of("https://g-o_o~g:le.com?#")),
         Arguments.of("https://google.com https://revoicechat.fr", List.of("https://google.com", "https://revoicechat.fr")),
         Arguments.of("this is a text with no url", List.of()),
         Arguments.of("""

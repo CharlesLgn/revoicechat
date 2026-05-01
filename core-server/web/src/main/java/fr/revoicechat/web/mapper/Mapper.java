@@ -7,6 +7,8 @@ import fr.revoicechat.web.service.MapperService;
 import jakarta.enterprise.inject.spi.CDI;
 
 public class Mapper {
+  private Mapper() {/**/}
+
   private static final ThreadLocal<MapperService> holder = new ThreadLocal<>();
 
   public static <T, U> List<U> mapAll(Collection<T> source) {
