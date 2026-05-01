@@ -8,7 +8,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import fr.revoicechat.core.representation.NewUserRepresentation;
-import fr.revoicechat.core.representation.UserRepresentation;
 import fr.revoicechat.core.technicaldata.login.UserPassword;
 import fr.revoicechat.core.technicaldata.login.UserRecoveryCode;
 import fr.revoicechat.core.technicaldata.user.NewPassword;

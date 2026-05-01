@@ -7,7 +7,6 @@ import jakarta.annotation.security.RolesAllowed;
 
 import fr.revoicechat.moderation.model.Sanction;
 import fr.revoicechat.moderation.representation.NewSanction;
-import fr.revoicechat.moderation.representation.SanctionFilterParams;
 import fr.revoicechat.moderation.representation.SanctionRepresentation;
 import fr.revoicechat.moderation.representation.SanctionRevocationRequestRepresentation;
 import fr.revoicechat.moderation.service.SanctionCreator;

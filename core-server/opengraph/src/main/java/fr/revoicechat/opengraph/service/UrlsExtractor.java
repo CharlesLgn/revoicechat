@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 final class UrlsExtractor {
 
-  private static final Pattern URL_PATTERN = Pattern.compile("(https?://[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=%]+)");
+  private static final Pattern URL_PATTERN = Pattern.compile("(https?://[\\w\\-.~:/?#\\[\\]@!$&'()*+,;=%]+)");
 
   private UrlsExtractor() {}
 
