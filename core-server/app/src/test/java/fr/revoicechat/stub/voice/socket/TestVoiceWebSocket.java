@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import fr.revoicechat.core.junit.CleanDatabase;
 import fr.revoicechat.core.model.room.RoomType;
 import fr.revoicechat.core.model.User;
-import fr.revoicechat.core.model.UserType;
+import fr.revoicechat.security.model.UserType;
 import fr.revoicechat.core.quarkus.profile.BasicIntegrationTestProfile;
 import fr.revoicechat.core.technicaldata.room.NewRoom;
 import fr.revoicechat.core.representation.ServerRoomRepresentation;

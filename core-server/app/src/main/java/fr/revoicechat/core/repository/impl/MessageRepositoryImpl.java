@@ -8,8 +8,8 @@ import fr.revoicechat.core.model.room.ServerRoom;
 import fr.revoicechat.core.repository.MessageRepository;
 import fr.revoicechat.core.repository.impl.message.MessageSearcher;
 import fr.revoicechat.core.repository.page.PageResult;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.technicaldata.message.MessageFilterParams;
-import fr.revoicechat.security.UserHolder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 
@@ -17,18 +17,18 @@ import jakarta.persistence.EntityManager;
 public class MessageRepositoryImpl implements MessageRepository {
 
   private final EntityManager entityManager;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final MessageSearcher messageSearcher;
 
-  public MessageRepositoryImpl(EntityManager entityManager, UserHolder userHolder, MessageSearcher messageSearcher) {
+  public MessageRepositoryImpl(EntityManager entityManager, UserRetriever userRetriever, MessageSearcher messageSearcher) {
     this.entityManager = entityManager;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.messageSearcher = messageSearcher;
   }
 
   @Override
   public PageResult<Message> search(MessageFilterParams params) {
-    return messageSearcher.search(userHolder.getId(), params);
+    return messageSearcher.search(userRetriever.currentUserId(), params);
   }
 
   @Override

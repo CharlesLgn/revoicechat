@@ -19,7 +19,7 @@ import fr.revoicechat.core.model.InvitationLink;
 import fr.revoicechat.core.model.InvitationLinkStatus;
 import fr.revoicechat.core.model.InvitationType;
 import fr.revoicechat.core.model.User;
-import fr.revoicechat.core.model.UserType;
+import fr.revoicechat.security.model.UserType;
 import fr.revoicechat.core.quarkus.profile.BasicIntegrationTestProfile;
 import fr.revoicechat.core.service.user.UserService;
 import fr.revoicechat.core.technicaldata.user.NewUserSignup;

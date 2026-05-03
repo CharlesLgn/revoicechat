@@ -16,12 +16,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.revoicechat.notification.Notification;
+import fr.revoicechat.notification.model.ActiveStatus;
 import fr.revoicechat.notification.model.NotificationRegistrable;
+import fr.revoicechat.notification.model.NotificationRegistrableUser;
 import fr.revoicechat.notification.service.NotificationService;
 import fr.revoicechat.security.model.AuthenticatedUser;
 import fr.revoicechat.security.service.SecurityTokenService;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestFilter;
@@ -35,9 +40,11 @@ class TestNotificationController {
 
   @Inject NotificationService service;
   @Inject SecurityTokenService securityTokenService;
+  @Inject MockUserCreator mockUserCreator;
 
   @Test
   void test() throws Exception {
+    mockUserCreator.createUser();
     var token = securityTokenService.generate(new AuthenticatedUserMock());
     List<String> events = new ArrayList<>();
     try (Client client = ClientBuilder.newBuilder()
@@ -71,6 +78,19 @@ class TestNotificationController {
       return source;
     }
     return null;
+  }
+
+  @ApplicationScoped
+  static class MockUserCreator {
+    @Inject EntityManager entityManager;
+
+    @Transactional
+    public void createUser() {
+      NotificationRegistrableUser user = new NotificationRegistrableUser();
+      user.setId(UUID.fromString(ID_USER));
+      user.setStatus(ActiveStatus.ONLINE);
+      entityManager.persist(user);
+    }
   }
 
   private static class AuthenticatedUserMock implements AuthenticatedUser {

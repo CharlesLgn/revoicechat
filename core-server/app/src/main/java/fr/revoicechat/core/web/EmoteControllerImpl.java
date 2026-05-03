@@ -11,24 +11,24 @@ import fr.revoicechat.core.representation.EmoteRepresentation;
 import fr.revoicechat.core.service.emote.EmoteRetrieverService;
 import fr.revoicechat.core.service.emote.EmoteUpdaterService;
 import fr.revoicechat.core.service.server.ServerEntityService;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.technicaldata.emote.NewEmote;
 import fr.revoicechat.core.web.api.EmoteController;
 import fr.revoicechat.risk.RisksMembershipData;
 import fr.revoicechat.risk.retriever.ServerIdRetriever;
-import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.web.mapper.Mapper;
 import jakarta.annotation.security.RolesAllowed;
 
 public class EmoteControllerImpl implements EmoteController {
 
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final ServerEntityService serverService;
   private final EmoteUpdaterService emoteUpdaterService;
   private final EmoteRetrieverService emoteRetrieverService;
   private final EmoteMediaNotifier emoteMediaNotifier;
 
-  public EmoteControllerImpl(UserHolder userHolder, ServerEntityService serverService, EmoteUpdaterService emoteUpdaterService, EmoteRetrieverService emoteRetrieverService, final EmoteMediaNotifier emoteMediaNotifier) {
-    this.userHolder = userHolder;
+  public EmoteControllerImpl(UserRetriever userRetriever, ServerEntityService serverService, EmoteUpdaterService emoteUpdaterService, EmoteRetrieverService emoteRetrieverService, final EmoteMediaNotifier emoteMediaNotifier) {
+    this.userRetriever = userRetriever;
     this.serverService = serverService;
     this.emoteUpdaterService = emoteUpdaterService;
     this.emoteRetrieverService = emoteRetrieverService;
@@ -38,15 +38,13 @@ public class EmoteControllerImpl implements EmoteController {
   @Override
   @RolesAllowed(ROLE_USER)
   public List<EmoteRepresentation> getMyEmotes() {
-    var id = userHolder.getId();
-    return Mapper.mapAll(emoteRetrieverService.getAll(id));
+    return Mapper.mapAll(emoteRetrieverService.getAll(userRetriever.currentUserId()));
   }
 
   @Override
   @RolesAllowed(ROLE_USER)
   public EmoteRepresentation addToMyEmotes(final NewEmote emote) {
-    var id = userHolder.getId();
-    return Mapper.map(emoteUpdaterService.add(id, emote));
+    return Mapper.map(emoteUpdaterService.add(userRetriever.currentUserId(), emote));
   }
 
   @Override

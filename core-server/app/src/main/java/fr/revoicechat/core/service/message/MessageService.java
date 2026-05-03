@@ -6,9 +6,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 
 import fr.revoicechat.core.model.Message;
 import fr.revoicechat.core.model.MessageReactions;
@@ -16,9 +13,12 @@ import fr.revoicechat.core.repository.MessageRepository;
 import fr.revoicechat.core.risk.MessageRiskType;
 import fr.revoicechat.core.service.media.MediaDataService;
 import fr.revoicechat.core.service.room.RoomService;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.technicaldata.message.NewMessage;
-import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.web.error.ResourceNotFoundException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 
 /**
  * Service layer for managing chat messages within rooms.
@@ -43,20 +43,20 @@ public class MessageService {
 
   private final EntityManager entityManager;
   private final RoomService roomService;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final MessageValidation messageValidation;
   private final MediaDataService mediaDataService;
   private final MessageAuthorization messageAuthorization;
 
   public MessageService(EntityManager entityManager,
                         RoomService roomService,
-                        UserHolder userHolder,
+                        UserRetriever userRetriever,
                         MessageValidation messageValidation,
                         MediaDataService mediaDataService,
                         MessageAuthorization messageAuthorization) {
     this.entityManager = entityManager;
     this.roomService = roomService;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.messageValidation = messageValidation;
     this.mediaDataService = mediaDataService;
     this.messageAuthorization = messageAuthorization;
@@ -84,7 +84,7 @@ public class MessageService {
     Optional.ofNullable(newMessage.answerTo())
             .map(this::getMessage)
             .ifPresent(message::setAnswerTo);
-    message.setUser(userHolder.get());
+    message.setUser(userRetriever.currentUser());
     newMessage.medias().stream().map(data -> mediaDataService.create(data, ATTACHMENT)).forEach(message::addMediaData);
     entityManager.persist(message);
     return message;
@@ -127,8 +127,7 @@ public class MessageService {
   @Transactional
   public Message addReaction(final UUID id, final String emoji) {
     var message = getMessage(id);
-    var user = userHolder.get().getId();
-    message.setReactions(message.getReactions().toggle(emoji, user));
+    message.setReactions(message.getReactions().toggle(emoji, userRetriever.currentUserId()));
     entityManager.persist(message);
     return message;
   }

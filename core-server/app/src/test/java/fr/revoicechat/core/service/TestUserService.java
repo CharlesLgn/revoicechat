@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import fr.revoicechat.core.junit.CleanDatabase;
 import fr.revoicechat.core.model.User;
-import fr.revoicechat.core.model.UserType;
+import fr.revoicechat.security.model.UserType;
 import fr.revoicechat.core.technicaldata.user.NewUserSignup;
 import fr.revoicechat.security.utils.PasswordUtils;
 import io.quarkus.test.junit.QuarkusTest;

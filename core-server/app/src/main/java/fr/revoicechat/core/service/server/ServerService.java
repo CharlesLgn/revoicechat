@@ -8,8 +8,8 @@ import fr.revoicechat.core.model.Server;
 import fr.revoicechat.core.model.ServerType;
 import fr.revoicechat.core.model.ServerUser;
 import fr.revoicechat.core.repository.ServerRepository;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.technicaldata.server.NewServer;
-import fr.revoicechat.security.UserHolder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -33,18 +33,18 @@ public class ServerService {
   private final ServerEntityService serverEntityService;
   private final ServerRepository serverRepository;
   private final NewServerCreator newServerCreator;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final EntityManager entityManager;
 
   public ServerService(final ServerEntityService serverEntityService,
                        final ServerRepository serverRepository,
                        final NewServerCreator newServerCreator,
-                       final UserHolder userHolder,
+                       final UserRetriever userRetriever,
                        final EntityManager entityManager) {
     this.serverEntityService = serverEntityService;
     this.serverRepository = serverRepository;
     this.newServerCreator = newServerCreator;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.entityManager = entityManager;
   }
 
@@ -67,7 +67,7 @@ public class ServerService {
     newServerCreator.create(server);
     ServerUser serverUser = new ServerUser();
     serverUser.setServer(server);
-    serverUser.setUser(userHolder.get());
+    serverUser.setUser(userRetriever.currentUser());
     entityManager.persist(serverUser);
     return server;
   }

@@ -8,6 +8,7 @@ import java.util.UUID;
 import fr.revoicechat.notification.model.ActiveStatus;
 import fr.revoicechat.notification.model.NotificationRegistrable;
 import fr.revoicechat.security.model.AuthenticatedUser;
+import fr.revoicechat.security.model.UserType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -105,11 +106,11 @@ public class User implements NotificationRegistrable, AuthenticatedUser {
     this.status = status;
   }
 
-  public UserType getType() {
+  public fr.revoicechat.security.model.UserType getType() {
     return type;
   }
 
-  public void setType(final UserType type) {
+  public void setType(final fr.revoicechat.security.model.UserType type) {
     this.type = type;
   }
 

@@ -5,19 +5,19 @@ import java.util.UUID;
 
 import fr.revoicechat.core.model.Server;
 import fr.revoicechat.core.repository.ServerRepository;
-import fr.revoicechat.security.UserHolder;
+import fr.revoicechat.core.service.user.UserRetriever;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class ServerRetriever {
 
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final ServerRepository serverRepository;
   private final ServerEntityRetriever serverEntityRetriever;
 
-  public ServerRetriever(UserHolder userHolder, ServerRepository serverRepository, ServerEntityRetriever serverEntityRetriever) {
-    this.userHolder = userHolder;
+  public ServerRetriever(UserRetriever userRetriever, ServerRepository serverRepository, ServerEntityRetriever serverEntityRetriever) {
+    this.userRetriever = userRetriever;
     this.serverRepository = serverRepository;
     this.serverEntityRetriever = serverEntityRetriever;
   }
@@ -30,7 +30,7 @@ public class ServerRetriever {
   /** @return all servers for the connected user. */
   @Transactional
   public List<Server> getAllMyServers() {
-    return serverRepository.getByUser(userHolder.get()).toList();
+    return serverRepository.getByUser(userRetriever.currentUser()).toList();
   }
 
   /** @return all public servers. */
@@ -40,7 +40,7 @@ public class ServerRetriever {
     if (joinedToo) {
       return servers.toList();
     } else {
-      var serverIds = serverRepository.getByUser(userHolder.get()).map(Server::getId).toList();
+      var serverIds = serverRepository.getByUser(userRetriever.currentUser()).map(Server::getId).toList();
       return servers.filter(server -> !serverIds.contains(server.getId())).toList();
     }
   }

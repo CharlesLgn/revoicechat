@@ -15,7 +15,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import fr.revoicechat.core.model.InvitationLink;
 import fr.revoicechat.core.model.User;
-import fr.revoicechat.core.model.UserType;
+import fr.revoicechat.security.model.UserType;
 import fr.revoicechat.core.repository.UserRepository;
 import fr.revoicechat.core.service.invitation.InvitationLinkUsage;
 import fr.revoicechat.core.technicaldata.user.AdminUpdatableUserData;
@@ -25,7 +25,6 @@ import fr.revoicechat.core.technicaldata.user.NewUserSignup;
 import fr.revoicechat.core.technicaldata.user.UpdatableUserData;
 import fr.revoicechat.core.technicaldata.user.UpdatableUserData.PasswordUpdated;
 import fr.revoicechat.risk.service.user.AuthenticatedUserEntityFinder;
-import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.security.service.RecoverCodesService;
 import fr.revoicechat.security.utils.PasswordUtils;
 import fr.revoicechat.web.error.BadRequestException;
@@ -39,7 +38,7 @@ public class UserService implements AuthenticatedUserEntityFinder {
 
   private final EntityManager entityManager;
   private final UserRepository userRepository;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final PasswordValidation passwordValidation;
   private final InvitationLinkUsage invitationLinkUsage;
   private final RecoverCodesService recoverCodesService;
@@ -47,7 +46,7 @@ public class UserService implements AuthenticatedUserEntityFinder {
 
   public UserService(EntityManager entityManager,
                      UserRepository userRepository,
-                     UserHolder userHolder,
+                     UserRetriever userRetriever,
                      PasswordValidation passwordValidation,
                      InvitationLinkUsage invitationLinkUsage,
                      RecoverCodesService recoverCodesService,
@@ -55,7 +54,7 @@ public class UserService implements AuthenticatedUserEntityFinder {
                      boolean appOnlyAccessibleByInvitation) {
     this.entityManager = entityManager;
     this.userRepository = userRepository;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.passwordValidation = passwordValidation;
     this.invitationLinkUsage = invitationLinkUsage;
     this.recoverCodesService = recoverCodesService;
@@ -104,10 +103,6 @@ public class UserService implements AuthenticatedUserEntityFinder {
            && invitationLink.isValid();
   }
 
-  public User findCurrentUser() {
-    return userHolder.get();
-  }
-
   public List<User> fetchAll() {
     return entityManager.createQuery("select u from User u", User.class).getResultList();
   }
@@ -138,7 +133,7 @@ public class UserService implements AuthenticatedUserEntityFinder {
 
   @Transactional
   public User updateConnectedUser(final UpdatableUserData userData) {
-    User user = userHolder.get();
+    User user = userRetriever.currentUser();
     Optional.ofNullable(userData.password()).filter(not(PasswordUpdated::isEmpty)).ifPresent(psw -> setPassword(user, psw));
     Optional.ofNullable(userData.displayName()).filter(not(String::isBlank)).ifPresent(user::setDisplayName);
     Optional.ofNullable(userData.status()).ifPresent(user::setStatus);
@@ -165,7 +160,7 @@ public class UserService implements AuthenticatedUserEntityFinder {
   public void forceSetPassword(final NewPassword password) {
     if (Objects.equals(password.password(), password.confirmPassword())) {
       passwordValidation.validate(password.password());
-      User user = userHolder.get();
+      User user = userRetriever.currentUser();
       user.setPassword(PasswordUtils.encode(password.password()));
       entityManager.persist(user);
     } else {

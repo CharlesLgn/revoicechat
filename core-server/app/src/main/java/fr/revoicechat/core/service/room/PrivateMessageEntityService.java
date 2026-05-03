@@ -6,8 +6,8 @@ import java.util.UUID;
 import fr.revoicechat.core.model.room.PrivateMessageMode;
 import fr.revoicechat.core.model.room.PrivateMessageRoom;
 import fr.revoicechat.core.repository.PrivateMessageRoomRepository;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.service.user.UserService;
-import fr.revoicechat.security.UserHolder;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -16,28 +16,28 @@ import jakarta.transaction.Transactional;
 public class PrivateMessageEntityService {
 
   private final EntityManager entityManager;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final UserService userService;
   private final PrivateMessageRoomRepository privateMessageRoomRepository;
 
   public PrivateMessageEntityService(EntityManager entityManager,
-                                     UserHolder userHolder,
+                                     UserRetriever userRetriever,
                                      UserService userService,
                                      PrivateMessageRoomRepository privateMessageRoomRepository) {
     this.entityManager = entityManager;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.userService = userService;
     this.privateMessageRoomRepository = privateMessageRoomRepository;
   }
 
   @Transactional
   public PrivateMessageRoom getOrCreate(final UUID userId) {
-    var room = getDirectDiscussion(userId, userHolder.getId());
+    var room = getDirectDiscussion(userId, userRetriever.currentUserId());
     if (room == null) {
       room = new PrivateMessageRoom();
       room.setId(UUID.randomUUID());
       room.setMode(PrivateMessageMode.DIRECT_MESSAGE);
-      room.setUsers(List.of(userHolder.get(), userService.getUser(userId)));
+      room.setUsers(List.of(userRetriever.currentUser(), userService.getUser(userId)));
       entityManager.persist(room);
     }
     return room;
