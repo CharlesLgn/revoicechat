@@ -14,9 +14,9 @@ import fr.revoicechat.core.model.room.PrivateMessageRoom;
 import fr.revoicechat.core.repository.PrivateMessageRoomRepository;
 import fr.revoicechat.core.representation.NewPrivateMessageRoom;
 import fr.revoicechat.core.service.message.MessageService;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.service.user.UserService;
 import fr.revoicechat.core.technicaldata.message.NewMessage;
-import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.web.error.ResourceNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -26,15 +26,15 @@ import jakarta.transaction.Transactional;
 public class PrivateMessageService {
 
   private final EntityManager entityManager;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final PrivateMessageEntityService privateMessageEntityService;
   private final PrivateMessageRoomRepository privateMessageRoomRepository;
   private final MessageService messageService;
   private final UserService userService;
 
-  public PrivateMessageService(final EntityManager entityManager, final UserHolder userHolder, final PrivateMessageEntityService privateMessageEntityService, final PrivateMessageRoomRepository privateMessageRoomRepository, final MessageService messageService, final UserService userService) {
+  public PrivateMessageService(final EntityManager entityManager, final UserRetriever userRetriever, final PrivateMessageEntityService privateMessageEntityService, final PrivateMessageRoomRepository privateMessageRoomRepository, final MessageService messageService, final UserService userService) {
     this.entityManager = entityManager;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.privateMessageEntityService = privateMessageEntityService;
     this.privateMessageRoomRepository = privateMessageRoomRepository;
     this.messageService = messageService;
@@ -42,7 +42,7 @@ public class PrivateMessageService {
   }
 
   public List<PrivateMessageRoom> findAll() {
-    return privateMessageRoomRepository.findByUserId(userHolder.getId()).toList();
+    return privateMessageRoomRepository.findByUserId(userRetriever.currentUserId()).toList();
   }
 
   public PrivateMessageRoom get(final UUID roomId) {
@@ -51,7 +51,7 @@ public class PrivateMessageService {
   }
 
   public PrivateMessageRoom getDirectDiscussion(final UUID userId) {
-    return Optional.ofNullable(getDirectDiscussion(userId, userHolder.getId()))
+    return Optional.ofNullable(getDirectDiscussion(userId, userRetriever.currentUserId()))
                    .orElseThrow(() -> new ResourceNotFoundException(PrivateMessageService.class, userId));
   }
 
@@ -72,7 +72,7 @@ public class PrivateMessageService {
     room.setMode(PrivateMessageMode.DIRECT_MESSAGE);
     room.setName(newRoom.name());
     Set<User> users = new HashSet<>();
-    users.add(userHolder.get());
+    users.add(userRetriever.currentUser());
     newRoom.users().stream().map(userService::getUser).forEach(users::add);
     room.setUsers(new ArrayList<>(users));
     entityManager.persist(room);

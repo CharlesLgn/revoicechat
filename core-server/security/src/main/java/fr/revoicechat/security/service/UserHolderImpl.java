@@ -1,13 +1,12 @@
-package fr.revoicechat.core.security;
+package fr.revoicechat.security.service;
 
-import static fr.revoicechat.core.nls.UserErrorCode.USER_NOT_FOUND;
+import static fr.revoicechat.security.nls.UserErrorCode.USER_NOT_FOUND;
 
 import java.util.UUID;
 
-import fr.revoicechat.core.model.User;
-import fr.revoicechat.notification.NotificationRegistrableHolder;
 import fr.revoicechat.security.UserHolder;
-import fr.revoicechat.security.service.SecurityTokenService;
+import fr.revoicechat.security.model.AuthenticatedUser;
+import fr.revoicechat.security.model.DefaultAuthenticatedUser;
 import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -15,7 +14,7 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 
 @ApplicationScoped
-public class UserHolderImpl implements UserHolder, NotificationRegistrableHolder {
+public class UserHolderImpl implements UserHolder {
 
   private final SecurityTokenService securityTokenService;
   private final SecurityIdentity securityIdentity;
@@ -30,19 +29,12 @@ public class UserHolderImpl implements UserHolder, NotificationRegistrableHolder
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public User get() {
-    var id = UUID.fromString(securityIdentity.getPrincipal().getName());
-    return getUser(id);
-  }
-
-  @Override
   public UUID getId() {
-    return get().getId();
+    return UUID.fromString(securityIdentity.getPrincipal().getName());
   }
 
   @Override
-  public User get(final String jwtToken) {
+  public AuthenticatedUser get(final String jwtToken) {
     try {
       return getUser(peekId(jwtToken));
     } catch (NotFoundException _) {
@@ -57,8 +49,8 @@ public class UserHolderImpl implements UserHolder, NotificationRegistrableHolder
     return securityTokenService.retrieveUserAsId(jwtToken);
   }
 
-  private User getUser(UUID id) {
-    var user = entityManager.find(User.class, id);
+  private AuthenticatedUser getUser(UUID id) {
+    var user = entityManager.find(DefaultAuthenticatedUser.class, id);
     if (user == null) {
       throw new NotFoundException(USER_NOT_FOUND.translate());
     }

@@ -10,6 +10,7 @@ import fr.revoicechat.core.representation.MessageRepresentation;
 import fr.revoicechat.core.representation.RoomRepresentation;
 import fr.revoicechat.core.representation.UserRepresentation;
 import fr.revoicechat.core.service.room.PrivateMessageService;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.service.user.UserService;
 import fr.revoicechat.core.technicaldata.message.NewMessage;
 import fr.revoicechat.core.technicaldata.user.AdminUpdatableUserData;
@@ -20,11 +21,16 @@ import fr.revoicechat.web.mapper.Mapper;
 import jakarta.annotation.security.RolesAllowed;
 
 public class UserControllerImpl implements UserController {
+  private final UserRetriever userRetriever;
   private final UserService userService;
   private final PrivateMessageService privateMessageService;
   private final MessageNotifier messageNotifier;
 
-  public UserControllerImpl(final UserService userService, final PrivateMessageService privateMessageService, final MessageNotifier messageNotifier) {
+  public UserControllerImpl(UserRetriever userRetriever,
+                            UserService userService,
+                            PrivateMessageService privateMessageService,
+                            MessageNotifier messageNotifier) {
+    this.userRetriever = userRetriever;
     this.userService = userService;
     this.privateMessageService = privateMessageService;
     this.messageNotifier = messageNotifier;
@@ -33,7 +39,7 @@ public class UserControllerImpl implements UserController {
   @Override
   @RolesAllowed(ROLE_USER)
   public UserRepresentation me() {
-    return Mapper.map(userService.findCurrentUser());
+    return Mapper.map(userRetriever.currentUser());
   }
 
   @Override

@@ -5,12 +5,7 @@ import java.util.UUID;
 import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.security.model.AuthenticatedUser;
 
-public record UserHolderMock<U extends AuthenticatedUser>(U u) implements UserHolder {
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T extends AuthenticatedUser> T get() {
-    return (T) u;
-  }
+public record UserHolderMock(AuthenticatedUser u) implements UserHolder {
 
   @Override
   public UUID getId() {

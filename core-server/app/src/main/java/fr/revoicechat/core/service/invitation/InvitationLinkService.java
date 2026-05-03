@@ -12,8 +12,8 @@ import fr.revoicechat.core.model.InvitationType;
 import fr.revoicechat.core.model.User;
 import fr.revoicechat.core.repository.InvitationLinkRepository;
 import fr.revoicechat.core.service.server.ServerEntityService;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.technicaldata.invitation.InvitationCategory;
-import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.web.error.ResourceNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -22,16 +22,16 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class InvitationLinkService implements InvitationLinkEntityRetriever, InvitationLinkUsage {
 
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final EntityManager entityManager;
   private final ServerEntityService serverService;
   private final InvitationLinkRepository invitationLinkRepository;
 
-  public InvitationLinkService(final UserHolder userHolder,
+  public InvitationLinkService(final UserRetriever userRetriever,
                                final EntityManager entityManager,
                                final ServerEntityService serverService,
                                final InvitationLinkRepository invitationLinkRepository) {
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.entityManager = entityManager;
     this.serverService = serverService;
     this.invitationLinkRepository = invitationLinkRepository;
@@ -39,7 +39,7 @@ public class InvitationLinkService implements InvitationLinkEntityRetriever, Inv
 
   @Transactional
   public InvitationLink generateApplicationInvitation(final InvitationCategory invitationCategory) {
-    User user = userHolder.get();
+    User user = userRetriever.currentUser();
     var invitation = new InvitationLink();
     invitation.setId(UUID.randomUUID());
     invitation.setStatus(invitationCategory.getInitialStatus());
@@ -52,7 +52,7 @@ public class InvitationLinkService implements InvitationLinkEntityRetriever, Inv
   @Transactional
   public InvitationLink generateServerInvitation(final UUID serverId, final InvitationCategory invitationCategory) {
     var server = serverService.getEntity(serverId);
-    User user = userHolder.get();
+    User user = userRetriever.currentUser();
     var invitation = new InvitationLink();
     invitation.setId(UUID.randomUUID());
     invitation.setStatus(invitationCategory.getInitialStatus());
@@ -92,7 +92,7 @@ public class InvitationLinkService implements InvitationLinkEntityRetriever, Inv
   }
 
   public List<InvitationLink> getAllFromUser() {
-    return invitationLinkRepository.getAllFromUser(userHolder.get().getId()).toList();
+    return invitationLinkRepository.getAllFromUser(userRetriever.currentUserId()).toList();
   }
 
   public List<InvitationLink> getAllApplicationInvitations() {
@@ -102,7 +102,7 @@ public class InvitationLinkService implements InvitationLinkEntityRetriever, Inv
   @Override
   @Transactional
   public void use(final InvitationLink invitationLink) {
-    use(invitationLink, userHolder.get());
+    use(invitationLink, userRetriever.currentUser());
   }
 
   @Override

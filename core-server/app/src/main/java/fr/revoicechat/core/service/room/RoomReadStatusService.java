@@ -11,8 +11,8 @@ import fr.revoicechat.core.model.room.RoomReadStatus;
 import fr.revoicechat.core.model.room.RoomUserId;
 import fr.revoicechat.core.model.room.ServerRoom;
 import fr.revoicechat.core.repository.RoomRepository;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.core.technicaldata.message.UnreadMessageStatus;
-import fr.revoicechat.security.UserHolder;
 import fr.revoicechat.web.error.ResourceNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -23,21 +23,22 @@ import jakarta.transaction.Transactional;
 public class RoomReadStatusService {
 
   private final EntityManager entityManager;
-  private final UserHolder userHolder;
+  private final UserRetriever userRetriever;
   private final RoomRepository roomRepository;
   private final RoomAccessVerifier roomAccessVerifier;
 
-  public RoomReadStatusService(final EntityManager entityManager, UserHolder userHolder,
+  public RoomReadStatusService(EntityManager entityManager,
+                               UserRetriever userRetriever,
                                RoomRepository roomRepository,
                                RoomAccessVerifier roomAccessVerifier) {
     this.entityManager = entityManager;
-    this.userHolder = userHolder;
+    this.userRetriever = userRetriever;
     this.roomRepository = roomRepository;
     this.roomAccessVerifier = roomAccessVerifier;
   }
 
   public UnreadMessageStatus getUnreadMessagesStatus(final Server server) {
-    return roomRepository.findRoomsByUserServers(userHolder.getId())
+    return roomRepository.findRoomsByUserServers(userRetriever.currentUserId())
                          .filter(room -> Objects.equals(server, room.getServer()))
                          .filter(roomAccessVerifier::verify)
                          .map(this::getUnreadMessagesStatus)
@@ -46,7 +47,7 @@ public class RoomReadStatusService {
 
   public UnreadMessageStatus getUnreadMessagesStatus(final Room room) {
     return room.isVoiceRoom() ? UnreadMessageStatus.none()
-                              : roomRepository.findUnreadSummary(room, userHolder.get())
+                              : roomRepository.findUnreadSummary(room, userRetriever.currentUser())
                                               .toUnreadMessageStatus();
   }
 
@@ -55,7 +56,7 @@ public class RoomReadStatusService {
     var roomReadStatus = get(roomId);
     if (roomReadStatus == null) {
       roomReadStatus = new RoomReadStatus();
-      roomReadStatus.setUser(userHolder.get());
+      roomReadStatus.setUser(userRetriever.currentUser());
       roomReadStatus.setRoom(getRoom(roomId));
     }
     roomReadStatus.setLastMessageId(lastMessageId);
@@ -66,7 +67,7 @@ public class RoomReadStatusService {
   public RoomReadStatus get(UUID roomId) {
     RoomUserId roomUserId = new RoomUserId();
     roomUserId.setRoom(roomId);
-    roomUserId.setUser(userHolder.getId());
+    roomUserId.setUser(userRetriever.currentUserId());
     return entityManager.find(RoomReadStatus.class, roomUserId);
   }
 

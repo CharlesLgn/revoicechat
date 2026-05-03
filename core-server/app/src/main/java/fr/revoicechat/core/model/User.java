@@ -33,7 +33,7 @@ public class User implements NotificationRegistrable, AuthenticatedUser {
   private ActiveStatus status = ActiveStatus.ONLINE;
   private OffsetDateTime createdDate;
   @Enumerated(EnumType.STRING)
-  private UserType type = UserType.USER;
+  private fr.revoicechat.security.model.UserType type = fr.revoicechat.security.model.UserType.USER;
   /**
    * The settings do not currently drive the backend behaviour, but only the frontend behaviour.
    * It's stored as a string so the system does not parse the value into an object.
@@ -105,11 +105,11 @@ public class User implements NotificationRegistrable, AuthenticatedUser {
     this.status = status;
   }
 
-  public UserType getType() {
+  public fr.revoicechat.security.model.UserType getType() {
     return type;
   }
 
-  public void setType(final UserType type) {
+  public void setType(final fr.revoicechat.security.model.UserType type) {
     this.type = type;
   }
 

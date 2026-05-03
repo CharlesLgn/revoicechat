@@ -9,8 +9,8 @@ import fr.revoicechat.core.model.room.ServerRoom;
 import fr.revoicechat.core.model.server.ServerCategory;
 import fr.revoicechat.core.model.server.ServerRoomItem;
 import fr.revoicechat.core.model.server.ServerStructure;
+import fr.revoicechat.core.service.user.UserRetriever;
 import fr.revoicechat.risk.service.server.ServerRoleDefaultCreator;
-import fr.revoicechat.security.UserHolder;
 import io.quarkus.arc.Unremovable;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -21,19 +21,19 @@ import jakarta.transaction.Transactional;
 public class NewServerCreator {
 
   private final EntityManager entityManager;
-  private final UserHolder holder;
+  private final UserRetriever userRetriever;
   private final ServerRoleDefaultCreator serverRoleCreator;
 
-  public NewServerCreator(EntityManager entityManager, UserHolder holder, ServerRoleDefaultCreator serverRoleCreator) {
+  public NewServerCreator(EntityManager entityManager, UserRetriever userRetriever, ServerRoleDefaultCreator serverRoleCreator) {
     this.entityManager = entityManager;
-    this.holder = holder;
+    this.userRetriever = userRetriever;
     this.serverRoleCreator = serverRoleCreator;
   }
 
   @Transactional
   public Server create(Server server) {
     server.setId(UUID.randomUUID());
-    server.setOwner(holder.getOrNull());
+    server.setOwner(userRetriever.currentUserOrNull());
     entityManager.persist(server);
     var general = createRoom(server, "General",  RoomType.TEXT);
     var random = createRoom(server, "Random",   RoomType.TEXT);

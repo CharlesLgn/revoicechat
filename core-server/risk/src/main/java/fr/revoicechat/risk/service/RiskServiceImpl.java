@@ -28,12 +28,12 @@ public class RiskServiceImpl implements RiskService {
 
   @Override
   public boolean hasRisk(final RiskEntity entity, final RiskType riskType) {
-    return hasRisk(userHolder.get().getId(), entity, riskType, SanctionType.BAN);
+    return hasRisk(userHolder.getId(), entity, riskType, SanctionType.BAN);
   }
 
   @Override
   public boolean hasRisk(final RiskEntity entity, final RiskType riskType, final SanctionType sanctionType) {
-    return hasRisk(userHolder.get().getId(), entity, riskType, sanctionType);
+    return hasRisk(userHolder.getId(), entity, riskType, sanctionType);
   }
 
   @Override

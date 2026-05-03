@@ -21,6 +21,10 @@
       <groupId>fr.revoicechat</groupId>
       <artifactId>revoicechat-security</artifactId>
     </dependency>
+    <dependency>
+      <groupId>fr.revoicechat</groupId>
+      <artifactId>revoicechat-i18n</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

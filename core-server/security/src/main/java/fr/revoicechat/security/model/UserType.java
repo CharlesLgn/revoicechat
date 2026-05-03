@@ -1,4 +1,4 @@
-package fr.revoicechat.core.model;
+package fr.revoicechat.security.model;
 
 import static fr.revoicechat.security.utils.RevoiceChatRoles.*;
 
