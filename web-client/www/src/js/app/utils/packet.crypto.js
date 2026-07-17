@@ -1,4 +1,4 @@
-export class CryptoPacket { 
+export class CryptoPacket {
     /**
      * REQUEST key :
      * [ 1 byte  ] Packet type REQUEST
@@ -19,11 +19,11 @@ export class CryptoPacket {
     static ANSWER = 2;
 
     #voiceKey;
-    #socket;
+    #sendCallback;
     #tempKeyPair;
 
-    constructor(socket) {
-        this.#socket = socket;
+    constructor(sendCallback) {
+        this.#sendCallback = sendCallback;
     }
 
     async init(onlySelf) {
@@ -70,7 +70,7 @@ export class CryptoPacket {
         // Set publicKey
         uint8buffer.set(new Uint8Array(exportedPublic), offset);
 
-        this.#socket.send(buffer);
+        this.#sendCallback(buffer);
     }
 
     async #importVoiceKey(voiceKeyBuffer) {
@@ -120,7 +120,7 @@ export class CryptoPacket {
         // Set data
         uint8buffer.set(new Uint8Array(encryptedVoiceKey), offset);
 
-        this.#socket.send(buffer);
+        this.#sendCallback(buffer);
     }
 
     async encrypt(data) {

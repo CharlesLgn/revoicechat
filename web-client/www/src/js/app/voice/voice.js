@@ -94,7 +94,7 @@ export default class VoiceCall {
         this.#socket = new WebSocket(`${voiceUrl}/${roomId}`, ["Bearer." + token]);
         this.#socket.binaryType = "arraybuffer";
 
-        this.#cryptoPacket = new CryptoPacket(this.#socket, this.#dispatchAudio);
+        this.#cryptoPacket = new CryptoPacket((data) => this.#socket.send(data), this.#dispatchAudio);
 
         this.#socket.onopen = async () => {
             // Init crypto
