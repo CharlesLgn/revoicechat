@@ -693,7 +693,7 @@ svg {
     justify-content: flex-end;
     padding: 0.75rem;
     height: 4rem;
-    border-top-width: 1px;
+    border-bottom-width: 1px;
 }
 
 .voice-control .element {
@@ -805,14 +805,20 @@ svg {
     fill: var(--pri-bg-color) !important;
 }
 
-/* STATUS */
+.control-pannel {
+    border-color: var(--pri-bd-color);
+    background-color: var(--ter-bg-color);
+    border-top-width: 1px;
+    border-radius: 20px;
+    margin: 0 0.35rem 0.35rem;
+}
 
+/* STATUS */
 .status-container {
     display: flex;
     align-items: center;
     padding: 0.75rem;
     height: 4rem;
-    border-top-width: 1px;
 }
 
 .status-bloc-1 {
@@ -1681,7 +1687,7 @@ summary::marker {
     cursor: pointer;
 }
 
-#overlay-setting-user-picture {
+#overlay-setting-server-picture, #overlay-setting-user-picture {
     height: 5rem;
     width: 5rem;
     display: flex;
@@ -1693,7 +1699,7 @@ summary::marker {
     transition: 0.2s ease;
 }
 
-#overlay-setting-user-picture:hover {
+#overlay-setting-server-picture:hover, #overlay-setting-user-picture:hover {
     opacity: 1;
 }
 
@@ -1769,3 +1775,10 @@ summary::marker {
 
 .mp-total-moderation {border-left-color: var(--total-moderation-color);}
 .mp-total-moderation .mp-stat-value {color: var(--total-moderation-color);}
+
+revoice-textarea {
+    width: -webkit-fill-available;
+}
+revoice-message {
+    overflow: visible;
+}
