@@ -1,24 +1,26 @@
-/**
- * Voice Crypto
- * Ask voice key :
- * [ 1 byte  ] Packet type = 0
- * [ N bytes ] Temporary public key
- *
- * Transmit voice key :
- * [ 1 byte ] Packet type = 1
- * [ N byte ] Encrypted Voice Key
- * 
- * Audio :
- * [  1 byte  ] Packet type = 2
- * [ 12 bytes ] Initiation Vector
- * [  N bytes ] Payload
- */
+export class CryptoPacket { 
+    /**
+     * REQUEST key :
+     * [ 1 byte  ] Packet type REQUEST
+     * [ N bytes ] Temporary public key
+     *
+     * ANSWER key :
+     * [ 1 byte ] Packet type ANSWER
+     * [ N byte ] Encrypted Voice Key
+     *
+     * DATA :
+     * [  1 byte  ] Packet type DATA
+     * [ 12 bytes ] Initiation Vector
+     * [  N bytes ] Payload
+     */
 
-export class VoiceCrypto {
+    static DATA = 0;
+    static REQUEST = 1;
+    static ANSWER = 2;
+
     #voiceKey;
     #socket;
     #tempKeyPair;
-    #dispatchAudioCallback;
 
     constructor(socket) {
         this.#socket = socket;
@@ -39,7 +41,7 @@ export class VoiceCrypto {
                 length: 256,
             },
             true, // extractable
-            ["encrypt", "decrypt"]
+            ["encrypt", "decrypt"],
         );
     }
 
@@ -52,20 +54,17 @@ export class VoiceCrypto {
                 hash: "SHA-256",
             },
             true,
-            ["encrypt", "decrypt"]
+            ["encrypt", "decrypt"],
         );
 
-        const exportedPublic = await crypto.subtle.exportKey(
-            "spki",
-            this.#tempKeyPair.publicKey
-        );
+        const exportedPublic = await crypto.subtle.exportKey("spki", this.#tempKeyPair.publicKey);
 
         const buffer = new ArrayBuffer(1 + exportedPublic.byteLength);
         const uint8buffer = new Uint8Array(buffer);
         let offset = 0;
 
-        // Set type 0
-        uint8buffer.set([0], 0);
+        // Set type REQUEST
+        uint8buffer.set([CryptoPacket.REQUEST], 0);
         offset += 1;
 
         // Set publicKey
@@ -80,16 +79,10 @@ export class VoiceCrypto {
                 name: "RSA-OAEP",
             },
             this.#tempKeyPair.privateKey,
-            voiceKeyBuffer
+            voiceKeyBuffer,
         );
 
-        this.#voiceKey = await crypto.subtle.importKey(
-            'raw',
-            decryptedVoiceKey,
-            { name: "AES-GCM" }, 
-            true, 
-            ["encrypt", "decrypt"]
-        );
+        this.#voiceKey = await crypto.subtle.importKey("raw", decryptedVoiceKey, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
 
         this.#tempKeyPair = null;
     }
@@ -103,40 +96,36 @@ export class VoiceCrypto {
                 hash: "SHA-256",
             },
             false,
-            ["encrypt"]
+            ["encrypt"],
         );
 
-        const exportedVoiceKey = await crypto.subtle.exportKey(
-            "raw",
-            this.#voiceKey
-        );
+        const exportedVoiceKey = await crypto.subtle.exportKey("raw", this.#voiceKey);
 
         const encryptedVoiceKey = await crypto.subtle.encrypt(
             {
                 name: "RSA-OAEP",
             },
             publicKey,
-            exportedVoiceKey
+            exportedVoiceKey,
         );
 
         const buffer = new ArrayBuffer(1 + encryptedVoiceKey.byteLength);
         const uint8buffer = new Uint8Array(buffer);
         let offset = 0;
 
-        // Set type 1
-        uint8buffer.set([1], offset);
+        // Set type ANSWER
+        uint8buffer.set([CryptoPacket.ANSWER], offset);
         offset += 1;
 
         // Set data
         uint8buffer.set(new Uint8Array(encryptedVoiceKey), offset);
 
-        console.log("Sending voiceKey")
         this.#socket.send(buffer);
     }
 
     async encrypt(data) {
         if (!this.#voiceKey) {
-            console.warn("No voiceKey set");
+            console.warn("No voiceKey to encrypt");
             return;
         }
 
@@ -146,8 +135,8 @@ export class VoiceCrypto {
         const uint8buffer = new Uint8Array(buffer);
         let offset = 0;
 
-        // Set type 2
-        uint8buffer.set([2], offset);
+        // Set type DATA
+        uint8buffer.set([CryptoPacket.DATA], offset);
         offset += 1;
 
         // Set IV
@@ -160,9 +149,9 @@ export class VoiceCrypto {
         return buffer;
     }
 
-    async #decrypt(data) {
+    async #decryptData(data) {
         if (!this.#voiceKey) {
-            console.warn("No voiceKey set");
+            console.warn("No voiceKey to decrypt");
             return;
         }
 
@@ -171,19 +160,21 @@ export class VoiceCrypto {
         return await crypto.subtle.decrypt({ name: "AES-GCM", iv }, this.#voiceKey, payload);
     }
 
-    async process(data) {
+    async decrypt(data) {
         const type = new Uint8Array(data)[0];
         const payload = data.slice(1);
 
         switch (type) {
-            case 0:
+            case CryptoPacket.DATA:
+                return await this.#decryptData(payload);
+
+            case CryptoPacket.REQUEST:
                 await this.#exportVoiceKey(payload);
                 return null;
-            case 1:
+
+            case CryptoPacket.ANSWER:
                 await this.#importVoiceKey(payload);
                 return null;
-            case 2:
-                return await this.#decrypt(payload);
         }
     }
 }
