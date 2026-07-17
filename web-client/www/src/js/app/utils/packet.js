@@ -1,4 +1,6 @@
 /**
+ * This class should be unnecessary but the backend has a bug and will drop connection if packet exceed 64KB
+ * 
  * This class represent a Large Packet Sender.
  * With this, you can transmit data larger than websocket allow (i.e more than 64KB),
  * by sclicing and sending those slices one at a time.
@@ -12,82 +14,75 @@
  * [ X bytes ] Payload 
  * @constructor Take a WebSocket as parameter
  */
-export class LargePacketSender{
+export class LargePacket {
     static headerByteLength = 16;
     static maxPayloadByteLength = 64 * 1024 - 16; // 64KB - 16B (reserved for header)
 
     #socket;
-    
+
     /**
-     * 
-     * @param {WebSocket} socket WebSocket setup to send data to a LargePacketReceiver
+     *
+     * @param {WebSocket} socket WebSocket setup to send data to a LargePacket
      */
-    constructor(socket){
+    constructor(socket) {
         this.#socket = socket;
+    }
+
+    init(onOpenCallback, receiveCallback) {
+        this.#socket.onopen = async () => {
+            await onOpenCallback();
+        };
+        this.#socket.onmessage = async (message) => {
+            await this.#receive(message.data, receiveCallback);
+        };
     }
 
     /**
      * Send data through socket
      * @param {*} rawData Any data
      */
-    send(rawData){
+    send(rawData) {
         if (this.#socket.readyState === WebSocket.OPEN) {
-            const total = Math.ceil(rawData.byteLength / LargePacketSender.maxPayloadByteLength);
+            const total = Math.ceil(rawData.byteLength / LargePacket.maxPayloadByteLength);
 
-            for(let index = 0; index < total; index++){
-                const start = index * LargePacketSender.maxPayloadByteLength;
-                const end = Math.min(start + LargePacketSender.maxPayloadByteLength, rawData.byteLength);
+            for (let index = 0; index < total; index++) {
+                const start = index * LargePacket.maxPayloadByteLength;
+                const end = Math.min(start + LargePacket.maxPayloadByteLength, rawData.byteLength);
                 const payload = rawData.slice(start, end);
 
-                // Header 16B (4x 4B) : rawData byte length | index of payload | total of payload | reserved 
+                // Header 16B (4x 4B) : rawData byte length | index of payload | total of payload | reserved
                 const header = new Uint32Array([rawData.byteLength, index, total]);
-                const packet = new Uint8Array(LargePacketSender.headerByteLength + payload.byteLength);
+                const packet = new Uint8Array(LargePacket.headerByteLength + payload.byteLength);
 
                 packet.set(new Uint8Array(header.buffer), 0);
-                packet.set(new Uint8Array(payload), LargePacketSender.headerByteLength);
+                packet.set(new Uint8Array(payload), LargePacket.headerByteLength);
 
                 this.#socket.send(packet);
             }
         }
     }
-}
 
-/**
- * This class represent a Large Packet Receiver.
- * With this, you can receive data larger than websocket allow (i.e more than 64KB),
- * by receiveing slice of data and regrouping them.
- * Use this with LargePacketSender
- */
-export class LargePacketReceiver{
     #buffer = [];
     #received = 0;
 
-    /**
-     * @param {WebSocket} socket WebSocket setup to received data send from LargePacketSender
-     * @param {*} callback Function to call when all rawData as been received
-     */
-    init(socket, callback) {
-        socket.onmessage = (message) => {this.#receive(message.data, callback)}
-    }
-
-    #receive(data, callback){
+    async #receive(data, callback) {
         const array = new Uint8Array(data);
         const view = new DataView(array.buffer);
 
         const fullPayloadByteLength = view.getUint32(0, true);
         const index = view.getUint32(4, true);
         const total = view.getUint32(8, true);
-        const chunkData = array.slice(LargePacketSender.headerByteLength);
+        const chunkData = array.slice(LargePacket.headerByteLength);
 
-        this.#buffer[index] = chunkData; 
+        this.#buffer[index] = chunkData;
         this.#received++;
 
-        if(this.#received === total){
+        if (this.#received === total) {
             const rawData = new Uint8Array(fullPayloadByteLength);
-            
+
             // Reconstruct full payload
             let offset = 0;
-            for(const payload of this.#buffer){
+            for (const payload of this.#buffer) {
                 rawData.set(new Uint8Array(payload), offset);
                 offset += payload.length;
             }
@@ -97,7 +92,7 @@ export class LargePacketReceiver{
             this.#buffer = [];
 
             // Finally call the callback function
-            callback(rawData.buffer);
+            await callback(rawData.buffer);
         }
     }
 }

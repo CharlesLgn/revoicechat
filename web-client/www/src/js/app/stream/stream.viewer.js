@@ -1,12 +1,14 @@
-import { LargePacketReceiver } from "../utils/packet.js";
+import { LargePacket } from "../utils/packet.js";
 import { Demultiplexer } from "./stream.multiplexing.js";
 import Codec from "../utils/codec.js";
+import { CryptoPacket } from "../utils/packet.crypto.js";
 
 export default class Viewer {
     #socket;
     #demultiplexer;
     #streamUrl;
     #token;
+    #crypto;
 
     // Local playback
     #context;
@@ -64,8 +66,18 @@ export default class Viewer {
                 (header, data) => { this.#decodeVideo(header, data) }
             );
 
-            const receiver = new LargePacketReceiver();
-            receiver.init(this.#socket, (rawData) => { this.#demultiplexer.process(rawData) });
+            const largePacket = new LargePacket(this.#socket);
+            const crypto = new CryptoPacket((data) => largePacket.send(data));
+
+            largePacket.init(
+                async () => await crypto.init(false),
+                async (encryptedData) => {
+                    const data = await crypto.decrypt(encryptedData);
+                    if (data) {
+                        this.#demultiplexer.process(data);
+                    }
+                },
+            );
 
             // Video player
             this.#canvas = document.createElement("canvas");
