@@ -18,9 +18,9 @@ export class CryptoPacket {
     static REQUEST = 1;
     static ANSWER = 2;
 
-    #voiceKey;
+    #encryptionKey;
+    #temporaryKeys;
     #sendCallback;
-    #tempKeyPair;
 
     constructor(sendCallback) {
         this.#sendCallback = sendCallback;
@@ -35,7 +35,7 @@ export class CryptoPacket {
     }
 
     async #generateKey() {
-        this.#voiceKey = await crypto.subtle.generateKey(
+        this.#encryptionKey = await crypto.subtle.generateKey(
             {
                 name: "AES-GCM",
                 length: 256,
@@ -46,7 +46,7 @@ export class CryptoPacket {
     }
 
     async #requestKey() {
-        this.#tempKeyPair = await crypto.subtle.generateKey(
+        this.#temporaryKeys = await crypto.subtle.generateKey(
             {
                 name: "RSA-OAEP",
                 modulusLength: 2048,
@@ -57,7 +57,7 @@ export class CryptoPacket {
             ["encrypt", "decrypt"],
         );
 
-        const exportedPublic = await crypto.subtle.exportKey("spki", this.#tempKeyPair.publicKey);
+        const exportedPublic = await crypto.subtle.exportKey("spki", this.#temporaryKeys.publicKey);
 
         const buffer = new ArrayBuffer(1 + exportedPublic.byteLength);
         const uint8buffer = new Uint8Array(buffer);
@@ -78,13 +78,13 @@ export class CryptoPacket {
             {
                 name: "RSA-OAEP",
             },
-            this.#tempKeyPair.privateKey,
+            this.#temporaryKeys.privateKey,
             voiceKeyBuffer,
         );
 
-        this.#voiceKey = await crypto.subtle.importKey("raw", decryptedVoiceKey, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
+        this.#encryptionKey = await crypto.subtle.importKey("raw", decryptedVoiceKey, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
 
-        this.#tempKeyPair = null;
+        this.#temporaryKeys = null;
     }
 
     async #exportVoiceKey(publicKeyBuffer) {
@@ -99,7 +99,7 @@ export class CryptoPacket {
             ["encrypt"],
         );
 
-        const exportedVoiceKey = await crypto.subtle.exportKey("raw", this.#voiceKey);
+        const exportedVoiceKey = await crypto.subtle.exportKey("raw", this.#encryptionKey);
 
         const encryptedVoiceKey = await crypto.subtle.encrypt(
             {
@@ -124,13 +124,13 @@ export class CryptoPacket {
     }
 
     async encrypt(data) {
-        if (!this.#voiceKey) {
+        if (!this.#encryptionKey) {
             console.warn("No voiceKey to encrypt");
             return;
         }
 
         const iv = crypto.getRandomValues(new Uint8Array(12));
-        const encryptData = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, this.#voiceKey, data);
+        const encryptData = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, this.#encryptionKey, data);
         const buffer = new ArrayBuffer(1 + 12 + encryptData.byteLength);
         const uint8buffer = new Uint8Array(buffer);
         let offset = 0;
@@ -150,14 +150,14 @@ export class CryptoPacket {
     }
 
     async #decryptData(data) {
-        if (!this.#voiceKey) {
+        if (!this.#encryptionKey) {
             console.warn("No voiceKey to decrypt");
             return;
         }
 
         const iv = new Uint8Array(data, 0, 12);
         const payload = new Uint8Array(data, 12, data.byteLength - 12);
-        return await crypto.subtle.decrypt({ name: "AES-GCM", iv }, this.#voiceKey, payload);
+        return await crypto.subtle.decrypt({ name: "AES-GCM", iv }, this.#encryptionKey, payload);
     }
 
     async decrypt(data) {
