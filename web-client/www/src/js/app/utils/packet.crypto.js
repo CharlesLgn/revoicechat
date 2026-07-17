@@ -28,13 +28,13 @@ export class CryptoPacket {
 
     async init(onlySelf) {
         if (onlySelf) {
-            await this.#generateKey();
+            await this.#generateEncryptionKey();
         } else {
-            await this.#requestKey();
+            await this.#requestEncryptionKey();
         }
     }
 
-    async #generateKey() {
+    async #generateEncryptionKey() {
         this.#encryptionKey = await crypto.subtle.generateKey(
             {
                 name: "AES-GCM",
@@ -45,7 +45,7 @@ export class CryptoPacket {
         );
     }
 
-    async #requestKey() {
+    async #requestEncryptionKey() {
         this.#temporaryKeys = await crypto.subtle.generateKey(
             {
                 name: "RSA-OAEP",
@@ -73,7 +73,7 @@ export class CryptoPacket {
         this.#sendCallback(buffer);
     }
 
-    async #importVoiceKey(voiceKeyBuffer) {
+    async #importEncryptionKey(voiceKeyBuffer) {
         const decryptedVoiceKey = await crypto.subtle.decrypt(
             {
                 name: "RSA-OAEP",
@@ -125,7 +125,7 @@ export class CryptoPacket {
 
     async encrypt(data) {
         if (!this.#encryptionKey) {
-            console.warn("No voiceKey to encrypt");
+            console.warn("encryptionKey not found to encrypt");
             return;
         }
 
@@ -146,13 +146,13 @@ export class CryptoPacket {
         // Set payload
         uint8buffer.set(new Uint8Array(encryptData), offset);
 
-        return buffer;
+        this.#sendCallback(buffer);
     }
 
     async #decryptData(data) {
         if (!this.#encryptionKey) {
-            console.warn("No voiceKey to decrypt");
-            return;
+            console.warn("encryptionKey not found to decrypt");
+            return null;
         }
 
         const iv = new Uint8Array(data, 0, 12);
@@ -173,7 +173,7 @@ export class CryptoPacket {
                 return null;
 
             case CryptoPacket.ANSWER:
-                await this.#importVoiceKey(payload);
+                await this.#importEncryptionKey(payload);
                 return null;
         }
     }

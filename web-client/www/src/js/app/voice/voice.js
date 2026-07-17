@@ -94,7 +94,7 @@ export default class VoiceCall {
         this.#socket = new WebSocket(`${voiceUrl}/${roomId}`, ["Bearer." + token]);
         this.#socket.binaryType = "arraybuffer";
 
-        this.#cryptoPacket = new CryptoPacket((data) => this.#socket.send(data), this.#dispatchAudio);
+        this.#cryptoPacket = new CryptoPacket((data) => this.#socket.send(data));
 
         this.#socket.onopen = async () => {
             // Init crypto
@@ -279,9 +279,7 @@ export default class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => {
-                if (this.#socket.readyState === WebSocket.OPEN) {
-                    this.#cryptoPacket.encrypt(new EncodedVoiceTransport(Math.round(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, EncodedVoiceTransport.user, chunk, false).data).then((res) => this.#socket.send(res));
-                }
+                this.#cryptoPacket.encrypt(new EncodedVoiceTransport(Math.round(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, EncodedVoiceTransport.user, chunk, false).data);
             },
             error: (error) => {
                 throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`);
