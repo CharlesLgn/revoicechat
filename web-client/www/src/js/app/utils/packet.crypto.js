@@ -46,16 +46,18 @@ export class CryptoPacket {
     }
 
     async #requestEncryptionKey() {
-        this.#temporaryKeys = await crypto.subtle.generateKey(
-            {
-                name: "RSA-OAEP",
-                modulusLength: 2048,
-                publicExponent: new Uint8Array([1, 0, 1]),
-                hash: "SHA-256",
-            },
-            true,
-            ["encrypt", "decrypt"],
-        );
+        if (!this.#temporaryKeys) {
+            this.#temporaryKeys = await crypto.subtle.generateKey(
+                {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: "SHA-256",
+                },
+                true,
+                ["encrypt", "decrypt"],
+            );
+        }
 
         const exportedPublic = await crypto.subtle.exportKey("spki", this.#temporaryKeys.publicKey);
 
@@ -152,6 +154,7 @@ export class CryptoPacket {
     async #decryptData(data) {
         if (!this.#encryptionKey) {
             console.warn("encryptionKey not found to decrypt");
+            this.#requestEncryptionKey();
             return null;
         }
 
