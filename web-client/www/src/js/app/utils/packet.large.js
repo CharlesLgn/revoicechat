@@ -16,7 +16,7 @@
  */
 export class LargePacket {
     static headerByteLength = 16;
-    static maxPayloadByteLength = 64 * 1024 - 16; // 64KB - 16B (reserved for header)
+    static maxPayloadByteLength = 64 * 1024 - LargePacket.headerByteLength; // 64KB - 16B (reserved for header)
 
     #socket;
 
