@@ -2,11 +2,13 @@ export class CryptoPacket {
     /**
      * REQUEST key :
      * [ 1 byte  ] Packet type REQUEST
+     * [ 8 bytes ] RequestId
      * [ N bytes ] Temporary public key
      *
      * ANSWER key :
-     * [ 1 byte ] Packet type ANSWER
-     * [ N byte ] Encrypted Voice Key
+     * [ 1 byte  ] Packet type ANSWER
+     * [ 8 bytes ] RequestId
+     * [ N bytes ] Encrypted Voice Key
      *
      * DATA :
      * [  1 byte  ] Packet type DATA
@@ -86,7 +88,7 @@ export class CryptoPacket {
         const voiceKeyBuffer = data.slice(8);
 
         if (requestId.toBase64() != this.#requestId.toBase64()) {
-            console.warn("Not my requestId")
+            console.warn("Not my requestId");
             return;
         }
 
@@ -106,7 +108,7 @@ export class CryptoPacket {
     async #exportVoiceKey(data) {
         const requestId = new Uint8Array(data.slice(0, 8));
         const publicKeyBuffer = data.slice(8);
-       
+
         const publicKey = await crypto.subtle.importKey(
             "spki",
             publicKeyBuffer,
