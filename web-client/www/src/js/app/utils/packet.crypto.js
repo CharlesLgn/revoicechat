@@ -20,6 +20,7 @@ export class CryptoPacket {
 
     #encryptionKey;
     #temporaryKeys;
+    #requestId;
     #sendCallback;
 
     constructor(sendCallback) {
@@ -57,11 +58,12 @@ export class CryptoPacket {
                 true,
                 ["encrypt", "decrypt"],
             );
+            this.#requestId = crypto.getRandomValues(new Uint8Array(8));
         }
 
         const exportedPublic = await crypto.subtle.exportKey("spki", this.#temporaryKeys.publicKey);
 
-        const buffer = new ArrayBuffer(1 + exportedPublic.byteLength);
+        const buffer = new ArrayBuffer(1 + 8 + exportedPublic.byteLength);
         const uint8buffer = new Uint8Array(buffer);
         let offset = 0;
 
@@ -69,13 +71,25 @@ export class CryptoPacket {
         uint8buffer.set([CryptoPacket.REQUEST], 0);
         offset += 1;
 
+        // Set requestId
+        uint8buffer.set(this.#requestId, offset);
+        offset += 8;
+
         // Set publicKey
         uint8buffer.set(new Uint8Array(exportedPublic), offset);
 
         this.#sendCallback(buffer);
     }
 
-    async #importEncryptionKey(voiceKeyBuffer) {
+    async #importEncryptionKey(data) {
+        const requestId = new Uint8Array(data.slice(0, 8));
+        const voiceKeyBuffer = data.slice(8);
+
+        if (requestId.toBase64() != this.#requestId.toBase64()) {
+            console.warn("Not my requestId")
+            return;
+        }
+
         const decryptedVoiceKey = await crypto.subtle.decrypt(
             {
                 name: "RSA-OAEP",
@@ -89,7 +103,10 @@ export class CryptoPacket {
         this.#temporaryKeys = null;
     }
 
-    async #exportVoiceKey(publicKeyBuffer) {
+    async #exportVoiceKey(data) {
+        const requestId = new Uint8Array(data.slice(0, 8));
+        const publicKeyBuffer = data.slice(8);
+       
         const publicKey = await crypto.subtle.importKey(
             "spki",
             publicKeyBuffer,
@@ -111,13 +128,17 @@ export class CryptoPacket {
             exportedVoiceKey,
         );
 
-        const buffer = new ArrayBuffer(1 + encryptedVoiceKey.byteLength);
+        const buffer = new ArrayBuffer(1 + 8 + encryptedVoiceKey.byteLength);
         const uint8buffer = new Uint8Array(buffer);
         let offset = 0;
 
         // Set type ANSWER
         uint8buffer.set([CryptoPacket.ANSWER], offset);
         offset += 1;
+
+        // Set requestId
+        uint8buffer.set(requestId, offset);
+        offset += 8;
 
         // Set data
         uint8buffer.set(new Uint8Array(encryptedVoiceKey), offset);
@@ -163,6 +184,9 @@ export class CryptoPacket {
         return await crypto.subtle.decrypt({ name: "AES-GCM", iv }, this.#encryptionKey, payload);
     }
 
+    /**
+     * @param {ArrayBuffer} data
+     */
     async decrypt(data) {
         const type = new Uint8Array(data)[0];
         const payload = data.slice(1);
