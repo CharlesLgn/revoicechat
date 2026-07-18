@@ -33,7 +33,7 @@ export class LargePacket {
             await onOpenCallback();
         };
         this.#socket.onmessage = async (message) => {
-            await this.#receive(message.data, receiveCallback);
+            receiveCallback(await this.#receive(message.data));
         };
     }
 
@@ -65,7 +65,7 @@ export class LargePacket {
     #buffer = [];
     #received = 0;
 
-    async #receive(data, callback) {
+    #receive(data, callback) {
         const array = new Uint8Array(data);
         const view = new DataView(array.buffer);
 
@@ -91,8 +91,7 @@ export class LargePacket {
             this.#received = 0;
             this.#buffer = [];
 
-            // Finally call the callback function
-            await callback(rawData.buffer);
+            return rawData.buffer;
         }
     }
 }
