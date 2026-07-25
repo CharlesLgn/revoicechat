@@ -98,9 +98,23 @@ class TextareaComponent extends HTMLElement {
     #syncMessage() {
         this.#cursorPos = this.textInput.selectionStart;
         this.#clampCursor();
+        this.#resizeTextInput();
         this.#render();
         this.#updatePlaceholder(true)
         this.#updateMentionList();
+    }
+
+    /**
+     * Keeps the hidden textarea's height in sync with its (wrapped, multi-line)
+     * content. Without this it stays clamped to `rows="1"`, so its internal
+     * layout - and therefore the caret position OS-level accessibility features
+     * (Narrator, High Contrast caret, caret browsing) read from it - no longer
+     * matches what the visible preview is showing once text wraps to more than
+     * one line.
+     */
+    #resizeTextInput() {
+        this.textInput.style.height = 'auto';
+        this.textInput.style.height = `${this.textInput.scrollHeight}px`;
     }
 
     /**
@@ -220,6 +234,10 @@ class TextareaComponent extends HTMLElement {
         const caret = document.createElement('span');
         caret.className = 'cursor-caret';
         this.textPreview.appendChild(caret);
+
+        const start = this.textPreview.getBoundingClientRect().left;
+        const end = caret.getBoundingClientRect().right;
+        this.textInput.style.width = `${end - start}px`
 
         for (const part of this.#splitMarkdown(after)) {
             this.textPreview.appendChild(this.#renderPart(part));

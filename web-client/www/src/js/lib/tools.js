@@ -239,7 +239,6 @@ function getUserLanguage() {
 }
 
 function openFancyBox(src) {
-    console.log(src)
     FancyBox.toggle({
         src: src,
         alt: '',
