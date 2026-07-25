@@ -1,4 +1,5 @@
 import MediaServer from "../app/media/media.server.js";
+import FancyBox from "./fancy.box.component.js";
 
 /**
  * This component represent an attachement on a message
@@ -10,9 +11,13 @@ import MediaServer from "../app/media/media.server.js";
  */
 class AttachementMessageComponent extends HTMLElement {
 
+    constructor() {
+        super();
+        this.attachShadow({mode: 'open'});
+    }
+
     connectedCallback() {
-        if (this.hasAttribute("_initialized")) return;
-        this.setAttribute("_initialized", "true");
+        this.shadowRoot.innerHTML = ''
         const id = this.getAttribute("id")
         const name = this.getAttribute("name")
         const type = this.getAttribute("type")
@@ -20,7 +25,8 @@ class AttachementMessageComponent extends HTMLElement {
         if (!typeComponentRetriever) {
             typeComponentRetriever = this.#TYPES["OTHER"]
         }
-        this.appendChild(typeComponentRetriever(id, name))
+        this.shadowRoot.innerHTML = '<link href="src/js/component/message.component.css" rel="stylesheet" />'
+        this.shadowRoot.appendChild(typeComponentRetriever(id, name))
     }
 
     #TYPES = {
@@ -48,7 +54,7 @@ class AttachementMessageComponent extends HTMLElement {
         img.alt = name;
         img.loading = 'lazy';
         img.classList.add('media')
-        img.onclick = () => openFancyBox(src, name)
+        img.addEventListener('click', () => FancyBox.toggle({src: src, alt: name, caption: '',}))
         return img
     }
 
@@ -89,11 +95,11 @@ class AttachementMessageComponent extends HTMLElement {
         header.classList.add('media', 'file-type-link')
         header.style.width = 'auto';
         header.style.borderRadius = '10px 10px 0 0';
-        header.style.display= 'flex';
+        header.style.display = 'flex';
         header.style.justifyContent = 'space-between';
 
         const div = document.createElement('div');
-        div.style.display= 'flex';
+        div.style.display = 'flex';
         div.style.columnGap = '1rem'
         div.innerHTML = svgType
 

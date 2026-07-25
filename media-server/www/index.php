@@ -152,7 +152,7 @@ function post_attachment_upload(string $id)
         $file = file_upload('file', $uploadDir, $id);
 
         // Make a thumbnail for images
-        if (in_array(exif_imagetype($file), SUPPORTED_IMAGETYPE)) {
+        if (exif_imagetype($file)) {
             $image = new SimpleImage();
             $image->load($file);
             $image->resizeToHeight(256);
