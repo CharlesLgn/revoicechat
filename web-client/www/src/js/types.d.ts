@@ -289,3 +289,90 @@ export class PageResult<T> {
 export class ErrorResponse {
     message: string;
 }
+
+export class OpenGraphSchema {
+    basic: OpenGraphBasicData;
+    image: OpenGraphImage;
+    page: OpenGraphPage;
+    video: OpenGraphVideo;
+    audio: OpenGraphAudio;
+    article: OpenGraphArticle;
+    book: OpenGraphBook;
+    profile: OpenGraphProfile;
+    music: OpenGraphMusic;
+}
+
+export class OpenGraphBasicData {
+    url: string;
+    title: string;
+    type: string;
+}
+
+export class OpenGraphImage {
+    image: string;
+    url: string;
+    secureUrl: string;
+    type: string;
+    width: string;
+    height: string;
+    alt: string;
+}
+
+export class OpenGraphPage {
+    pageUrl: string;
+    description: string;
+    siteName: string;
+    locale: string;
+    localeAlternate: string;
+}
+
+export class OpenGraphVideo {
+    video: string;
+    url: string;
+    secureUrl: string;
+    type: string;
+    width: string;
+    height: string;
+}
+
+export class OpenGraphAudio {
+    audio: string;
+    secureUrl: string;
+    type: string;
+}
+
+export class OpenGraphArticle {
+    publishedTime: string;
+    modifiedTime: string;
+    expirationTime: string;
+    author: string;
+    section: string;
+    tags: string[];
+}
+
+export class OpenGraphBook {
+    author: string;
+    isbn: string;
+    releaseDate: string;
+    tags: string[];
+}
+
+export class OpenGraphProfile {
+    firstName: string;
+    lastName: string;
+    username: string;
+    gender: string;
+}
+
+export class OpenGraphMusic {
+    duration: string;
+    album: string;
+    albumDisc: string;
+    albumTrack: string;
+    musician: string;
+    song: string;
+    songDisc: string;
+    songTrack: string;
+    releaseDate: string;
+    creator: string;
+}
