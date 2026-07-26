@@ -47,6 +47,19 @@ public class StreamSessions implements StreamRetriever {
   }
 
   /**
+   * Finds a stream session containing the given viewer's WebSocket session.
+   *
+   * @param session the viewer's WebSocket session
+   * @return the stream session, or null if not found
+   */
+  StreamSession getByViewer(Session session) {
+    return streams.stream()
+                  .filter(e -> e.viewers().stream().anyMatch(viewer -> viewer.is(session)))
+                  .findFirst()
+                  .orElse(null);
+  }
+
+  /**
    * Finds a stream session by streamer ID and stream name.
    *
    * @param streamedUserId the streamer's user ID

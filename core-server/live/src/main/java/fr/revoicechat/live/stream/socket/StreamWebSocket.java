@@ -139,7 +139,8 @@ public class StreamWebSocket {
   /**
    * Called when a text message is received from a client.
    *
-   * <p>Routes the message from streamer to all authorized viewers.</p>
+   * <p>Routes the message from the sender (streamer or viewer) to every other
+   * authorized participant in the stream.</p>
    *
    * @param message the text message content
    * @param sender the session that sent the message
@@ -153,7 +154,8 @@ public class StreamWebSocket {
   /**
    * Called when a binary message (stream data) is received from a client.
    *
-   * <p>Routes the stream data from streamer to all authorized viewers.</p>
+   * <p>Routes the stream data from the sender (streamer or viewer) to every
+   * other authorized participant in the stream.</p>
    *
    * @param message the binary message content (typically video/audio data)
    * @param sender the session that sent the message
@@ -167,22 +169,64 @@ public class StreamWebSocket {
   /**
    * Determines which sessions should receive stream data from the sender.
    *
-   * <p>Only the streamer can send data, and only viewers with receive permissions
-   * will get the data. The sender is excluded from receivers.</p>
+   * <p>Both the streamer and viewers may send data, provided they hold send
+   * permissions. Data is routed to every other participant in the stream
+   * (streamer and viewers alike) who holds receive permissions. The sender
+   * itself is always excluded from the receivers.</p>
    *
-   * @param sender the session sending the stream data (must be the streamer)
-   * @return stream of viewer sessions that should receive the data
+   * @param sender the session sending the stream data (streamer or viewer)
+   * @return stream of sessions that should receive the data
    */
   private Stream<Session> getReceiver(Session sender) {
-    var current = streamSessions.get(sender);
-    if (current == null || !current.streamer().risks().send()) {
+    var streamerStream = streamSessions.get(sender);
+    if (streamerStream != null) {
+      return getReceiversForStreamerSender(streamerStream, sender);
+    }
+    var viewerStream = streamSessions.getByViewer(sender);
+    if (viewerStream != null) {
+      return getReceiversForViewerSender(viewerStream, sender);
+    }
+    return Stream.empty();
+  }
+
+  /**
+   * Determines the receivers when the streamer is the sender: all viewers
+   * with receive permissions, provided the streamer has send permissions.
+   */
+  private Stream<Session> getReceiversForStreamerSender(StreamSession stream, Session sender) {
+    if (!stream.streamer().risks().send()) {
       return Stream.empty();
     }
-    return current.viewers()
-                  .stream()
-                  .filter(viewer -> viewer.risks().receive())
-                  .map(Viewer::session)
-                  .filter(session -> !session.getId().equals(sender.getId()));
+    return stream.viewers()
+                 .stream()
+                 .filter(viewer -> viewer.risks().receive())
+                 .map(Viewer::session)
+                 .filter(session -> !session.getId().equals(sender.getId()));
+  }
+
+  /**
+   * Determines the receivers when a viewer is the sender: the streamer and
+   * every other viewer with receive permissions, provided the sending viewer
+   * has send permissions.
+   */
+  private Stream<Session> getReceiversForViewerSender(StreamSession stream, Session sender) {
+    var sendingViewer = stream.viewers()
+                              .stream()
+                              .filter(viewer -> viewer.is(sender))
+                              .findFirst()
+                              .orElse(null);
+    if (sendingViewer == null || !sendingViewer.risks().send()) {
+      return Stream.empty();
+    }
+    Stream<Session> streamerReceiver = stream.streamer().risks().receive()
+                                       ? Stream.of(stream.streamer().session())
+                                       : Stream.empty();
+    Stream<Session> otherViewers = stream.viewers()
+                                         .stream()
+                                         .filter(viewer -> viewer.risks().receive())
+                                         .map(Viewer::session)
+                                         .filter(session -> !session.getId().equals(sender.getId()));
+    return Stream.concat(streamerReceiver, otherViewers);
   }
 
   /**
