@@ -84,9 +84,7 @@
     .room-control-container {
         flex-shrink: 0;
         display: flex;
-        padding: 0.5rem;
         min-height: 4rem;
-        border-top-width: 1px;
     }
 
     .text-control {
