@@ -345,6 +345,11 @@ svg {
     height: 2rem;
 }
 
+.sidebar.instances-list .header {
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(to right, transparent 20%, #4f545c 20%, #4f545c 80%, transparent 80%) 1;
+}
+
 /* INSTANCE (list) */
 .instances {
     overflow-y: auto;
@@ -993,7 +998,7 @@ hr.light-border {
 
 .config-right .card .card-badge {
     font-size: 0.65rem;
-    padding: 0.25rem 0.75rem;;
+    padding: 0.25rem 0.75rem;
     border-radius: 20px;
 }
 

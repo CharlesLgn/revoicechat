@@ -21,13 +21,13 @@
         left: 4rem;
     }
 
-    .sidebar .right {
+    .sidebar.users {
         left: auto;
         right: -100%;
         transition: right 0.3s;
     }
 
-    .sidebar .right.show {
+    .sidebar.users.show {
         right: 0;
     }
 
