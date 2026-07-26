@@ -350,6 +350,15 @@ svg {
     border-image: linear-gradient(to right, transparent 20%, #4f545c 20%, #4f545c 80%, transparent 80%) 1;
 }
 
+.sidebar.users .header {
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(to right, transparent 5%, #4f545c 5%, #4f545c 95%, transparent 95%) 1;
+}
+
+.sidebar.server .header {
+    border-bottom: 1px solid transparent;
+}
+
 /* INSTANCE (list) */
 .instances {
     overflow-y: auto;
@@ -563,11 +572,14 @@ svg {
 .room-control-container {
     display: flex;
     min-height: 4rem;
-    border-top-width: 1px;
 }
 
 .text-control {
     width: 100%;
+    margin: 0 0.5rem 0.5rem;
+    border-color: var(--pri-bd-color);
+    border-top-width: 1px;
+    border-radius: 20px;
 }
 
 .text-control-file,
