@@ -576,7 +576,7 @@ svg {
 
 .text-control {
     width: 100%;
-    margin: 0 0.5rem 0.5rem;
+    margin: 0 0.35rem 0.35rem;
     border-color: var(--pri-bd-color);
     border-top-width: 1px;
     border-radius: 20px;
