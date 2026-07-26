@@ -46,8 +46,7 @@ class OpenGraphCard extends HTMLElement {
             const mimeType = data.video.type || 'video/mp4';
             return `<video preload="none" controls
                            poster="${data?.image?.image}"
-                           aria-label="${data?.image?.alt}"
-                           style="width: 100%; height: 100%; position: absolute; background-color: black; top: 0%; left: 0%; transform: rotate(0deg) scale(1.005);">
+                           aria-label="${data?.image?.alt}">
                  <source src="${videoUrl}" type="${mimeType}">
                </video>`;
         }

@@ -139,6 +139,12 @@
     margin-right: 4px;
 }
 
+video {
+    width: 100%;
+    height: 100%;
+    transform: rotate(0deg) scale(1.005);
+}
+
 @media (max-width: 768px) {
     .card {
         max-width: 18rem;

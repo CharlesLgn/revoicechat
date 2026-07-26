@@ -329,8 +329,9 @@ body {
 }
 
 .room-header {
-    background-color: var(--sec-bg-color);
+    background-color: var(--pri-bg-color);
     border-color: var(--pri-bd-color);
+
 }
 
 .room-name {
@@ -349,6 +350,10 @@ body {
 .room-control-container {
     border-color: var(--pri-bd-color);
     background-color: var(--sec-bg-color);
+}
+
+.text-control {
+    background-color: var(--ter-bg-color);
 }
 
 .text-control input,
