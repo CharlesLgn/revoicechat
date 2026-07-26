@@ -22,11 +22,6 @@ export default class VoiceController {
     /** @type {StreamController} */
     streamController;
 
-    #cachedElement = {
-        voiceSelfMute: null,
-        usersGlow: [],
-    }
-
     /**
      * @param {UserController} user
      * @param {RoomController} room
@@ -36,7 +31,6 @@ export default class VoiceController {
         this.#room = room;
         this.streamController = new StreamController(user, room);
         this.#contextMenu = document.getElementById('voice-context-menu');
-        this.#cachedElement.voiceSelfMute = document.getElementById(`voice-self-mute`);
     }
 
     attachEvents() {
@@ -207,25 +201,20 @@ export default class VoiceController {
         }
     }
 
-    setUserGlow(userId, enabled) {
-        if (!this.#cachedElement.usersGlow[userId]) {
-            this.#cachedElement.usersGlow[userId] = document.getElementById(`voice-gate-${userId}`)
-        }
-
+    setUserGlow(userId, enabled) {     
         if (enabled) {
-            this.#cachedElement.usersGlow[userId]?.classList.add('active');
-        }
-        else {
-            this.#cachedElement.usersGlow[userId]?.classList.remove('active');
+            document.getElementById(`voice-gate-${userId}`)?.classList.add("active");
+        } else {
+            document.getElementById(`voice-gate-${userId}`)?.classList.remove("active");
         }
     }
 
     setSelfGlow(enabled) {
         if (enabled) {
-            this.#cachedElement.voiceSelfMute.classList.add('green');
+            document.getElementById(`voice-self-mute`).classList.add("green");
         }
         else {
-            this.#cachedElement.voiceSelfMute.classList.remove('green');
+            document.getElementById(`voice-self-mute`).classList.remove("green");
         }
     }
 
