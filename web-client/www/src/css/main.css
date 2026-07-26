@@ -876,9 +876,10 @@ svg {
 
 .user-profile {
     display: flex;
+    align-items: center;
     cursor: pointer;
     padding: 0.5rem;
-    height: 3rem;
+    height: 2.6rem;
     margin: 0.15rem;
     border-radius: 5px;
 }
