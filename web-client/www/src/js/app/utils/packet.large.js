@@ -33,7 +33,7 @@ export class LargePacket {
             await onOpenCallback();
         };
         this.#socket.onmessage = async (message) => {
-            receiveCallback(await this.#receive(message.data));
+            await receiveCallback(this.#receive(message.data));
         };
     }
 

@@ -141,7 +141,7 @@ export default class Streamer {
 
         this.#largePacket.init(
             async () => await this.#crypto.init(true),
-            async (encryptedData) => await crypto.decrypt(encryptedData),
+            async (encryptedData) => await this.#crypto.decrypt(encryptedData),
         );
 
         // Create Encoders
