@@ -214,6 +214,13 @@ export default class VoiceCall {
     async toggleSelfMute() {
         // Need to be async !
         this.#settings.self.muted = !this.#settings.self.muted;
+
+        if (this.#settings.self.muted) {
+            this.setSelfVolume(0.001, false);
+        }
+        else {
+            this.setSelfVolume(this.#settings.self.volume, false);
+        }
     }
 
     async setSelfMute(muted) {
@@ -241,9 +248,11 @@ export default class VoiceCall {
         return this.#settings.self.deaf;
     }
 
-    setSelfVolume(volume) {
-        this.#settings.self.volume = volume;
-
+    setSelfVolume(volume, permanent = true) {
+        if (permanent) {
+            this.#settings.self.volume = volume;
+        }
+        
         if (this.#gainNode) {
             this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
         }
@@ -279,7 +288,17 @@ export default class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => {
-                this.#cryptoPacket.encrypt(new EncodedVoiceTransport(Math.round(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, EncodedVoiceTransport.user, chunk, false).data);
+                this.#cryptoPacket.encrypt(
+                    new EncodedVoiceTransport(
+                        Math.round(this.#audioTimestamp / 1000),
+                        this.#user.id,
+                        this.#gateState,
+                        this.#settings.self.muted,
+                        this.#settings.self.deaf,
+                        EncodedVoiceTransport.user,
+                        chunk,
+                    ).data
+                );
             },
             error: (error) => {
                 throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`);
@@ -384,8 +403,8 @@ export default class VoiceCall {
         }
 
         this.#audioCollector.port.onmessage = (event) => {
-            // We don't do anything if we are self muted
-            if (this.#settings.self.muted || !this.#audioContext) {
+            if (!this.#audioContext) {
+                console.warn("No audio context for this voice call");
                 return;
             }
 
