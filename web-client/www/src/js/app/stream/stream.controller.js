@@ -154,6 +154,8 @@ export default class StreamController {
             const player = await this.#streamer["webcam"].stream.start("webcam", await Codec.webcamConfig());
             div.className = "player";
             div.appendChild(player);
+            await player.play();
+            
             div.onclick = () => {
                 this.focus(div)
             }

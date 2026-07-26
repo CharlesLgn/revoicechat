@@ -1,7 +1,7 @@
 import Codec from "../utils/codec.js";
 import Listener from "./voice.listener.js";
 import { EncodedVoiceTransport, DecodedVoiceTransport } from "./voice.transport.js";
-import { VoiceCrypto } from "./voice.crypto.js";
+import { CryptoPacket } from "../utils/packet.crypto.js";
 
 export default class VoiceCall {
     "use strict";
@@ -11,7 +11,7 @@ export default class VoiceCall {
     static OPEN = 2;
     static DEFAULT_SETTINGS = {
         compressor: {
-            enabled: true
+            enabled: true,
         },
         gate: {
             threshold: -40,
@@ -24,8 +24,8 @@ export default class VoiceCall {
         noiseSuppression: {
             legacy: true,
         },
-        users: {}
-    }
+        users: {},
+    };
     static COMPRESSOR_SETTINGS = {
         attack: 0,
         knee: 40,
@@ -33,12 +33,12 @@ export default class VoiceCall {
         release: 0.25,
         reduction: 0,
         threshold: -50,
-    }
+    };
     static GATE_SETTINGS = {
         attack: 0.01,
         release: 0.4,
-        threshold: -40
-    }
+        threshold: -40,
+    };
 
     #codec = /** @type {AudioEncoderConfig} */ structuredClone(Codec.DEFAULT_VOICE_USER);
     #socket;
@@ -58,11 +58,11 @@ export default class VoiceCall {
     #gateState = false;
     #outputGain;
     #controller;
-    #voiceCrypto = null /** @type {VoiceCrypto} */;
+    #cryptoPacket = /** @type {CryptoPacket} */ null;
 
     constructor(user, controller) {
         if (!user) {
-            throw new Error('user is null or undefined');
+            throw new Error("user is null or undefined");
         }
 
         this.#state = VoiceCall.CONNECTING;
@@ -70,8 +70,7 @@ export default class VoiceCall {
         this.#user = user;
         if (user.settings) {
             this.#settings = user.settings.voice;
-        }
-        else {
+        } else {
             this.#settings = VoiceCall.DEFAULT_SETTINGS;
         }
 
@@ -80,26 +79,26 @@ export default class VoiceCall {
 
     async open(voiceUrl, token, roomId, onlySelf, anormalClosureHandler) {
         if (!voiceUrl) {
-            throw new Error('VoiceUrl is null or undefined');
+            throw new Error("VoiceUrl is null or undefined");
         }
-        
+
         if (!roomId) {
-            throw new Error('roomId is null or undefined');
+            throw new Error("roomId is null or undefined");
         }
 
         if (!token) {
-            throw new Error('token is null or undefined');
+            throw new Error("token is null or undefined");
         }
 
         // Create WebSocket
         this.#socket = new WebSocket(`${voiceUrl}/${roomId}`, ["Bearer." + token]);
         this.#socket.binaryType = "arraybuffer";
 
-        this.#voiceCrypto = new VoiceCrypto(this.#socket, this.#dispatchAudio);
+        this.#cryptoPacket = new CryptoPacket((data) => this.#socket.send(data));
 
         this.#socket.onopen = async () => {
             // Init crypto
-            await this.#voiceCrypto.init(onlySelf);
+            await this.#cryptoPacket.init(onlySelf);
 
             // Setup encoder and transmitter
             await this.#encodeAudio();
@@ -107,24 +106,27 @@ export default class VoiceCall {
             // Setup main output gain
             this.#outputGain = this.#audioContext.createGain();
             this.#outputGain.gain.setValueAtTime(this.#user.settings.getVoiceVolume(), this.#audioContext.currentTime);
-        }
+        };
 
         this.#socket.onclose = async (e) => {
             await this.close();
             if (e.code !== 1000) {
-                console.error('VoiceCall : anormal closure:', e)
+                console.error("VoiceCall : anormal closure:", e);
                 anormalClosureHandler(e.reason);
             }
         };
 
-        this.#socket.onerror = async (e) => { await this.close(); console.error('VoiceCall : WebSocket error:', e) };
+        this.#socket.onerror = async (e) => {
+            await this.close();
+            console.error("VoiceCall : WebSocket error:", e);
+        };
 
         this.#socket.onmessage = async (message) => {
-            const res = await this.#voiceCrypto.process(message.data);
-            if (res) {
-                this.#dispatchAudio(res);
+            const result = await this.#cryptoPacket.decrypt(message.data);
+            if (result) {
+                this.#dispatchAudio(result);
             }
-        }
+        };
 
         this.#state = VoiceCall.OPEN;
     }
@@ -153,13 +155,11 @@ export default class VoiceCall {
         // For all users
         for (const [userId, user] of Object.entries(this.#users)) {
             // Flush and close all decoders
-            if (user?.decoder?.state === 'configured') {
+            if (user?.decoder?.state === "configured") {
                 try {
                     await user.decoder.flush();
                     await user.decoder.close();
-
-                }
-                catch (error) {
+                } catch (error) {
                     console.error(error);
                 }
 
@@ -190,8 +190,7 @@ export default class VoiceCall {
     async setUserMute(userId, enabled) {
         if (this.#users[userId]) {
             this.#users[userId].setMute(enabled);
-        }
-        else {
+        } else {
             console.warn(`Unable to set user mute, ${userId} don't exist.`);
         }
     }
@@ -199,8 +198,7 @@ export default class VoiceCall {
     async updateUserMute(userId) {
         if (this.#users[userId] && this.#settings.users[userId]) {
             this.#users[userId].setMute(this.#settings.users[userId].muted);
-        }
-        else {
+        } else {
             console.warn(`Unable to update user mute, ${userId} don't exist.`);
         }
     }
@@ -208,8 +206,7 @@ export default class VoiceCall {
     updateUserVolume(userId) {
         if (this.#users[userId] && this.#settings.users[userId]) {
             this.#users[userId].setVolume(this.#settings.users[userId].volume);
-        }
-        else {
+        } else {
             console.warn(`Unable to set user volume, ${userId} don't exist.`);
         }
     }
@@ -282,45 +279,45 @@ export default class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => {
-                if (this.#socket.readyState === WebSocket.OPEN) {
-                    this.#voiceCrypto.encrypt(
-                        new EncodedVoiceTransport(Math.round(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, EncodedVoiceTransport.user, chunk, false).data
-                    ).then((res) => this.#socket.send(res));
-                }
+                this.#cryptoPacket.encrypt(new EncodedVoiceTransport(Math.round(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, EncodedVoiceTransport.user, chunk, false).data);
             },
-            error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`) },
+            error: (error) => {
+                throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`);
+            },
         });
 
-        this.#encoder.configure(this.#codec)
+        this.#encoder.configure(this.#codec);
 
         // Init AudioContext, SampleRate and bufferMaxLenght
         this.#audioContext = new AudioContext({ sampleRate: this.#codec.sampleRate });
         this.#codec.sampleRate = this.#audioContext.sampleRate;
         this.#bufferMaxLength = Math.round(this.#codec.sampleRate * (this.#codec.opus.frameDuration / 1_000_000));
-        await this.#audioContext.audioWorklet.addModule('src/js/app/utils/audio.processors.js');
+        await this.#audioContext.audioWorklet.addModule("src/js/app/utils/audio.processors.js");
 
         /**
-         * Audio routing 
+         * Audio routing
          * microphone -> filter (LP + HP : WideBand) -> gain -> gate -> compressor (optional) -> collector -> buffer -> encoder -> send
          */
 
         // Init Mic capture
-        const micSource = this.#audioContext.createMediaStreamSource(await navigator.mediaDevices.getUserMedia({
-            audio: {
-                echoCancellation: false,
-                noiseSuppression: this.#settings.noiseSuppression.legacy,
-                autoGainControl: false
-            }
-        }));
+        const micSource = this.#audioContext.createMediaStreamSource(
+            await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: this.#settings.noiseSuppression.legacy,
+                    autoGainControl: false,
+                },
+            }),
+        );
 
         // Create Filters around voice frequency
         const filterHigh = this.#audioContext.createBiquadFilter();
-        filterHigh.type = 'highpass';
+        filterHigh.type = "highpass";
         filterHigh.frequency.value = 50;
         filterHigh.Q.value = 0.7;
 
         const filterLow = this.#audioContext.createBiquadFilter();
-        filterLow.type = 'lowpass';
+        filterLow.type = "lowpass";
         filterLow.frequency.value = 7000;
         filterLow.Q.value = 0.7;
 
@@ -340,12 +337,12 @@ export default class VoiceCall {
             parameterData: {
                 attack: VoiceCall.GATE_SETTINGS.attack,
                 release: VoiceCall.GATE_SETTINGS.release,
-                threshold: this.#settings.gate.threshold
-            }
+                threshold: this.#settings.gate.threshold,
+            },
         });
 
         this.#gateNode.port.onmessage = (event) => {
-            const state = event.data.open
+            const state = event.data.open;
             this.#gateState = state;
 
             if (this.#settings.self.muted) {
@@ -355,7 +352,7 @@ export default class VoiceCall {
                 this.#controller.setUserGlow(this.#user.id, state);
                 this.#controller.setSelfGlow(state);
             }
-        }
+        };
 
         // Connect gain to gate
         this.#gainNode.connect(this.#gateNode);
@@ -364,7 +361,7 @@ export default class VoiceCall {
         this.#audioCollector = new AudioWorkletNode(this.#audioContext, "MonoCollector", {
             channelCount: 1,
             channelCountMode: "explicit",
-            channelInterpretation: "speakers"
+            channelInterpretation: "speakers",
         });
 
         // Create compressor if enabled
@@ -394,7 +391,7 @@ export default class VoiceCall {
 
             const samples = event.data;
 
-            if (!samples || samples.some(v => Number.isNaN(v))) {
+            if (!samples || samples.some((v) => Number.isNaN(v))) {
                 console.warn("Invalid samples", samples);
             }
 
@@ -416,14 +413,13 @@ export default class VoiceCall {
                     numberOfFrames: frame.length,
                     numberOfChannels: 1,
                     timestamp: this.#audioTimestamp,
-                    data: new Float32Array(frame).buffer
+                    data: new Float32Array(frame).buffer,
                 });
 
                 // Feed encoder
                 if (this.#encoder !== null && this.#encoder.state === "configured") {
                     this.#encoder.encode(audioData);
-                }
-                else {
+                } else {
                     console.error("Self has no encoder");
                 }
 
@@ -432,7 +428,7 @@ export default class VoiceCall {
                 // Update audio timestamp (add 20 milliseconds / 20000 nanoseconds)
                 this.#audioTimestamp += (frame.length / this.#audioContext.sampleRate) * 1_000_000;
             }
-        }
+        };
     }
 
     async #dispatchAudio(encodedVoiceTransport) {
@@ -447,7 +443,7 @@ export default class VoiceCall {
 
         // User has no Listener yet
         if (!this.#users[userId]) {
-            const listenerCodec = (userType === EncodedVoiceTransport.music ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER);
+            const listenerCodec = userType === EncodedVoiceTransport.music ? Codec.DEFAULT_VOICE_MUSIC : Codec.DEFAULT_VOICE_USER;
             const isSupported = (await AudioDecoder.isConfigSupported(listenerCodec)).supported;
             if (isSupported) {
                 this.#users[userId] = new Listener(userId, this.#controller, listenerCodec, this.#settings.users[userId], this.#audioContext, this.#outputGain);

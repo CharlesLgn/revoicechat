@@ -1,6 +1,7 @@
-import { LargePacketSender } from "../utils/packet.js";
+import { LargePacket } from "../utils/packet.large.js";
 import { Multiplexer } from "./stream.multiplexing.js";
 import Codec from "../utils/codec.js";
+import { CryptoPacket } from "../utils/packet.crypto.js";
 
 export default class Streamer {
     static CLOSE = 0;
@@ -10,10 +11,11 @@ export default class Streamer {
     #state; // NOSONAR - for debugging purpose
     #socket;
     #user;
-    #packetSender;
+    #largePacket;
     #streamUrl;
     #token;
     #multiplexer = new Multiplexer();
+    #crypto;
 
     #displayMediaOptions = {
         video: true,
@@ -22,14 +24,14 @@ export default class Streamer {
             sampleRate: 48000,
             echoCancellation: false,
             noiseSuppression: false,
-            autoGainControl: false
+            autoGainControl: false,
         },
         preferCurrentTab: false,
         selfBrowserSurface: "include",
         systemAudio: "include",
         surfaceSwitching: "include",
         monitorTypeSurfaces: "include",
-    }
+    };
 
     // Local playback
     #player;
@@ -51,20 +53,20 @@ export default class Streamer {
     #keyframeCounter = 0;
     #lastFrame = {
         height: 0,
-        width: 0
-    }
+        width: 0,
+    };
 
     constructor(streamUrl, user, token) {
         if (!streamUrl) {
-            throw new Error('streamUrl is null or undefined');
+            throw new Error("streamUrl is null or undefined");
         }
 
         if (!user) {
-            throw new Error('user is null or undefined');
+            throw new Error("user is null or undefined");
         }
 
         if (!token) {
-            throw new Error('token is null or undefined');
+            throw new Error("token is null or undefined");
         }
 
         this.#user = user;
@@ -82,11 +84,11 @@ export default class Streamer {
 
     async start(type, videoCodec) {
         if (!type) {
-            throw new Error('type is null or undefined');
+            throw new Error("type is null or undefined");
         }
 
         if (!videoCodec) {
-            throw new Error('videoCodec is null or undefined');
+            throw new Error("videoCodec is null or undefined");
         }
 
         this.#videoCodec = videoCodec;
@@ -100,7 +102,7 @@ export default class Streamer {
         }
 
         // Video player
-        this.#player = document.createElement('video');
+        this.#player = document.createElement("video");
         this.#player.className = "content";
         this.#player.volume = 0; // IMPORTANT
 
@@ -114,39 +116,52 @@ export default class Streamer {
                     this.#player.srcObject = await navigator.mediaDevices.getDisplayMedia(this.#displayMediaOptions);
                     break;
             }
-        }
-        catch (error) {
+        } catch (error) {
             this.stop();
             throw new Error(`MediaDevice setup failed:\n${error}`);
         }
 
-        await this.#player.play();
-
         // Create WebSocket
         this.#socket = new WebSocket(`${this.#streamUrl}/${this.#user.id}/${type}`, ["Bearer." + this.#token]);
         this.#socket.binaryType = "arraybuffer";
-        this.#socket.onclose = async () => { await this.stop(); };
-        this.#socket.onerror = async (e) => { await this.stop(); console.error('Streamer : WebSocket error:', e) };
+        this.#socket.onclose = async () => {
+            await this.stop();
+        };
+        this.#socket.onerror = async (e) => {
+            await this.stop();
+            console.error("Streamer : WebSocket error:", e);
+        };
 
-        // Create LargePacketSender
-        this.#packetSender = new LargePacketSender(this.#socket);
+        // Create LargePacket
+        this.#largePacket = new LargePacket(this.#socket);
+
+        this.#crypto = new CryptoPacket((data) => {
+            this.#largePacket.send(data);
+        });
+
+        this.#largePacket.init(
+            async () => await this.#crypto.init(true),
+            async (encryptedData) => await this.#crypto.decrypt(encryptedData),
+        );
 
         // Create Encoders
         this.#audioEncoder = new AudioEncoder({
             output: (frame) => {
-                this.#packetSender.send(this.#multiplexer.processAudio(this.#audioTimestamp, frame));
+                this.#crypto.encrypt(this.#multiplexer.processAudio(this.#audioTimestamp, frame));
             },
-            error: (error) => { throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#audioCodec.codec}`) },
-        })
+            error: (error) => {
+                throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#audioCodec.codec}`);
+            },
+        });
 
         this.#videoEncoder = new VideoEncoder({
             output: (frame, metadata) => {
                 if (!this.#videoMetadata) {
                     this.#videoMetadata = {
-                        "codec": null,
-                        "codedHeight": null,
-                        "codedWidth": null
-                    }
+                        codec: null,
+                        codedHeight: null,
+                        codedWidth: null,
+                    };
 
                     this.#videoMetadata.codec = metadata.decoderConfig.codec;
                     this.#videoMetadata.codedHeight = metadata.decoderConfig.codedHeight;
@@ -157,8 +172,9 @@ export default class Streamer {
                     timestamp: Number.parseInt(performance.now()),
                     keyframe: frame.type === "key",
                     decoderConfig: this.#videoMetadata,
-                }
-                this.#packetSender.send(this.#multiplexer.processVideo(header, frame));
+                };
+
+                this.#crypto.encrypt(this.#multiplexer.processVideo(header, frame));
             },
             error: (error) => {
                 this.stop();
@@ -181,14 +197,14 @@ export default class Streamer {
             this.#audioContext.channelInterpretation = "discrete";
             this.#audioContext.channelCount = 2;
 
-            await this.#audioContext.audioWorklet.addModule('src/js/app/utils/audio.processors.js');
+            await this.#audioContext.audioWorklet.addModule("src/js/app/utils/audio.processors.js");
 
             const audioStream = this.#audioContext.createMediaStreamSource(this.#player.srcObject);
 
             this.#audioCollector = new AudioWorkletNode(this.#audioContext, "StereoCollector", {
                 channelCount: 2,
                 channelCountMode: "explicit",
-                channelInterpretation: "discrete"
+                channelInterpretation: "discrete",
             });
 
             audioStream.connect(this.#audioCollector);
@@ -209,7 +225,7 @@ export default class Streamer {
                         numberOfFrames: numberOfFrames,
                         numberOfChannels: channels,
                         timestamp: this.#audioTimestamp,
-                        data: new Float32Array(frames).buffer
+                        data: new Float32Array(frames).buffer,
                     });
 
                     if (this.#audioEncoder !== null && this.#audioEncoder.state === "configured") {
@@ -218,7 +234,7 @@ export default class Streamer {
                     audioFrame.close();
                     this.#audioTimestamp += (numberOfFrames / this.#audioContext.sampleRate) * 1_000_000;
                 }
-            }
+            };
         }
 
         // Process video
@@ -238,22 +254,20 @@ export default class Streamer {
                         await this.#videoEncoder.encode(frame, { keyFrame: this.#isKeyframe() });
                     }
                     await frame.close();
-                }
-                else {
+                } else {
                     this.stop();
                 }
-            }, 1000 / this.#videoCodec.framerate)
-        }
-        else {
+            }, 1000 / this.#videoCodec.framerate);
+        } else {
             // Fallback
             this.#videoEncoderInterval = setInterval(async () => {
-                const frame = new VideoFrame(this.#player, { timestamp: performance.now() * 1000 });;
+                const frame = new VideoFrame(this.#player, { timestamp: performance.now() * 1000 });
                 await this.#reconfigureEncoderResolution(frame);
                 if (this.#videoEncoder) {
                     await this.#videoEncoder.encode(frame, { keyFrame: this.#isKeyframe() });
                 }
                 frame.close();
-            }, 1000 / this.#videoCodec.framerate)
+            }, 1000 / this.#videoCodec.framerate);
         }
 
         this.#state = Streamer.OPEN;
@@ -266,7 +280,7 @@ export default class Streamer {
             this.#keyframeCounter = 0;
             return true;
         }
-        return false
+        return false;
     }
 
     async #reconfigureEncoderResolution(frame) {
@@ -289,7 +303,7 @@ export default class Streamer {
             return;
         }
 
-        const ratio = Math.min((this.#videoCodec.height / frame.codedHeight), (this.#videoCodec.width / frame.codedWidth));
+        const ratio = Math.min(this.#videoCodec.height / frame.codedHeight, this.#videoCodec.width / frame.codedWidth);
         const height = Number.parseInt(frame.codedHeight * ratio);
         const width = Number.parseInt(frame.codedWidth * ratio);
         await this.#setEncoderResolution(height, width);
