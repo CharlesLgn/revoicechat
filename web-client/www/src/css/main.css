@@ -7,6 +7,14 @@
     border-color: #e5e7eb;
 }
 
+[popover] {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+}
+
 html {
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
@@ -834,13 +842,21 @@ svg {
 .status-container {
     display: flex;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.5rem;
     height: 4rem;
 }
 
 .status-bloc-1 {
+    cursor: pointer;
     display: flex;
-    height: 2.5rem;
+    height: 3.5rem;
+    align-items: center;
+    padding: 0 0 0 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.status-bloc-1:hover {
+    background-color: var(--sec-button-hover-color);
 }
 
 .status-bloc-1 .icon {
@@ -850,6 +866,35 @@ svg {
     aspect-ratio: auto;
 }
 
+#user-status-container {
+    anchor-name: --status-anchor;
+}
+
+.user-status-popover {
+    position: fixed;
+    inset: auto auto auto auto;
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: var(--ter-bg-color);
+    color: var(--pri-text-color);
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.change-status-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem;
+}
+
+.change-status-button:hover {
+    background-color: var(--sec-button-hover-color);
+}
 
 .private-message .user .name,
 .voice-profile .user,

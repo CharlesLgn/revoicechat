@@ -5,6 +5,7 @@ import static fr.revoicechat.security.utils.RevoiceChatRoles.*;
 import java.util.List;
 import java.util.UUID;
 
+import fr.revoicechat.core.mapper.UserMapper;
 import fr.revoicechat.core.notification.service.message.MessageNotifier;
 import fr.revoicechat.core.representation.MessageRepresentation;
 import fr.revoicechat.core.representation.RoomRepresentation;
@@ -25,21 +26,25 @@ public class UserControllerImpl implements UserController {
   private final UserService userService;
   private final PrivateMessageService privateMessageService;
   private final MessageNotifier messageNotifier;
+  private final UserMapper mapper;
 
   public UserControllerImpl(UserRetriever userRetriever,
                             UserService userService,
                             PrivateMessageService privateMessageService,
-                            MessageNotifier messageNotifier) {
+                            MessageNotifier messageNotifier,
+                            UserMapper mapper) {
     this.userRetriever = userRetriever;
     this.userService = userService;
     this.privateMessageService = privateMessageService;
     this.messageNotifier = messageNotifier;
+    this.mapper = mapper;
   }
 
   @Override
   @RolesAllowed(ROLE_USER)
   public UserRepresentation me() {
-    return Mapper.map(userRetriever.currentUser());
+    var currentUser = userRetriever.currentUser();
+    return mapper.map(currentUser, currentUser.getStatus());
   }
 
   @Override
