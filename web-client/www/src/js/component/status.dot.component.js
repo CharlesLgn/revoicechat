@@ -23,36 +23,16 @@ class DotComponent extends HTMLElement {
     #setupDOM() {
         this.shadowRoot.innerHTML = `
         <style>
-            .background-green {
-                background-color: #22c55e;
-            }
-
-            .background-orange {
-                background-color: #fb883c;
-            }
-
-            .background-red {
-                background-color: #ff0000;
-            }
-
-            .background-gray {
-                background-color: #71717a;
-            }
-
             .dot {
                 position: absolute;
-                right: -0.5rem;
-                bottom: -0.45rem;
+                right: -0.25rem;
+                bottom: -0.15rem;
                 width: 0.9rem;
                 height: 0.9rem;
-                border-style: solid;
-                border-width: 2px;
-                border-color: rgb(31 41 55);
-                border-radius: 9999px;
-                
             }
         </style>
-        <div id="dot" class="dot background-${this.colorAttribute}">
+        <div id="dot" class="dot">
+            <revoice-status-dot-${this.colorAttribute}></revoice-status-dot-${this.colorAttribute}>
         </div>`
     }
 
@@ -62,4 +42,51 @@ class DotComponent extends HTMLElement {
     }
 }
 
+class ColorDotComponent extends HTMLElement {
+
+    constructor(color) {
+        super();
+        this.color = color;
+        this.attachShadow({ mode: 'open' });
+    }
+
+    /** generate the data in slot */
+    connectedCallback() {
+        this.shadowRoot.innerHTML = `
+        <style>
+            .dot {
+                background-color: ${this.color};
+                width: 0.9rem;
+                height: 0.9rem;
+                border-style: solid;
+                border-width: 2px;
+                border-color: rgb(31 41 55);
+                border-radius: 9999px;
+                
+            }
+        </style>
+        <div id="dot" class="dot"></div>`
+    }
+}
+
+class GreenDotComponent extends ColorDotComponent {
+    constructor() {super('var(--green-text)');}
+}
+
+class OrangeDotComponent extends ColorDotComponent {
+    constructor() {super('#fb883c');}
+}
+
+class RedDotComponent extends ColorDotComponent {
+    constructor() {super('#ff0000');}
+}
+
+class GrayDotComponent extends ColorDotComponent {
+    constructor() {super('var(--gray-text)');}
+}
+
 customElements.define('revoice-status-dot', DotComponent);
+customElements.define('revoice-status-dot-green', GreenDotComponent);
+customElements.define('revoice-status-dot-orange', OrangeDotComponent);
+customElements.define('revoice-status-dot-red', RedDotComponent);
+customElements.define('revoice-status-dot-gray', GrayDotComponent);

@@ -136,7 +136,7 @@
 
                     <!-- Status -->
                     <div id="status-container" class="status-container">
-                        <div class="status-bloc-1">
+                        <div class="status-bloc-1" id="user-status-container">
                             <div class="relative">
                                 <img id="user-picture" alt="PFP" class="icon" />
                                 <revoice-status-dot id="user-dot" color="gray"></revoice-status-dot>
@@ -692,6 +692,22 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="user-status-popover" popover class="user-status-popover">
+        <span data-i18n="user.status.update">Change active status</span>
+        <button class="change-status-button" data-user-status="ONLINE">
+            <revoice-status-dot-green></revoice-status-dot-green><span data-i18n="user.status.online">online</span>
+        </button>
+        <button class="change-status-button" data-user-status="AWAY">
+            <revoice-status-dot-orange></revoice-status-dot-orange><span data-i18n="user.status.away">away</span>
+        </button>
+        <button class="change-status-button" data-user-status="DO_NOT_DISTURB">
+            <revoice-status-dot-red></revoice-status-dot-red><span data-i18n="user.status.donotdisturb">do not disturb</span>
+        </button>
+        <button class="change-status-button" data-user-status="OFFLINE">
+            <revoice-status-dot-gray></revoice-status-dot-gray><span data-i18n="user.status.offline">offline</span>
+        </button>
     </div>
 
     <!-- Libraries -->
