@@ -90,8 +90,8 @@ export default class UserController {
             document.getElementById('settings-user-login').innerText = data.login;
             document.getElementById('settings-user-name').value = name;
             document.getElementById('setting-user-picture').src = picture;
+            this.setStatus({userId: id, status: status})
         }
-        this.setStatus({userId: id, status: status})
 
         // Dynamic elements
         for (const icon of document.getElementsByName(`user-picture-${id}`)) {
@@ -113,7 +113,6 @@ export default class UserController {
         if(this.id === id) {
             document.getElementById("user-dot").setAttribute('color', color);
         }
-        document.querySelector(`revoice-status-dot[name="dot-${id}"]`).setAttribute('color', color);
     }
 
     logout(){
