@@ -51,7 +51,10 @@ export default class UserController {
 
         const popover = document.getElementById('user-status-popover');
         const anchor = document.getElementById('user-status-container');
-        anchor.addEventListener('click', () => popover.togglePopover());
+        anchor.addEventListener('click', () => {
+            popover.togglePopover();
+            popover.classList.remove('hidden');
+        });
         popover.addEventListener('beforetoggle', (e) => {
             if (e.newState === 'open') {
                 const rect = anchor.getBoundingClientRect();
