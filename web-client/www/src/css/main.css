@@ -332,12 +332,11 @@ svg {
 .sidebar {
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
 .sidebar .header {
     padding: 0.5rem;
-    border-bottom-width: 1px;
+    border-bottom-width: var(--window-border-width);
     height: 3.5rem;
     display: flex;
     align-items: center;
@@ -345,7 +344,7 @@ svg {
 
 /* SIDEBAR INSTANCES */
 .sidebar.instances-list {
-    border-right-width: 1px;
+    border-right-width: var(--window-border-width);
 }
 
 .sidebar.instances-list .header img {
@@ -397,7 +396,7 @@ svg {
 /* SIDEBAR SERVER */
 .sidebar.private-messages,
 .sidebar.server {
-    border-right-width: 1px;
+    border-right-width: var(--window-border-width);
     width: 19rem;
 }
 
@@ -426,7 +425,7 @@ svg {
 
 /* SIDEBAR USER */
 .sidebar.users {
-    border-left-width: 1px;
+    border-left-width: var(--window-border-width);
 }
 
 .sidebar.users .header h2 {
@@ -557,7 +556,7 @@ svg {
     display: flex;
     padding: 1rem;
     height: 3.5rem;
-    border-bottom-width: 1px;
+    border-bottom-width: var(--window-border-width);
 }
 
 .room-container {
@@ -585,7 +584,7 @@ svg {
 .text-control {
     width: 100%;
     margin: 0 0.35rem 0.35rem;
-    border-color: var(--pri-bd-color);
+    border-color: var(--control-panel-bd-color);
     border-top-width: 1px;
     border-radius: 20px;
 }
@@ -718,7 +717,7 @@ svg {
     justify-content: flex-end;
     padding: 0.75rem;
     height: 4rem;
-    border-bottom-width: 1px;
+    border-bottom-width: var(--window-border-width);
 }
 
 .voice-control .element {
@@ -831,7 +830,7 @@ svg {
 }
 
 .control-pannel {
-    border-color: var(--pri-bd-color);
+    border-color: var(--control-panel-bd-color);
     background-color: var(--ter-bg-color);
     border-top-width: 1px;
     border-radius: 20px;
@@ -852,7 +851,7 @@ svg {
     height: 3.5rem;
     align-items: center;
     padding: 0 0 0 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 18px;
 }
 
 .status-bloc-1:hover {
@@ -956,7 +955,7 @@ svg {
 
 /* CONFIG */
 .config-container-left {
-    border-right-width: 1px;
+    border-right-width: var(--window-border-width);
     padding: 5rem 1rem 5rem 2rem;
     width: 33%;
 }
