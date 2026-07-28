@@ -9,7 +9,7 @@ export default class FancyBox {
 
     constructor() {
         const dialogHTML = `
-            <div id="custom-fancy-box-modal" class="custom-dialog">
+            <div id="custom-fancy-box-modal" class="custom-dialog hidden">
                  <div class="modal-box">
                     <button class="modal-close" id="modal-close" aria-label="Close">
                         <revoice-icon-circle-x></revoice-icon-circle-x>
@@ -55,6 +55,7 @@ export default class FancyBox {
 
     /** @param {{src: string, alt: string, caption: string,}} opt */
     fire(opt) {
+        this.modal.classList.remove('hidden');
         this.modalImg.src = opt.src;
         this.modalImg.alt = opt.alt || '';
         this.modalCap.textContent = opt.caption || '';
