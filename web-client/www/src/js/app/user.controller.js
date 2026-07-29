@@ -15,6 +15,8 @@ export default class UserController {
     login;
     /** @type {string} */
     displayName;
+    /** @type {ActiveStatus} */
+    activeStatus;
     /** @type {string} */
     #type;
     /** @type {PrivateRoomController} */
@@ -34,16 +36,17 @@ export default class UserController {
             this.login = result.login;
             this.displayName = result.displayName;
             this.#type = result.type;
+            this.activeStatus = result.status;
             this.sanctions = await CoreServer.fetch(`/sanctions?userId=${this.id}&active=true`);
             
-            document.getElementById("status-container").classList.add(result.id);
-            document.getElementById("user-name").innerText = result.displayName;
-            document.getElementById("user-status").innerText = result.status;
-            document.getElementById("user-dot").setAttribute('color', statusToColor(result.status));
+            document.getElementById("status-container").classList.add(this.id);
+            document.getElementById("user-name").innerText = this.displayName;
+            document.getElementById("user-status").innerText = this.activeStatus;
+            document.getElementById("user-dot").setAttribute('color', statusToColor(this.activeStatus));
 
             const userPicture = document.getElementById("user-picture");
-            userPicture.src = MediaServer.profiles(result.id);
-            userPicture.dataset.id = result.id;
+            userPicture.src = MediaServer.profiles(this.id);
+            userPicture.dataset.id = this.id;
         }
 
         await this.settings.load();
@@ -114,6 +117,7 @@ export default class UserController {
         const id = data.userId;
         const color = statusToColor(data.status);
         if(this.id === id) {
+            this.activeStatus = data.status;
             document.getElementById("user-dot").setAttribute('color', color);
         }
     }
