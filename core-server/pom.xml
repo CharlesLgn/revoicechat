@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>fr.revoicechat</groupId>
-  <artifactId>revoicechat-core</artifactId>
+  <artifactId>revoicechat-core-server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>ReVoiceChat</name>
   <description>application to connect the world</description>
