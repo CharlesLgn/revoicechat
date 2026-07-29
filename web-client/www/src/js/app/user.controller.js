@@ -1,8 +1,9 @@
 import UserSettingsController from "./user.settings.controller.js";
-import {eraseCookie, statusToColor} from "../lib/tools.js";
+import {eraseCookie, statusToColor, statusToI18n} from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import PrivateRoomController from "./private.room.controller.js";
+import {i18n} from "../lib/i18n.js";
 
 export default class UserController {
     /** @type {SanctionRepresentation[]} */
@@ -41,7 +42,9 @@ export default class UserController {
             
             document.getElementById("status-container").classList.add(this.id);
             document.getElementById("user-name").innerText = this.displayName;
-            document.getElementById("user-status").innerText = this.activeStatus;
+            const userStatusElement = document.getElementById("user-status");
+            userStatusElement.dataset.i18n = statusToI18n(this.activeStatus);
+            i18n.translateElement(userStatusElement);
             document.getElementById("user-dot").setAttribute('color', statusToColor(this.activeStatus));
 
             const userPicture = document.getElementById("user-picture");
@@ -115,10 +118,12 @@ export default class UserController {
     /** @param {UserStatusUpdate} data */
     setStatus(data){
         const id = data.userId;
-        const color = statusToColor(data.status);
         if(this.id === id) {
             this.activeStatus = data.status;
-            document.getElementById("user-dot").setAttribute('color', color);
+            const userStatusElement = document.getElementById("user-status");
+            userStatusElement.dataset.i18n = statusToI18n(this.activeStatus);
+            i18n.translateElement(userStatusElement);
+            document.getElementById("user-dot").setAttribute('color', statusToColor(data.status));
         }
     }
 
