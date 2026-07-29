@@ -201,23 +201,19 @@ function humanFileSize(bytes, si = false, dp = 1) {
     return bytes.toFixed(dp) + ' ' + units[u];
 }
 
-/**
- * Convert user status to className
- * @param {string} status User status
- * @returns {"background-green"|"background-orange"|"background-red"|"background-gray"} Corresponding className
- */
+const possibleStatus = {
+    "ONLINE": {color: "green", i18n: "user.status.online"},
+    "AWAY": {color: "orange", i18n: "user.status.away"},
+    "DO_NOT_DISTURB": {color: "red", i18n: "user.status.donotdisturb"},
+    "OFFLINE": {color: "gray", i18n: "user.status.offline"}
+}
+
 function statusToColor(status) {
-    switch (status) {
-        case "ONLINE":
-            return "green";
-        case "AWAY":
-            return "orange";
-        case "DO_NOT_DISTURB":
-            return "red";
-        case "INVISIBLE":
-        default:
-            return "gray";
-    }
+    return (possibleStatus[status] ?? possibleStatus["OFFLINE"]).color;
+}
+
+function statusToI18n(status) {
+    return (possibleStatus[status] ?? possibleStatus["OFFLINE"]).i18n;
 }
 
 /**
@@ -259,6 +255,7 @@ export {
     copyToClipboard,
     humanFileSize,
     statusToColor,
+    statusToI18n,
     apiFetch,
     getUserLanguage,
     openFancyBox

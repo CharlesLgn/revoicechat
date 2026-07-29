@@ -293,7 +293,7 @@ export default class TextController {
 
     /** @param {MessageNotification} data */
     message(data) {
-        if (data.action === "ADD" && this.#user.id !== data.message.user.id) {
+        if (this.#user.activeStatus !== "DO_NOT_DISTURB" && data.action === "ADD" && this.#user.id !== data.message.user.id) {
             Alert.play('messageNew');
         }
 
