@@ -285,7 +285,6 @@ export default class UserSettingsController {
                     username: this.#user.login,
                     password: password
                 });
-                console.log(workflow.headers.values())
                 const url = workflow.headers.get('x-totp-url')
                 if (workflow.ok) {
                     const blob = await workflow.blob();

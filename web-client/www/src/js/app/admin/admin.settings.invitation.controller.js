@@ -46,7 +46,6 @@ export default class AdminSettingsInvitationController {
                 i18n.translatePage(document.getElementById("modal-serverId"))
             }
         }).then(async (result) => {
-            console.log(result);
             if (result.isConfirmed) {
                 await CoreServer.fetch(`/invitation/application?category=${invitationCategory}`, 'POST');
                 await this.#invitationLoad();
