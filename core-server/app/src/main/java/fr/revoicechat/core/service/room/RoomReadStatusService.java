@@ -73,8 +73,8 @@ public class RoomReadStatusService {
     return entityManager.find(RoomReadStatus.class, roomUserId);
   }
 
-  public ServerRoom getRoom(final UUID roomId) {
-    return Optional.ofNullable(entityManager.find(ServerRoom.class, roomId))
-                   .orElseThrow(() -> new ResourceNotFoundException(ServerRoom.class, roomId));
+  public Room getRoom(final UUID roomId) {
+    return Optional.ofNullable(entityManager.find(Room.class, roomId))
+                   .orElseThrow(() -> new ResourceNotFoundException(Room.class, roomId));
   }
 }
