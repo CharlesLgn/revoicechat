@@ -67,10 +67,6 @@ export default class Listener {
     }
 
     decodeAudio(decodedVoiceTransport, selfDeaf) {
-        const timestamp = decodedVoiceTransport.timestamp;
-        const gateState = decodedVoiceTransport.user.gateState;
-        const data = decodedVoiceTransport.data;
-
         // If user sending packet is locally muted OR we are deaf, we stop
         if (this.#muted || selfDeaf) {
             this.#controller.setUserGlow(this.#id, false);
@@ -78,14 +74,20 @@ export default class Listener {
         }
 
         // User gate open/close
-        this.#controller.setUserGlow(this.#id, gateState);
+        this.#controller.setUserGlow(this.#id, decodedVoiceTransport.user.gateState);
+
+        // User self mute
+        this.#controller.setUserMute(this.#id, decodedVoiceTransport.user.selfMute);
+
+        // User self deaf
+        this.#controller.setUserDeaf(this.#id, decodedVoiceTransport.user.selfDeaf);
 
         // Decode and read audio
         if (this.#decoder !== null && this.#decoder.state === "configured") {
             this.#decoder.decode(new EncodedAudioChunk({
                 type: "key",
-                timestamp: Math.round(timestamp * 1000),
-                data: new Uint8Array(data),
+                timestamp: Math.round(decodedVoiceTransport.timestamp * 1000),
+                data: new Uint8Array(decodedVoiceTransport.data),
             }));
         } else {
             console.error(`User '${this.#id}' has no decoder`);

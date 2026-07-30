@@ -207,10 +207,10 @@ export default class StreamController {
         const userExtension = document.getElementById(`voice-user-extension-${userId}`);
         if (userExtension) {
             if (streamName === "webcam") {
-                document.getElementById(`voice-user-extension-webcam-${userId}`).classList = "green";
+                document.getElementById(`voice-webcam-${userId}`).classList = "green";
             }
             if (streamName === "display") {
-                document.getElementById(`voice-user-extension-display-${userId}`).classList = "green";
+                document.getElementById(`voice-display-${userId}`).classList = "green";
             }
         }
 
@@ -277,10 +277,10 @@ export default class StreamController {
         const userExtension = document.getElementById(`voice-user-extension-${userId}`);
         if (userExtension) {
             if (streamName === "webcam") {
-                document.getElementById(`voice-user-extension-webcam-${userId}`).classList = "hidden";
+                document.getElementById(`voice-webcam-${userId}`).classList = "hidden";
             }
             if (streamName === "display") {
-                document.getElementById(`voice-user-extension-display-${userId}`).classList = "hidden";
+                document.getElementById(`voice-display-${userId}`).classList = "hidden";
             }
         }
 

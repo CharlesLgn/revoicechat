@@ -10,10 +10,10 @@
 export class EncodedVoiceTransport {
     static user = 0;
     static music = 1;
-    
+
     data;
 
-    constructor(timestamp, userId, userGateState, userType, audioData, userSelfMute){
+    constructor(timestamp, userId, userGateState, userSelfMute, userSelfDeaf, userType, audioData) {
         const headerSize = 4 + 1 + 36 + 4;
         const buffer = new ArrayBuffer(headerSize + audioData.byteLength);
         const view = new DataView(buffer);
@@ -27,11 +27,12 @@ export class EncodedVoiceTransport {
         let userInfo = 0;
         userInfo += userType ? 1 : 0;
         userInfo += userGateState ? 2 : 0;
-        userInfo += userSelfMute ? 4 : 0
+        userInfo += userSelfMute ? 4 : 0;
+        userInfo += userSelfDeaf ? 8 : 0;
         view.setUint8(offset++, userInfo);
 
         // User ID
-        new Uint8Array(buffer, offset, 36).set(new TextEncoder().encode(userId))
+        new Uint8Array(buffer, offset, 36).set(new TextEncoder().encode(userId));
         offset += 36;
 
         // Payload length
@@ -40,7 +41,7 @@ export class EncodedVoiceTransport {
 
         // Payload
         const payload = new Uint8Array(buffer, offset, audioData.byteLength);
-        audioData.copyTo(payload);        
+        audioData.copyTo(payload);
 
         this.data = buffer;
     }
@@ -67,9 +68,10 @@ export class DecodedVoiceTransport {
 
         // User info
         const userInfo = view.getUint8(offset++);
-        this.user.type = userInfo & 1;
-        this.user.gateState = userInfo & 2;
-        this.user.selfMute = userInfo & 4;
+        this.user.type = (userInfo & 1) == 1;
+        this.user.gateState = (userInfo & 2) == 2;
+        this.user.selfMute = (userInfo & 4) == 4;
+        this.user.selfDeaf = (userInfo & 8) == 8;
 
         // User ID
         this.user.id = new TextDecoder().decode(

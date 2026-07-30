@@ -209,6 +209,26 @@ export default class VoiceController {
         }
     }
 
+    setUserMute(userId, enabled) {
+        if (enabled) {
+            document.getElementById(`voice-mute-${userId}`)?.classList.add("red");
+            document.getElementById(`voice-mute-${userId}`)?.classList.remove("hidden");
+        } else {
+            document.getElementById(`voice-mute-${userId}`)?.classList.remove("red");
+            document.getElementById(`voice-mute-${userId}`)?.classList.add("hidden");
+        }
+    }
+
+    setUserDeaf(userId, enabled) {
+        if (enabled) {
+            document.getElementById(`voice-local-mute-${userId}`)?.classList.add("red");
+            document.getElementById(`voice-local-mute-${userId}`)?.classList.remove("hidden");
+        } else {
+            document.getElementById(`voice-local-mute-${userId}`)?.classList.remove("red");
+            document.getElementById(`voice-local-mute-${userId}`)?.classList.add("hidden");
+        }
+    }
+
     setSelfGlow(enabled) {
         if (enabled) {
             document.getElementById(`voice-self-mute`).classList.add("green");
@@ -243,28 +263,28 @@ export default class VoiceController {
 
         // Extension : Webcam
         const extensionWebcam = document.createElement('revoice-icon-camera');
-        extensionWebcam.id = `voice-user-extension-webcam-${userId}`;
+        extensionWebcam.id = `voice-webcam-${userId}`;
         extensionWebcam.dataset.i18nTitle = "voice.extention.webcam";
         extensionWebcam.className = webcamEnable ? "green" : "hidden";
         extension.appendChild(extensionWebcam);
 
         // Extension : Display
         const extensionDisplay = document.createElement('revoice-icon-display');
-        extensionDisplay.id = `voice-user-extension-display-${userId}`;
+        extensionDisplay.id = `voice-display-${userId}`;
         extensionDisplay.dataset.i18nTitle = "voice.extention.display"
         extensionDisplay.className = displayEnable ? "green" : "hidden";
         extension.appendChild(extensionDisplay);
 
         // Extension : Self Mute
         const extensionSelfMute = document.createElement('revoice-icon-microphone');
-        extensionSelfMute.id = `voice-user-extension-self-mute-${userId}`;
+        extensionSelfMute.id = `voice-mute-${userId}`;
         extensionSelfMute.dataset.i18nTitle = "voice.extention.mute"
         extensionSelfMute.className = "hidden";
         extension.appendChild(extensionSelfMute);
 
         // Extension : Local Mute
         const extensionMute = document.createElement('revoice-icon-speaker-x');
-        extensionMute.id = `voice-user-extension-mute-${userId}`;
+        extensionMute.id = `voice-local-mute-${userId}`;
         extensionMute.dataset.i18nTitle = "voice.extention.mute"
         extensionMute.className = this.#user.settings.voice.users[userId]?.muted ? "red" : "hidden";
         extension.appendChild(extensionMute);
@@ -330,10 +350,10 @@ export default class VoiceController {
         if (userExtension) {
             // User muted
             if (this.#user.settings.voice.users[userId]?.muted) {
-                document.getElementById(`voice-user-extension-mute-${userId}`).classList = "red";
+                document.getElementById(`voice-local-mute-${userId}`).classList = "red";
             }
             else {
-                document.getElementById(`voice-user-extension-mute-${userId}`).classList = "hidden";
+                document.getElementById(`voice-local-mute-${userId}`).classList = "hidden";
             }
         }
     }
@@ -349,10 +369,14 @@ export default class VoiceController {
 
     async #updateSelfMute(alert = true) {
         const muteButton = document.getElementById("voice-self-mute");
+        const muteUser = document.getElementById(`voice-mute-${this.#user.id}`);
+
         if (this.#voiceCall) {
             if (await this.#voiceCall.getSelfMute()) {
                 // Muted
                 muteButton.classList.add('red');
+                muteUser.classList.add('red');
+                muteUser.classList.remove('hidden');
                 if (alert) {
                     Alert.play('microphoneMuted');
                 }
@@ -360,6 +384,8 @@ export default class VoiceController {
             else {
                 // Unmuted
                 muteButton.classList.remove('red');
+                muteUser.classList.remove("red");
+                muteUser.classList.add("hidden");
                 if (alert) {
                     Alert.play('microphoneActivated');
                 }
@@ -390,10 +416,14 @@ export default class VoiceController {
 
     async #updateSelfDeaf(alert = true) {
         const button = document.getElementById("voice-self-deaf");
+        const deafUser = document.getElementById(`voice-local-mute-${this.#user.id}`);
+
         if (this.#voiceCall) {
             if (await this.#voiceCall.getSelfDeaf()) {
                 // Muted
                 button.classList.add('red');
+                deafUser?.classList.add('red');
+                deafUser?.classList.remove('hidden');
                 if (alert) {
                     Alert.play('soundMuted');
                 }
@@ -401,6 +431,8 @@ export default class VoiceController {
             else {
                 // Unmuted
                 button.classList.remove('red');
+                deafUser?.classList.remove("red");
+                deafUser?.classList.add("hidden");
                 if (alert) {
                     Alert.play('soundActivated');
                 }
