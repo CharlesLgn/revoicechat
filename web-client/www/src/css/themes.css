@@ -192,15 +192,15 @@
     --gray-background: #262624;
     --gray-text: #929089;
     /* Background */
-    --pri-bg-color: #f2f2f2;
-    --sec-bg-color: #ffffff;
-    --ter-bg-color: #f1f8ff;
+    --pri-bg-color: #F3F3F4;
+    --sec-bg-color: #FBFBFB;
+    --ter-bg-color: #FFFFFF;
     --qua-bg-color: #dadada;
     --blockquote-bg-color: #00000010;
     --code-bg-color: #d0dbea;
 
     /* Border */
-    --pri-bd-color: rgb(224, 224, 224);
+    --pri-bd-color: #DFDFE1;
     --sec-bd-color: #3c3c3d;
     --control-panel-bd-color: var(--pri-bd-color);
     /* Text */
