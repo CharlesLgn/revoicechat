@@ -283,7 +283,10 @@ export default class PublicRoom extends RoomController{
     #createUser(data, color, offline = false) {
         const id = data.id;
         const name = data.displayName;
-        const status = data.status;
+        const status = statusToColor(data.status);
+        const icon = status === 'gray'
+            ? ''
+            : `<revoice-status-dot name="dot-${id}" color="${status}"></revoice-status-dot>`
         const profilePicture = MediaServer.profiles(id);
 
         const DIV = document.createElement('div');
@@ -292,7 +295,7 @@ export default class PublicRoom extends RoomController{
         DIV.innerHTML = `
             <div class="relative">
                 <img src="${profilePicture}" alt="PFP" class="icon" data-id="${id}" name="user-picture-${id}" />
-                <revoice-status-dot name="dot-${id}" color="${statusToColor(status)}"></revoice-status-dot>
+                ${icon}
             </div>
             <div class="user">
                 <h2 class="name" name="user-name-${id}" title="${name}" style="color:${color}">${name}</h2>
@@ -305,6 +308,7 @@ export default class PublicRoom extends RoomController{
 
         return DIV;
     }
+
 
     #createSeparator(name) {
         const root = document.createElement('summary');

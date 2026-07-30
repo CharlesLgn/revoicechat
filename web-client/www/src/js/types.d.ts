@@ -1,4 +1,4 @@
-export type ActiveStatus = "ONLINE" | "AWAY" | "OFFLINE"
+export type ActiveStatus = "ONLINE" | "AWAY" | "DO_NOT_DISTURB" | "OFFLINE"
 export type UserType = "ADMIN" | "USER" | "BOT"
 export type RoomType = "TEXT" | "WEBRTC" | "VOICE"
 export type NotificationActionType = "ADD" | "MODIFY" | "REMOVE"

@@ -1,4 +1,4 @@
-> [!CAUTION]
+> [!WARNING]
 > This application is NOT production ready yet
 >
 > The main features are implemented but there is still a lot of complementary features missing

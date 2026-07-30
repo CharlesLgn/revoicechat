@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>fr.revoicechat</groupId>
-    <artifactId>revoicechat</artifactId>
+    <artifactId>revoicechat-core-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 

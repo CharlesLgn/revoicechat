@@ -293,7 +293,7 @@ export default class TextController {
 
     /** @param {MessageNotification} data */
     message(data) {
-        if (data.action === "ADD" && this.#user.id !== data.message.user.id) {
+        if (this.#user.activeStatus !== "DO_NOT_DISTURB" && data.action === "ADD" && this.#user.id !== data.message.user.id) {
             Alert.play('messageNew');
         }
 
@@ -313,7 +313,7 @@ export default class TextController {
                     break;
                 }
                 case "MODIFY": {
-                    document.getElementById(message.id).replaceWith(this.#createContent(message));
+                    this.#updateContent(document.getElementById(message.id), message);
                     document.getElementById(`header-message-${message.id}`).replaceWith(this.#createHeader(message));
                     break;
                 }
@@ -669,6 +669,18 @@ export default class TextController {
             </script>
         `;
         return CONTENT;
+    }
+
+    /**
+     * @param {HTMLElement} element
+     * @param {MessageRepresentation} messageData
+     */
+    #updateContent(element, messageData) {
+        element.querySelector('script[slot="medias"]').innerHTML = messageData.medias ? JSON.stringify(messageData.medias) : ''
+        element.querySelector('script[slot="content"]').innerHTML = messageData.text
+        element.querySelector('script[slot="reactions"]').innerHTML = messageData.reactions ? JSON.stringify(messageData.reactions) : ''
+        element.querySelector('script[slot="textPatterns"]').innerHTML = messageData.textPatterns ? JSON.stringify(messageData.textPatterns) : ''
+        element.setAttribute('updated-time', new Date().toString())
     }
 
     /** @param {MessageRepresentation} repliedMessage */

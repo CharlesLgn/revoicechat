@@ -23,7 +23,7 @@ class MessageComponent extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ['markdown', 'theme', 'data-theme'];
+        return ['markdown', 'theme', 'updated-time', 'data-theme'];
     }
 
     /** generate the data in slot */
@@ -40,6 +40,8 @@ class MessageComponent extends HTMLElement {
             this.#render();
         } else if ((name === 'theme' || name === 'data-theme') && oldValue !== newValue) {
             this.#updateTheme();
+        } else if (name === 'updated-time' && oldValue !== newValue) {
+            this.#updateRender();
         }
     }
 
@@ -48,79 +50,37 @@ class MessageComponent extends HTMLElement {
         this.shadowRoot.innerHTML = `
                     <link href="src/js/component/message.component.css" rel="stylesheet" />
                     <div class="container">
-                        <div class="markdown-content" id="content"></div>
+                        <div class="markdown-content">
+                            <div id="medias"></div>
+                            <div id="content"></div>
+                            <div id="open-graph"></div>
+                            <div id="reactions" class="message-reactions"></div>
+                        </div>
                         <slot name="medias" style="display: none;"></slot>
                         <slot name="content" style="display: none;"></slot>
                         <slot name="reactions" style="display: none;"></slot>
                         <slot name="textPatterns" style="display: none;"></slot>
                     </div>
                 `;
-
-        // Listen for slotchange events
-        this.shadowRoot.addEventListener('slotchange', (e) => {
-            if (e.target.name === 'medias') {
-                this.#handleSlottedMedias();
-            }
-            if (e.target.name === 'content') {
-                this.#handleSlottedContent();
-            }
-            if (e.target.name === 'reactions') {
-                this.#handleSlottedReaction();
-            }
-            if (e.target.name === 'textPatterns') {
-                this.#handleSlottedTextPatterns();
-            }
-        });
     }
 
     #handleSlottedMedias() {
-        const mediasSlot = this.shadowRoot.querySelector('slot[name="medias"]');
-        const slottedElements = mediasSlot.assignedElements();
-        for (const element of slottedElements) {
-            if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
-                this.medias = JSON.parse(element.textContent)
-                break;
-            }
-        }
+        this.medias = this.mediaSlot
     }
 
     #handleSlottedContent() {
-        const contentSlot = this.shadowRoot.querySelector('slot[name="content"]');
-        const slottedElements = contentSlot.assignedElements();
-
-        for (const element of slottedElements) {
-            if (element.tagName === 'SCRIPT' && element.type === 'text/markdown') {
-                this.markdown = element.textContent.trim();
-
-                if (this.markdown) {
-                    this.#render();
-                }
-
-                break;
-            }
+        this.markdown = this.contentSlot
+        if (this.markdown) {
+            this.#render();
         }
     }
 
     #handleSlottedReaction() {
-        const reactionsSlot = this.shadowRoot.querySelector('slot[name="reactions"]');
-        const slottedElements = reactionsSlot.assignedElements();
-        for (const element of slottedElements) {
-            if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
-                this.reactions = JSON.parse(element.textContent)
-                break;
-            }
-        }
+        this.reactions = this.reactionsSlot
     }
 
     #handleSlottedTextPatterns() {
-        const textPatternsSlot = this.shadowRoot.querySelector('slot[name="textPatterns"]');
-        const slottedElements = textPatternsSlot.assignedElements();
-        for (const element of slottedElements) {
-            if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
-                this.textPatterns = element.textContent.trim() ? JSON.parse(element.textContent.trim()) : []
-                break;
-            }
-        }
+        this.textPatterns = this.textPatternsSlot
     }
 
     #hideSlots() {
@@ -137,8 +97,26 @@ class MessageComponent extends HTMLElement {
         this.shadowRoot.appendChild(link);
     }
 
+    #updateRender() {
+        console.log("update message ")
+        const content = this.contentSlot;
+        if (this.markdown !== content) {
+            this.markdown = content
+            this.#renderContent();
+        }
+        const medias = this.mediaSlot;
+        if (this.medias !== medias) {
+            this.medias = medias
+            this.#renderMedias();
+        }
+        const reactions = this.reactionsSlot;
+        if (this.reactions !== reactions) {
+            this.reactions = reactions
+            this.#renderReactions();
+        }
+    }
+
     async #render() {
-        const contentDiv = this.shadowRoot.getElementById('content');
 
         // Check if there's slotted content
         if (!this.markdown) {
@@ -147,7 +125,16 @@ class MessageComponent extends HTMLElement {
         this.#handleSlottedMedias();
         this.#handleSlottedReaction();
         this.#handleSlottedTextPatterns();
+        this.#renderMedias();
+        this.#renderContent()
+        this.#renderOpenGraph()
+        this.#renderReactions()
+        renderEmojis(this.shadowRoot);
+    }
 
+    #renderContent() {
+        const contentDiv = this.shadowRoot.getElementById('content');
+        contentDiv.innerHTML = ''
         if (typeof marked === 'undefined') {
             contentDiv.innerHTML = '<p style="color: #ff6b6b;">marked.js library not loaded</p>';
             return;
@@ -155,9 +142,6 @@ class MessageComponent extends HTMLElement {
         try {
             this.#setupMarked()
             this.#hideSlots();
-
-            contentDiv.innerHTML = this.#injectMedias();
-
             if (this.markdown) {
                 if (containsOnlyEmotes(this.markdown, this.#emotesNames())) {
                     contentDiv.innerHTML = this.#injectTextPattern(this.#removeTags(this.markdown))
@@ -181,9 +165,6 @@ class MessageComponent extends HTMLElement {
             console.error('Markdown parsing error:', error);
             contentDiv.innerHTML = `<p style="color: #ff6b6b;">Error parsing markdown: ${error.message}</p>`;
         }
-        this.#renderOpenGraph(contentDiv)
-        this.#renderReactions(contentDiv)
-        renderEmojis(this.shadowRoot);
     }
 
     #renderCodeTemplate(contentDiv) {
@@ -251,16 +232,16 @@ class MessageComponent extends HTMLElement {
         });
     }
 
-    #injectMedias() {
-        let result = "";
+    #renderMedias() {
+        const mediaElt = this.shadowRoot.getElementById('medias');
+        mediaElt.innerHTML = "";
         if (this.medias) {
             for (const media of this.medias) {
                 if (media.status === "STORED") {
-                    result += `<revoice-attachement-message id="${media.id}" name="${media.name}" type="${media.type}"></revoice-attachement-message>`
+                    mediaElt.innerHTML += `<revoice-attachement-message id="${media.id}" name="${media.name}" type="${media.type}"></revoice-attachement-message>`
                 }
             }
         }
-        return result;
     }
 
     /** @return {string[]} */
@@ -270,29 +251,29 @@ class MessageComponent extends HTMLElement {
             .map(item => item.data.name)
     }
 
-    #renderOpenGraph(contentDiv) {
+    #renderOpenGraph() {
         if (this.getAttribute("url-preview") === "false") {
             return
         }
-        const openGraphCard = document.createElement("div")
-        contentDiv.appendChild(openGraphCard)
+        const openGraphCard = this.shadowRoot.getElementById('open-graph');
         const id = this.getAttribute("id")
         CoreServer.fetch(`/message/${id}/open-graph`)
-                .then(res => {
-                    if (res) {
-                        const card = document.createElement("revoice-opengraph-card")
-                        card.ogdata = res
-                        openGraphCard.appendChild(card)
-                    }
-                })
+            .then(res => {
+                if (res) {
+                    const card = document.createElement("revoice-opengraph-card")
+                    card.ogdata = res
+                    openGraphCard.innerHTML = '';
+                    openGraphCard.appendChild(card)
+                }
+            })
     }
 
-    #renderReactions(contentDiv) {
+    #renderReactions() {
         if (this.reactions.length === 0) {
             return
         }
-        const REACTIONS = document.createElement("div")
-        REACTIONS.className = "message-reactions"
+        const REACTIONS = this.shadowRoot.getElementById('reactions');
+        REACTIONS.innerHTML = ''
         const printReaction = (element, emoji, number) => {
             if (number <= 0) {
                 element.remove()
@@ -319,9 +300,9 @@ class MessageComponent extends HTMLElement {
                     html: `
                         <div class='popup'>
                             ${reaction.users
-                                      .map(u => users.find(usr => usr.id === u))
-                                      .map(u => this.#createUser(u))
-                                      .join("")}
+                        .map(u => users.find(usr => usr.id === u))
+                        .map(u => this.#createUser(u))
+                        .join("")}
                         </div>`,
                     didOpen: () => {
                         const titre = document.querySelector('.dialog-title');
@@ -331,7 +312,6 @@ class MessageComponent extends HTMLElement {
             });
             REACTIONS.appendChild(emoji)
         }
-        contentDiv.appendChild(REACTIONS)
     }
 
     #createUser(user) {
@@ -365,6 +345,47 @@ class MessageComponent extends HTMLElement {
         img.className = 'emoji'
         img.alt = emoji
         return img;
+    }
+
+    get contentSlot() {
+        const contentSlot = this.shadowRoot.querySelector('slot[name="content"]');
+        const slottedElements = contentSlot.assignedElements();
+        for (const element of slottedElements) {
+            if (element.tagName === 'SCRIPT' && element.type === 'text/markdown') {
+                return element.textContent.trim();
+            }
+        }
+        return '';
+    }
+
+    get mediaSlot() {
+        return this.#jsonSlot("medias");
+    }
+
+    get reactionsSlot() {
+        return this.#jsonSlot("reactions");
+    }
+
+    get textPatternsSlot() {
+        const contentSlot = this.shadowRoot.querySelector(`slot[name="textPatterns"]`);
+        const slottedElements = contentSlot.assignedElements();
+        for (const element of slottedElements) {
+            if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
+                return element.textContent.trim() ? JSON.parse(element.textContent.trim()) : [];
+            }
+        }
+        return [];
+    }
+
+    #jsonSlot(name) {
+        const contentSlot = this.shadowRoot.querySelector(`slot[name="${name}"]`);
+        const slottedElements = contentSlot.assignedElements();
+        for (const element of slottedElements) {
+            if (element.tagName === 'SCRIPT' && element.type === 'application/json') {
+                return JSON.parse(element.textContent);
+            }
+        }
+        return null;
     }
 }
 

@@ -1,8 +1,9 @@
 import UserSettingsController from "./user.settings.controller.js";
-import {eraseCookie, statusToColor} from "../lib/tools.js";
+import {eraseCookie, statusToColor, statusToI18n} from "../lib/tools.js";
 import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import PrivateRoomController from "./private.room.controller.js";
+import {i18n} from "../lib/i18n.js";
 
 export default class UserController {
     /** @type {SanctionRepresentation[]} */
@@ -15,6 +16,8 @@ export default class UserController {
     login;
     /** @type {string} */
     displayName;
+    /** @type {ActiveStatus} */
+    activeStatus;
     /** @type {string} */
     #type;
     /** @type {PrivateRoomController} */
@@ -34,26 +37,57 @@ export default class UserController {
             this.login = result.login;
             this.displayName = result.displayName;
             this.#type = result.type;
+            this.activeStatus = result.status;
             this.sanctions = await CoreServer.fetch(`/sanctions?userId=${this.id}&active=true`);
             
-            document.getElementById("status-container").classList.add(result.id);
-            document.getElementById("user-name").innerText = result.displayName;
-            document.getElementById("user-status").innerText = result.status;
-            document.getElementById("user-dot").setAttribute('color', statusToColor(result.status));
+            document.getElementById("status-container").classList.add(this.id);
+            document.getElementById("user-name").innerText = this.displayName;
+            const userStatusElement = document.getElementById("user-status");
+            userStatusElement.dataset.i18n = statusToI18n(this.activeStatus);
+            i18n.translateElement(userStatusElement);
+            document.getElementById("user-dot").setAttribute('color', statusToColor(this.activeStatus));
 
             const userPicture = document.getElementById("user-picture");
-            userPicture.src = MediaServer.profiles(result.id);
-            userPicture.dataset.id = result.id;
+            userPicture.src = MediaServer.profiles(this.id);
+            userPicture.dataset.id = this.id;
         }
 
         await this.settings.load();
         await this.privateRooms.load();
+
+        const popover = document.getElementById('user-status-popover');
+        const anchor = document.getElementById('user-status-container');
+        anchor.addEventListener('click', () => {
+            popover.togglePopover();
+            popover.classList.remove('hidden');
+        });
+        popover.addEventListener('beforetoggle', (e) => {
+            if (e.newState === 'open') {
+                const rect = anchor.getBoundingClientRect();
+                popover.style.left = `${rect.left}px`;
+                popover.style.bottom = `${window.innerHeight - rect.top + 8}px`; // 8px gap above
+            }
+        });
+
+        document.querySelectorAll('.change-status-button').forEach(button => {
+            button.addEventListener('click', async () => {
+                /** {@type ActiveStatus} */
+                const status = button.dataset.userStatus;
+                popover.togglePopover();
+                await CoreServer.fetch(`/user/me`, 'PATCH', {status: status});
+                this.setStatus({
+                    userId: result.id,
+                    status: status
+                });
+            })
+        })
     }
 
     /** @param {UserRepresentation} data */
     update(data) {
         const id = data.id;
         const name = data.displayName;
+        const status = data.status;
         const picture = MediaServer.profiles(id);
 
         // Static elements for self
@@ -64,9 +98,10 @@ export default class UserController {
             // User settings
             document.getElementById('settings-user-login').innerText = data.login;
             document.getElementById('settings-user-name').value = name;
-            document.getElementById('settings-user-picture').src = picture;
+            document.getElementById('setting-user-picture').src = picture;
+            this.setStatus({userId: id, status: status})
         }
-         
+
         // Dynamic elements
         for (const icon of document.getElementsByName(`user-picture-${id}`)) {
             icon.src = picture;
@@ -83,13 +118,12 @@ export default class UserController {
     /** @param {UserStatusUpdate} data */
     setStatus(data){
         const id = data.userId;
-        const status = data.status;
-
-        const color = statusToColor(status);
-
-        // Static elements for self
-        if(this.id === id){
-            document.getElementById("user-dot").setAttribute('color', color);
+        if(this.id === id) {
+            this.activeStatus = data.status;
+            const userStatusElement = document.getElementById("user-status");
+            userStatusElement.dataset.i18n = statusToI18n(this.activeStatus);
+            i18n.translateElement(userStatusElement);
+            document.getElementById("user-dot").setAttribute('color', statusToColor(data.status));
         }
     }
 
