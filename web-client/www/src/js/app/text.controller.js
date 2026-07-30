@@ -326,8 +326,9 @@ export default class TextController {
                     break;
                 }
             }
+
+            room.scrollTop = room.scrollHeight;
         }
-        room.scrollTop = room.scrollHeight;
     }
 
     #notify(data) {
@@ -366,9 +367,10 @@ export default class TextController {
     handleFilePreview(file) {
         this.#elements.attachmentPreview.style.display = "none";
         this.#elements.attachmentPreview.src = "";
-        console.log(file);
+
         if (!file) return;
         if (!file.type.startsWith('image/')) return;
+
         const reader = new FileReader();
         reader.onload = (e) => {
             const src = e.target.result
@@ -380,6 +382,7 @@ export default class TextController {
                 console.warn('Unexpected non-string FileReader result', src);
             }
         };
+
         reader.readAsDataURL(file);
     }
 
