@@ -16,7 +16,13 @@ export default class Listener {
         this.#muted = settings.muted;
 
         // Gain
-        this.#gainNode = audioContext.createGain();
+        try {
+            this.#gainNode = audioContext.createGain();
+        }
+        catch {
+            throw new Error(`Can't create gainNode for user ${id}`);
+        }
+        
         this.#gainNode.gain.setValueAtTime(settings.volume, audioContext.currentTime);
         this.#gainNode.connect(this.#outputGain);
 
