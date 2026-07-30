@@ -12,7 +12,8 @@ import './component/icon.component.js';
 import {i18n} from "./lib/i18n.js";
 import Modal from "./component/modal.component.js";
 
-let passwordRegex = null;
+/** @type {PasswordValidation} */
+let passwordValidation = null;
 let jwtTokenRecovery = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -405,7 +406,7 @@ async function register(loginData, host) {
 
 function passwordValidator(element, udpateButton) {
     const button = document.getElementById('user-register-button');
-    if (passwordRegex?.test(element.value)) {
+    if (passwordValidation?.validate(element.value)) {
         element.classList.remove('password-reject');
         element.classList.add('password-accept');
         if (udpateButton) {
@@ -469,15 +470,60 @@ async function getHostSettings() {
         }
 
         // Build password Regex
-        let pattern = "";
-        pattern += `(?=.*[!@#$%^&.*]{${result["global.password.min-special-char"]},})`;
-        pattern += `(?=.*[0-9]{${result["global.password.min-number"]},})`;
-        pattern += `(?=.*[A-Z]{${result["global.password.min-uppercase"]},})`;
-        pattern += `(?=.*[a-z]{${result["global.password.min-lowercase"]},})`;
-        pattern += `[a-zA-Z0-9!@#$%^&.*]{${result["global.password.min-length"]},}$`;
-        passwordRegex = new RegExp(pattern);
+        passwordValidation = new PasswordValidation({
+            minLength: result["global.password.min-length"],
+            minSpecialChar: result["global.password.min-special-char"],
+            minNumber: result["global.password.min-number"],
+            minUppercase: result["global.password.min-uppercase"],
+            minLowercase: result["global.password.min-lowercase"]
+        });
     }
     catch (error) {
         console.error(error);
+    }
+}
+
+class PasswordValidation {
+    #userPasswordConfig;
+
+    constructor(userPasswordConfig) {
+        this.#userPasswordConfig = userPasswordConfig;
+    }
+
+    validate(password) {
+        return password != null
+            && password.length >= this.#userPasswordConfig.minLength
+            && PasswordValidation.#isValid(PasswordValidation.#passwordStatistics(password), this.#userPasswordConfig);
+
+    }
+
+    static #passwordStatistics(password) {
+        let uppercase = 0;
+        let lowercase = 0;
+        let numbers = 0;
+        let special = 0;
+
+        for (const c of password) {
+            if (/[A-Z]/.test(c)) {
+                uppercase++;
+            } else if (/[a-z]/.test(c)) {
+                lowercase++;
+            } else if (/[0-9]/.test(c)) {
+                numbers++;
+            } else {
+                special++;
+            }
+        }
+
+        return { uppercase, lowercase, numbers, special };
+    }
+
+    static #isValid(stats, userPasswordConfig) {
+        return (
+            stats.uppercase >= userPasswordConfig.minUppercase &&
+            stats.lowercase >= userPasswordConfig.minLowercase &&
+            stats.numbers >= userPasswordConfig.minNumber &&
+            stats.special >= userPasswordConfig.minSpecialChar
+        );
     }
 }
