@@ -28,7 +28,7 @@ public class UserRiskServiceImpl implements UserRiskService {
   public void controlRiskPriority(int priority, UUID serverId, RiskType type) {
     var affectedRisk = affectedRiskService.get(new RiskEntity(serverId, null), type);
     var userMaxPriority = affectedRisk.map(AffectedRisk::priority).orElse(-1);
-    if (userMaxPriority < priority) {
+    if (userMaxPriority > priority) {
       throw new UnauthorizedException(RISK_ABOVE_ERROR.translate());
     }
   }
