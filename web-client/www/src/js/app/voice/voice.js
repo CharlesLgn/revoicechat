@@ -213,19 +213,18 @@ export default class VoiceCall {
 
     async toggleSelfMute() {
         // Need to be async !
-        this.#settings.self.muted = !this.#settings.self.muted;
-
-        if (this.#settings.self.muted) {
-            this.setSelfVolume(0.001, false);
-        }
-        else {
-            this.setSelfVolume(this.#settings.self.volume, false);
-        }
+        await this.setSelfMute(!this.#settings.self.muted);
     }
 
     async setSelfMute(muted) {
         // Need to be async !
         this.#settings.self.muted = muted;
+
+        if (this.#settings.self.muted) {
+            this.setSelfVolume(0.001, false);
+        } else {
+            this.setSelfVolume(this.#settings.self.volume, false);
+        }
     }
 
     async getSelfMute() {

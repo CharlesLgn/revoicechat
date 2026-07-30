@@ -84,14 +84,12 @@ export class CryptoPacket {
     }
 
     async #importEncryptionKey(data) {
-        const requestId = new Uint8Array(data.slice(0, 8));
-        const voiceKeyBuffer = data.slice(8);
-
-        if (requestId.toBase64() != this.#requestId.toBase64()) {
-            console.warn("Not my requestId");
+        // No temp keys OR Not our requestID
+        if (!this.#temporaryKeys || new Uint8Array(data.slice(0, 8)).toBase64() != this.#requestId.toBase64()) {
             return;
         }
 
+        const voiceKeyBuffer = data.slice(8);
         const decryptedVoiceKey = await crypto.subtle.decrypt(
             {
                 name: "RSA-OAEP",

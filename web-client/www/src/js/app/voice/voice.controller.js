@@ -375,8 +375,8 @@ export default class VoiceController {
             if (await this.#voiceCall.getSelfMute()) {
                 // Muted
                 muteButton.classList.add('red');
-                muteUser.classList.add('red');
-                muteUser.classList.remove('hidden');
+                muteUser?.classList.add('red');
+                muteUser?.classList.remove('hidden');
                 if (alert) {
                     Alert.play('microphoneMuted');
                 }
@@ -384,8 +384,8 @@ export default class VoiceController {
             else {
                 // Unmuted
                 muteButton.classList.remove('red');
-                muteUser.classList.remove("red");
-                muteUser.classList.add("hidden");
+                muteUser?.classList.remove("red");
+                muteUser?.classList.add("hidden");
                 if (alert) {
                     Alert.play('microphoneActivated');
                 }
