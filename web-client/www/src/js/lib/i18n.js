@@ -252,7 +252,7 @@ class I18n {
         try {
             this.translations = await this.loadTranslations(lang);
             this.translatePage();
-            console.log(`Language changed to: ${lang}`);
+            console.debug(`Language changed to: ${lang}`);
         } catch (error) {
             console.error('Error loading translations:', error);
         }

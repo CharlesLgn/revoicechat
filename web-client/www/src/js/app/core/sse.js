@@ -44,7 +44,7 @@ export class Sse {
             const readStream = () => {
                 reader.read().then(({ done, value }) => {
                     if (done) {
-                        console.log('SSE stream closed');
+                        console.debug('SSE stream closed');
                         this.#handleSSEError();
                         return;
                     }

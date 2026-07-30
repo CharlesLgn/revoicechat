@@ -625,7 +625,6 @@ class ModerationPanel extends HTMLElement {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const payload = {...formData, expiresAt: formData.expiresAt || null};
-                console.log(payload)
                 await this.#issueSanction(payload);
                 void this.#load();
             }

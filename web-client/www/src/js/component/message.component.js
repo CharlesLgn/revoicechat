@@ -98,7 +98,6 @@ class MessageComponent extends HTMLElement {
     }
 
     #updateRender() {
-        console.log("update message ")
         const content = this.contentSlot;
         if (this.markdown !== content) {
             this.markdown = content
@@ -294,7 +293,6 @@ class MessageComponent extends HTMLElement {
             }
             emoji.addEventListener('contextmenu', async (e) => {
                 e.preventDefault();
-                console.log('Right clicked!');
                 const users = await CoreServer.fetch(`/server/${RVC.server.id}/user`, 'GET');
                 await Modal.toggle({
                     html: `
