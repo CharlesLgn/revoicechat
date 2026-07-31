@@ -386,16 +386,25 @@ export default class TextController {
         reader.readAsDataURL(file);
     }
 
+    handleDragAndDropEvent(event) {
+        const files = event.dataTransfer.files;
+        const dataTransfer = new DataTransfer();
+        this.keepExistingFiles(dataTransfer);
+        for (let i = 0; i < files.length; i++) {
+            dataTransfer.items.add(files.item(i));
+        }
+        this.#elements.textAttachment.files = dataTransfer.files;
+        this.#elements.textAttachmentDiv.classList.remove('hidden');
+        this.handleFilePreview(this.#elements.textAttachment.files[0]);
+    }
+
     #pasteHandler(event) {
         const items = event.clipboardData?.items;
         if (!items) return;
 
         const dataTransfer = new DataTransfer();
 
-        // Keep existing files
-        for (const existingFile of this.#elements.textAttachment.files) {
-            dataTransfer.items.add(existingFile);
-        }
+        this.keepExistingFiles(dataTransfer);
 
         let hasFile = false
         for (const item of items) {
@@ -424,6 +433,12 @@ export default class TextController {
             this.#elements.textAttachmentDiv.classList.remove('hidden');
             this.handleFilePreview(this.#elements.textAttachment.files[0]);
             event.preventDefault();
+        }
+    }
+
+    keepExistingFiles(dataTransfer) {
+        for (const existingFile of this.#elements.textAttachment.files) {
+            dataTransfer.items.add(existingFile);
         }
     }
 

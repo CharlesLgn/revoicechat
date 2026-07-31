@@ -5,6 +5,7 @@ import CoreServer from "./core/core.server.js";
 import RoomController from "./room.controller.js";
 import { getTextSanction } from "./utils/sanctions.utils.js";
 import MediaServer from "./media/media.server.js";
+import {handleDragAndDrop} from "./file/drag.and.drop.js";
 
 export default class PrivateRoomController extends RoomController {
     id;
@@ -39,6 +40,7 @@ export default class PrivateRoomController extends RoomController {
         document.getElementById('private-message-new').addEventListener('click', () => this.#newRoom());
         document.getElementById('private-open').addEventListener('dblclick', () => this.load());
         this.textController.attachEvents();
+        handleDragAndDrop('private-container', e => this.textController.handleDragAndDropEvent(e));
     }
 
     #createRoomSelector(room) {
