@@ -853,6 +853,7 @@ svg {
     align-items: center;
     padding: 0 0 0 0.5rem;
     border-radius: 18px;
+    width: 100%;
 }
 
 .status-bloc-1:hover {
