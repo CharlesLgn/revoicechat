@@ -853,6 +853,7 @@ svg {
     align-items: center;
     padding: 0 0 0 0.5rem;
     border-radius: 18px;
+    width: 100%;
 }
 
 .status-bloc-1:hover {
@@ -1895,4 +1896,21 @@ revoice-message {
     color: var(--c);
     background: linear-gradient(to right, var(--c) var(--l), transparent 0) 0 0 no-repeat, linear-gradient(to right, var(--c) var(--l), transparent 0) 0 100% no-repeat, linear-gradient(to left, var(--c) var(--l), transparent 0) 100% 0 no-repeat, linear-gradient(to left, var(--c) var(--l), transparent 0) 100% 100% no-repeat, linear-gradient(to bottom, var(--c) var(--l), transparent 0) 0 0 no-repeat, linear-gradient(to bottom, var(--c) var(--l), transparent 0) 100% 0 no-repeat, linear-gradient(to top, var(--c) var(--l), transparent 0) 0 100% no-repeat, linear-gradient(to top, var(--c) var(--l), transparent 0) 100% 100% no-repeat;
     background-size: 100% var(--b), 100% var(--b), 100% var(--b), 100% var(--b), var(--b) 100%, var(--b) 100%, var(--b) 100%, var(--b) 100%;
+}
+
+.gate-meter{
+    width: 100%;
+    height: 15px;
+    border: 2px solid var(--pri-bd-color);
+    border-radius: 5px;
+    background: var(--sec-bg-color);
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.gate-level{
+    height: 100%;
+    width: 0%;
+    background: var(--green-text);
+    transition: width 40ms linear;
 }

@@ -214,7 +214,7 @@ export default class StreamController {
             }
         }
 
-        if (this.#room.voiceController.getActiveRoom() && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
+        if (this.#room.voiceController.getActiveRoom() == stream.roomId && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
             const displayName = (await CoreServer.fetch(`/user/${userId}`)).displayName;
             const streamContainter = document.getElementById('stream-container');
             const modal = document.createElement('div');
