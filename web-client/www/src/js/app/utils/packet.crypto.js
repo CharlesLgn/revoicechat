@@ -188,6 +188,10 @@ export class CryptoPacket {
      * @param {ArrayBuffer} data
      */
     async decrypt(data) {
+        if (!data) {
+            return;
+        }
+
         const type = new Uint8Array(data)[0];
         const payload = data.slice(1);
 
