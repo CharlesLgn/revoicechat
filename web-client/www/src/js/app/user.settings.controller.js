@@ -8,6 +8,7 @@ import CoreServer from "./core/core.server.js";
 import Modal from "../component/modal.component.js";
 import {copyToClipboard, getUserLanguage} from "../lib/tools.js";
 import {handleDragAndDrop} from "./file/drag.and.drop.js";
+import {addEmoteViaDragAndDrop} from "../component/emoji.manager.component.js";
 
 export default class UserSettingsController {
     #user;
@@ -465,12 +466,19 @@ export default class UserSettingsController {
     }
 
     #emoteLoad() {
+        const emoteForm = document.getElementById("user-setting-emotes-form");
         CoreServer.fetch(`/emote/me`).then(response => {
-            const emoteForm = document.getElementById("user-setting-emotes-form");
             emoteForm.innerHTML = `
             <script type="application/json" slot="emojis-data">
                 ${JSON.stringify(response)}
             </script>`;
+        });
+        handleDragAndDrop('user-setting-content-emotes', (event) => addEmoteViaDragAndDrop(emoteForm, event));
+        handleDragAndDrop('user-setting-content-overview', (event) => {
+            const file = event.dataTransfer.files.item(0);
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            if (file && validTypes.includes(file.type))
+                this.#changePicture(file);
         });
     }
 

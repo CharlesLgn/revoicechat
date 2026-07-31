@@ -1,4 +1,6 @@
 import CoreServer from "../core/core.server.js";
+import {handleDragAndDrop} from "../file/drag.and.drop.js";
+import {addEmoteViaDragAndDrop} from "../../component/emoji.manager.component.js";
 
 export class ServerSettingsEmoteController {
 
@@ -30,10 +32,11 @@ export class ServerSettingsEmoteController {
         
         /** @type {EmoteRepresentation[]} */
         const response = await CoreServer.fetch(`/emote/server/${this.serverSettings.server.id}`);
-        const emoji_manager = document.createElement('revoice-emoji-manager');
-        emoji_manager.setAttribute('path', `server/${this.serverSettings.server.id}`);
-        emoji_manager.id = "server-setting-emotes-form";
-        emoji_manager.innerHTML = `<script type="application/json" slot="emojis-data">${JSON.stringify(response)}</script>`;
-        document.getElementById("server-setting-content-emotes").appendChild(emoji_manager);
+        const emojiManager = document.createElement('revoice-emoji-manager');
+        emojiManager.setAttribute('path', `server/${this.serverSettings.server.id}`);
+        emojiManager.id = "server-setting-emotes-form";
+        emojiManager.innerHTML = `<script type="application/json" slot="emojis-data">${JSON.stringify(response)}</script>`;
+        document.getElementById("server-setting-content-emotes").appendChild(emojiManager);
+        handleDragAndDrop('server-setting-content-emotes', (event) => addEmoteViaDragAndDrop(emojiManager, event));
     }
 }
