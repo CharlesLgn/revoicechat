@@ -284,7 +284,7 @@ public class StreamWebSocket {
     stopStream(stream, roomId);
     streamSessions.addSession(new StreamSession(streamer));
     LOG.info("Streamer connected: {}", user);
-    Notification.of(new StreamStart(streamer.user(), streamer.streamName())).sendTo(roomUserFinder.find(roomId));
+    Notification.of(new StreamStart(streamer.user(), streamer.streamName(), roomId)).sendTo(roomUserFinder.find(roomId));
   }
 
   /**
