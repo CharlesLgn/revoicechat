@@ -1,6 +1,6 @@
 /**
  * @param {string} id
- * @param {(Event) => void} func
+ * @param {(DragEvent) => void} func
  */
 export function handleDragAndDrop(id, func) {
     const dropzone = document.getElementById(id);

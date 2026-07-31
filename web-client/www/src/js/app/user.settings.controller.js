@@ -7,6 +7,7 @@ import MediaServer from "./media/media.server.js";
 import CoreServer from "./core/core.server.js";
 import Modal from "../component/modal.component.js";
 import {copyToClipboard, getUserLanguage} from "../lib/tools.js";
+import {handleDragAndDrop} from "./file/drag.and.drop.js";
 
 export default class UserSettingsController {
     #user;
@@ -165,14 +166,23 @@ export default class UserSettingsController {
         document.getElementById("setting-user-picture").src = MediaServer.profiles(this.#user.id);
         document.getElementById("setting-user-picture").dataset.id = this.#user.id;
         document.getElementById("overview-picture-new").addEventListener("change", () => {
-            const file = document.getElementById("overview-picture-new").files[0];
-            if (file) {
-                this.#newProfilPictureFile = file;
-                document.getElementById("overview-picture").value = file.name;
-                document.getElementById("setting-user-picture").src = URL.createObjectURL(file);
-                document.getElementById("setting-user-picture").style.display = "block";
-            }
+            this.#changePicture(document.getElementById("overview-picture-new").files[0]);
         });
+        handleDragAndDrop('user-setting-content-overview', (event) => {
+            const file = event.dataTransfer.files.item(0);
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            if (file && validTypes.includes(file.type))
+                this.#changePicture(file);
+        });
+    }
+
+    #changePicture(file) {
+        if (file) {
+            this.#newProfilPictureFile = file;
+            document.getElementById("overview-picture").value = file.name;
+            document.getElementById("setting-user-picture").src = URL.createObjectURL(file);
+            document.getElementById("setting-user-picture").style.display = "block";
+        }
     }
 
     async #authSettingsOverviewLoad() {
