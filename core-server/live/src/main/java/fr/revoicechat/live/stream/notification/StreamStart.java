@@ -9,4 +9,4 @@ import fr.revoicechat.notification.model.NotificationType;
 
 @NotificationType(name = "STREAM_START")
 @Schema(description = "Stream start")
-public record StreamStart(UUID user, String streamName) implements NotificationPayload {}
+public record StreamStart(UUID user, String streamName, UUID roomId) implements NotificationPayload {}
