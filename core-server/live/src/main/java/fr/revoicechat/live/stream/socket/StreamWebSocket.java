@@ -1,5 +1,6 @@
 package fr.revoicechat.live.stream.socket;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -126,6 +127,11 @@ public class StreamWebSocket {
     var room = connectedUserRetriever.getRoomForUser(user.getId());
     if (room == null) {
       webSocketService.closeSession(session, CloseCodes.CANNOT_ACCEPT, "User is not connected to a room");
+      return;
+    }
+    var streamerRoom = connectedUserRetriever.getRoomForUser(streamedUserId);
+    if (!Objects.equals(streamerRoom, room)) {
+      webSocketService.closeSession(session, CloseCodes.CANNOT_ACCEPT, "User is connected to another room");
       return;
     }
     var risks = discussionRiskService.getStreamRisks(room, user.getId());
