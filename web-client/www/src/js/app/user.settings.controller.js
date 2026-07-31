@@ -14,6 +14,13 @@ export default class UserSettingsController {
     #user;
     #room;
     #inputAdvanced = false;
+    #inputTest = {
+        active: false,
+        animationId: null,
+        audioContext: null,
+        gainNode: null,
+        gateNode: null,
+    }
     #currentTab;
     #theme = 'dark';
     #lang = getUserLanguage();
@@ -488,6 +495,9 @@ export default class UserSettingsController {
         document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
         document.getElementById('rnoise-enabled').addEventListener('click', () => this.#rnoiseEnabled());
 
+        const testElement = document.getElementById('audio-input-test');
+        testElement.addEventListener("click", async () => await this.#audioInputTest(testElement));
+
         const parameters = [
             'input-volume',
             'gate-threshold',
@@ -539,9 +549,15 @@ export default class UserSettingsController {
         switch (param) {
             case 'input-volume':
                 i18n.updateValue(document.getElementById("input-volume-label"), String(Math.round(element.value * 100)));
+                if (this.#inputTest.active) {
+                    this.#inputTest.gainNode.gain.setValueAtTime(Number.parseFloat(element.value), this.#inputTest.audioContext.currentTime);
+                }
                 break;
             case 'gate-threshold': {
                 i18n.updateValue(document.getElementById("gate-threshold-label"), (element.value).toString());
+                if (this.#inputTest.active) {
+                    this.#inputTest.gateNode.parameters.get("threshold").setValueAtTime(Number.parseFloat(element.value), this.#inputTest.audioContext.currentTime);
+                }
                 break;
             }
         }
@@ -578,6 +594,102 @@ export default class UserSettingsController {
         this.save();
         this.#room.voiceController.updateGate();
         this.#audioInputLoad();
+    }
+
+    async #audioInputTest(element) {
+        this.#inputTest.active = !this.#inputTest.active;
+
+        if (this.#inputTest.active) {
+            await this.#startInputTest();
+            element.innerText = "Stop test";
+        }
+        else {
+            await this.#stopInputTest();
+            element.innerText = "Start test";
+        }
+    }
+
+    async #startInputTest() {
+        let displayLevel = 0;
+
+        this.#inputTest.audioContext = new AudioContext();
+        await this.#inputTest.audioContext.audioWorklet.addModule("src/js/app/utils/audio.processors.js");
+
+        const gateLevel = document.getElementById('gate-level');
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: false,
+                noiseSuppression: this.voice.noiseSuppression.legacy,
+                autoGainControl: false,
+            },
+        });
+        const micSource = this.#inputTest.audioContext.createMediaStreamSource(stream);
+
+        // Filters
+        const filterHigh = this.#inputTest.audioContext.createBiquadFilter();
+        filterHigh.type = "highpass";
+        filterHigh.frequency.value = 40;
+        filterHigh.Q.value = 0.7;
+
+        const filterLow = this.#inputTest.audioContext.createBiquadFilter();
+        filterLow.type = "lowpass";
+        filterLow.frequency.value = 8000;
+        filterLow.Q.value = 0.7;
+
+        micSource.connect(filterHigh);
+        filterHigh.connect(filterLow);
+
+        // Gain
+        this.#inputTest.gainNode = this.#inputTest.audioContext.createGain();
+        this.#inputTest.gainNode.gain.setValueAtTime(this.voice.self.volume, this.#inputTest.audioContext.currentTime);
+        filterLow.connect(this.#inputTest.gainNode);
+
+        // Gate
+        this.#inputTest.gateNode = new AudioWorkletNode(this.#inputTest.audioContext, "NoiseGate", {
+            parameterData: {
+                attack: VoiceCall.GATE_SETTINGS.attack,
+                release: VoiceCall.GATE_SETTINGS.release,
+                threshold: this.voice.gate.threshold,
+            },
+        });
+        this.#inputTest.gainNode.connect(this.#inputTest.gateNode);
+
+        // Loopback
+        this.#inputTest.gateNode.connect(this.#inputTest.audioContext.destination);
+
+        // Analyser
+        const analyser = this.#inputTest.audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        this.#inputTest.gateNode.connect(analyser);
+        const buffer = new Float32Array(analyser.fftSize);
+
+        function rmsToDb(rms) {
+            return 20 * Math.log10(rms);
+        }
+
+        function update(inputTest) {
+            analyser.getFloatTimeDomainData(buffer);
+
+            let sum = 0;
+            for (let i = 0; i < buffer.length; i++) {
+                sum += buffer[i] * buffer[i];
+            }
+
+            const rms = Math.sqrt(sum / buffer.length);
+            const normalized = Math.max(0, Math.min(1, (rmsToDb(rms) + 60) / 60));
+
+            displayLevel += (normalized - displayLevel) * 0.3;
+            displayLevel = Math.max(0.001, Math.min(1, (displayLevel)));
+
+            gateLevel.style.width = `${displayLevel * 100}%`;
+            requestAnimationFrame(update);
+        }
+
+        update();
+    }
+
+    async #stopInputTest() {
+        await this.#inputTest.audioContext?.close();
     }
 
     #compressorEnabled() {
