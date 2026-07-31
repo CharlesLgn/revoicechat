@@ -6,6 +6,7 @@ import { statusToColor } from "../lib/tools.js";
 import { i18n } from '../lib/i18n.js';
 import RoomController from "./room.controller.js";
 import {getTextSanction} from "./utils/sanctions.utils.js";
+import {handleDragAndDrop} from "./file/drag.and.drop.js";
 
 export default class PublicRoom extends RoomController{
     /** @type {VoiceController} */
@@ -29,6 +30,7 @@ export default class PublicRoom extends RoomController{
     attachEvents() {
         this.textController.attachEvents();
         this.voiceController.attachEvents();
+        handleDragAndDrop('text-container', e => this.textController.handleDragAndDropEvent(e))
     }
 
     /**

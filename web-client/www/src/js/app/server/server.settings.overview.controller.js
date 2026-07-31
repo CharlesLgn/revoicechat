@@ -4,6 +4,7 @@ import CoreServer from "../core/core.server.js";
 import Modal from "../../component/modal.component.js";
 import MediaServer from "../media/media.server.js";
 import {copyToClipboard} from "../../lib/tools.js";
+import {handleDragAndDrop} from "../file/drag.and.drop.js";
 
 export class ServerSettingsOverviewController {
     #newPictureFile = null;
@@ -25,17 +26,27 @@ export class ServerSettingsOverviewController {
         const settingServerPicture = document.getElementById("setting-server-picture");
         settingServerPicture.src = MediaServer.serverProfiles(this.serverSettings.server.id);
         settingServerPicture.dataset.id = this.serverSettings.server.id;
-        const settingServerPictureNewPath = document.getElementById("overview-server-picture");
         const settingServerPictureNewFile = document.getElementById("overview-server-picture-new");
         settingServerPictureNewFile.onchange = () => {
-            const file = settingServerPictureNewFile.files[0];
-            if (file) {
-                this.#newPictureFile = file;
-                settingServerPictureNewPath.value = file.name;
-                settingServerPicture.src = URL.createObjectURL(file);
-                settingServerPicture.style.display = "block";
-            }
+            this.#changePicture(settingServerPictureNewFile.files[0])
         };
+        handleDragAndDrop('server-setting-content-overview', (event) => {
+            const file = event.dataTransfer.files.item(0);
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            if (file && validTypes.includes(file.type))
+                this.#changePicture(file);
+        });
+    }
+
+    #changePicture(file) {
+        if (file) {
+            const settingServerPicture = document.getElementById("setting-server-picture");
+            const settingServerPictureNewPath = document.getElementById("overview-server-picture");
+            this.#newPictureFile = file;
+            settingServerPictureNewPath.value = file.name;
+            settingServerPicture.src = URL.createObjectURL(file);
+            settingServerPicture.style.display = "block";
+        }
     }
 
     /**

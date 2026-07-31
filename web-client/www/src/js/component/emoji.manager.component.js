@@ -428,3 +428,15 @@ class EmojiManager extends HTMLElement {
 }
 
 customElements.define('revoice-emoji-manager', EmojiManager);
+
+/**
+ * @param {EmojiManager} emojiManager
+ * @param {DragEvent} event
+ */
+export function addEmoteViaDragAndDrop(emojiManager, event) {
+    const file = event.dataTransfer.files.item(0);
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    emojiManager.shadowRoot.getElementById('emojiFile').files = dataTransfer.files;
+    emojiManager.handleFilePreview(file, emojiManager.shadowRoot.getElementById('addPreview'));
+}
