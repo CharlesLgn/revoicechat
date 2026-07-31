@@ -398,6 +398,7 @@ svg {
 .sidebar.server {
     border-right-width: var(--window-border-width);
     width: 19rem;
+    z-index: 2;
 }
 
 .sidebar.private-messages .header h2,
@@ -426,6 +427,7 @@ svg {
 /* SIDEBAR USER */
 .sidebar.users {
     border-left-width: var(--window-border-width);
+    z-index: 2;
 }
 
 .sidebar.users .header h2 {
