@@ -331,12 +331,12 @@ export default class VoiceCall {
         // Create Filters around voice frequency
         const filterHigh = this.#audioContext.createBiquadFilter();
         filterHigh.type = "highpass";
-        filterHigh.frequency.value = 50;
+        filterHigh.frequency.value = 40;
         filterHigh.Q.value = 0.7;
 
         const filterLow = this.#audioContext.createBiquadFilter();
         filterLow.type = "lowpass";
-        filterLow.frequency.value = 7000;
+        filterLow.frequency.value = 8000;
         filterLow.Q.value = 0.7;
 
         // Connect microphone to filter
