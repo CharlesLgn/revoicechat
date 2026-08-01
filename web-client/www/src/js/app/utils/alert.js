@@ -38,7 +38,7 @@ export default class Alert {
     }
 
     static #playNotification() {
-        let audio = new Audio(this.#testSounds['notification']);
+        let audio = new Audio(this.#defaultSounds['messageNew']);
         audio.volume = RVC.userSettings().getNotificationVolume();
         audio.play();
     }

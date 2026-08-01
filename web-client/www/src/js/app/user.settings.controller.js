@@ -725,13 +725,13 @@ export default class UserSettingsController {
     #audioOutputUpdateUI(param, value) {
         switch (param) {
             case 'output-notification-volume':
-                document.getElementById('output-notification-label').innerText = `Volume ${Math.round(value * 100)}%`;
+                document.getElementById('output-notification-label').innerText = `${Math.round(value * 100)}%`;
                 break;
             case 'output-voice-volume':
-                document.getElementById('output-voice-label').innerText = `Volume ${Math.round(value * 100)}%`;
+                document.getElementById('output-voice-label').innerText = `${Math.round(value * 100)}%`;
                 break;
             case 'output-stream-volume':
-                document.getElementById('output-stream-label').innerText = `Volume ${Math.round(value * 100)}%`;
+                document.getElementById('output-stream-label').innerText = `${Math.round(value * 100)}%`;
                 break;
         }
     }

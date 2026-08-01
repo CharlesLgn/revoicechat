@@ -1815,6 +1815,57 @@ summary::marker {
     opacity: 1;
 }
 
+.audio-output-element-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.audio-output-element-header .config-buttons {
+    margin: 0;
+}
+
+.audio-output-element-header-title {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+.audio-output-element-header-title svg {
+    fill: var(--pri-placeholder-color);
+}
+
+.audio-output-element-title {
+    display: flex;
+    flex-direction: column;
+}
+
+.audio-output-element-title h1 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.audio-output-element-title h2 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--pri-placeholder-color);
+    font-weight: normal;
+}
+
+.voice-settings {
+    display: flex;
+    gap:0.5rem;
+}
+
+.voice-settings input[type="range"] {
+    flex: 1;
+}
+
+.voice-settings label {
+    width: 4rem;
+    text-align: end;
+}
+
 .mp-modal-body {
     display: flex;
     flex-direction: column;
