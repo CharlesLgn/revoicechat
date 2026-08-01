@@ -55,21 +55,16 @@ export default class Codec {
 
     static async webcamConfig() {
         const config = {
-            codec: Codec.VIDEO_CODEC.AV1,
+            codec: Codec.VIDEO_CODEC.VP9,
             framerate: 30,
             width: 1920,
             height: 1080,
             bitrate: 3_000_000,
             bitratemode: "variable",
             latencyMode: "realtime",
-        }
+        };
 
-        // First fallback
-        if (!(await VideoEncoder.isConfigSupported(config)).supported) {
-            config.codec = Codec.VIDEO_CODEC.VP9;
-        }
-
-        // Second fallback
+        // Fallback
         if (!(await VideoEncoder.isConfigSupported(config)).supported) {
             config.codec = Codec.VIDEO_CODEC.VP8;
         }

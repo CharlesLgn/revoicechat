@@ -70,13 +70,13 @@ export default class VoiceController {
             this.updateSelf();
 
             // Update counter
-            this.#updateUserCounter(roomId);
+            await this.#updateUserCounter(roomId);
 
             // Update context menu
             this.#contextMenu.setVoiceCall(this.#voiceCall);
 
             // Check for available stream
-            this.streamController.availableStream(roomId);
+            await this.streamController.availableStream(roomId);
 
             // Audio alert
             Alert.play('voiceConnected');

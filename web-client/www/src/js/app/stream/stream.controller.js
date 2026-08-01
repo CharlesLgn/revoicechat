@@ -124,14 +124,22 @@ export default class StreamController {
 
                         div.className = "player";
                         div.appendChild(player);
+                        await player.play();
+
+                        // Auto stop when user click on "stop sharing" in browser
+                        const videoTrack = player.srcObject.getVideoTracks()[0];
+                        videoTrack.addEventListener("ended", async () => {
+                            await this.#stopStream("display");
+                        });
+
                         div.onclick = () => {
-                            this.focus(div)
-                        }
+                            this.focus(div);
+                        };
                         div.oncontextmenu = (event) => {
                             event.preventDefault();
-                        }
-                        document.getElementById('stream-container').appendChild(div);
+                        };
 
+                        document.getElementById("stream-container").appendChild(div);
                         this.#displayEnabled = true;
                         document.getElementById("stream-display").classList.add("green");
                     }
@@ -192,7 +200,7 @@ export default class StreamController {
             }
         } catch (error) {
             console.error(error);
-            await Modal.toggleError(i18n.translateOne("stream.start.error"));
+            await Modal.toggleError(i18n.translateOne("stream.stop.error"));
         }
     }
 
@@ -200,7 +208,7 @@ export default class StreamController {
      * @param {StreamingRepresentation|StreamRepresentation} stream
      * @return {Promise<void>}
      */
-    async joinModal(stream) {
+    async joinModal(stream, roomIdBypassCheck = false) {
         const userId = stream.user;
         const streamName = stream.streamName;
 
@@ -214,19 +222,19 @@ export default class StreamController {
             }
         }
 
-        if (this.#room.voiceController.getActiveRoom() == stream.roomId && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
+        if ((roomIdBypassCheck || this.#room.voiceController.getActiveRoom() == stream.roomId) && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
             const displayName = (await CoreServer.fetch(`/user/${userId}`)).displayName;
-            const streamContainter = document.getElementById('stream-container');
-            const modal = document.createElement('div');
+            const streamContainter = document.getElementById("stream-container");
+            const modal = document.createElement("div");
             modal.id = `stream-modal-${userId}-${streamName}`;
             modal.className = "player join";
-            modal.dataset.i18n = "stream.join.button"
-            modal.dataset.i18nValue = displayName
-            modal.innerText = i18n.translateOne(modal.dataset.i18n, [displayName])
+            modal.dataset.i18n = "stream.join.button";
+            modal.dataset.i18nValue = displayName;
+            modal.innerText = i18n.translateOne(modal.dataset.i18n, [displayName]);
             modal.onclick = () => {
                 modal.remove();
-                this.join(userId, streamName)
-            }
+                this.join(userId, streamName);
+            };
             streamContainter.appendChild(modal);
         }
     }
@@ -348,7 +356,7 @@ export default class StreamController {
 
         for (const user of result.connectedUser) {
             for (const stream of user.streams) {
-                this.joinModal(stream);
+                this.joinModal(stream, true);
             }
         }
     }
