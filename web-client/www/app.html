@@ -541,13 +541,14 @@
 
                     <h2 data-i18n="audio.volume">Volume</h2>
                     <form class="voice-settings">
-                        <label for="input-volume" data-i18n="audio.volume.label" data-i18n-value="0" id="input-volume-label">[VOLUME]</label>
                         <input type="range" id="input-volume" min="0" max="2" step="0.01">
+                        <label for="input-volume" data-i18n="audio.volume.label" data-i18n-value="0" id="input-volume-label">[VOLUME]</label>
                     </form>
 
+                    <h2 data-i18n="voice.sensitivity">Sensitivity</h2>
                     <form class="voice-settings">
-                        <label for="gate-threshold" data-i18n="voice.sensitivity.label" data-i18n-value="0" id="gate-threshold-label">[THRESHOLD]</label>
                         <input type="range" id="gate-threshold" min="-80" max="0" step="1">
+                        <label for="gate-threshold" data-i18n="voice.sensitivity.label" data-i18n-value="0" id="gate-threshold-label">[THRESHOLD]</label>
                     </form>
 
                     <h2 class="voice-toggleable">
@@ -579,32 +580,63 @@
                 <!-- Audio output -->
                 <div class="hidden" id="user-setting-content-audio-output">
                     <h1 data-i18n="audio.output">Audio output</h1>
+                    <p class="subtitle" data-i18n="audio.output.subtitle">Adjust volume for each sound category and preview the change instantly</p>
 
-                    <h2 data-i18n="audio.voice">Voice</h2>
-                    <form class="voice-settings">
-                        <label for="input-volume" data-i18n-value="0" id="output-voice-label">[VOICE]</label>
-                        <input type="range" id="output-voice-volume" min="0" max="1" step="0.01">
-                    </form>
-                    <div class="config-buttons">
-                        <button class="config-button" type="button" id="audio-output-try-voicechat" data-i18n="audio.try.voicechat">Try out !</button>
+                    <div class="audio-output-element">
+                        <div class="audio-output-element-header">
+                            <div class="audio-output-element-header-title">
+                                <revoice-icon-users></revoice-icon-users>
+                                <div class="audio-output-element-title">
+                                    <h1 data-i18n="audio.voice">Voice</h1>
+                                    <h2 data-i18n="audio.voice.subtitle">Other users talking</h2>
+                                </div>
+                            </div>
+                            <div class="config-buttons">
+                                <button class="config-button" type="button" id="audio-output-try-voicechat" data-i18n="audio.try.voicechat">Try out !</button>
+                            </div>
+                        </div>
+                        <form class="voice-settings">
+                            <input type="range" id="output-voice-volume" min="0" max="1" step="0.01">
+                            <label for="input-volume" data-i18n-value="0" id="output-voice-label">[VOICE]</label>
+                        </form>
                     </div>
-
-                    <h2 data-i18n="audio.notification">Notification</h2>
-                    <form class="voice-settings">
-                        <label for="input-volume" id="output-notification-label">[NOTIFICATION]</label>
-                        <input type="range" id="output-notification-volume" min="0" max="1" step="0.01">
-                    </form>
-                    <div class="config-buttons">
-                        <button class="config-button" type="button" id="audio-output-try-notification" data-i18n="audio.try.notification">Try out !</button>
+                    <br/>
+                    <div class="audio-output-element">
+                        <div class="audio-output-element-header">
+                            <div class="audio-output-element-header-title">
+                                <revoice-icon-notification-bell></revoice-icon-notification-bell>
+                                <div class="audio-output-element-title">
+                                    <h1 data-i18n="audio.notification">Notification</h1>
+                                    <h2 data-i18n="audio.notification.subtitle">Alerts and pings</h2>
+                                </div>
+                            </div>
+                            <div class="config-buttons">
+                                <button class="config-button" type="button" id="audio-output-try-notification" data-i18n="audio.try.voicechat">Try out !</button>
+                            </div>
+                        </div>
+                        <form class="voice-settings">
+                            <input type="range" id="output-notification-volume" min="0" max="1" step="0.01">
+                            <label for="input-volume" data-i18n-value="0" id="output-notification-label">[NOTIFICATION]</label>
+                        </form>
                     </div>
-
-                    <h2 data-i18n="audio.stream">Stream</h2>
-                    <form class="voice-settings">
-                        <label for="input-volume" data-i18n-value="0" id="output-stream-label">[STREAM]</label>
-                        <input type="range" id="output-stream-volume" min="0" max="1" step="0.01">
-                    </form>
-                    <div class="config-buttons">
-                        <button class="config-button" type="button" id="audio-output-try-stream" data-i18n="audio.try.stream">Try out !</button>
+                    <br/>
+                    <div class="audio-output-element">
+                        <div class="audio-output-element-header">
+                            <div class="audio-output-element-header-title">
+                                <revoice-icon-display></revoice-icon-display>
+                                <div class="audio-output-element-title">
+                                    <h1 data-i18n="audio.stream">Stream</h1>
+                                    <h2 data-i18n="audio.stream.subtitle">Shared audio during streams</h2>
+                                </div>
+                            </div>
+                            <div class="config-buttons">
+                                <button class="config-button" type="button" id="audio-output-try-stream" data-i18n="audio.try.voicechat">Try out !</button>
+                            </div>
+                        </div>
+                        <form class="voice-settings">
+                            <input type="range" id="output-stream-volume" min="0" max="1" step="0.01">
+                            <label for="input-volume" data-i18n-value="0" id="output-stream-label">[STREAM]</label>
+                        </form>
                     </div>
                 </div>
             </div>

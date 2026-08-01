@@ -242,7 +242,7 @@ describe('I18n', () => {
     beforeEach(() => {
       i18n.translations = {
         'greeting': 'Hello',
-        'volume': 'Volume {0}%',
+        'volume': '{0}%',
         'user.info': '{0} is {1} years old'
       };
     });
@@ -295,7 +295,7 @@ describe('I18n', () => {
 
       i18n.translateElement(element);
 
-      expect(element.textContent).toBe('Volume {0}%');
+      expect(element.textContent).toBe('{0}%');
       expect(consoleErrorSpy).toHaveBeenCalled();
       consoleErrorSpy.mockRestore();
     });
@@ -308,7 +308,7 @@ describe('I18n', () => {
         'title': 'Welcome',
         'tooltip': 'Click me',
         'search': 'Search...',
-        'volume': 'Volume {0}%'
+        'volume': '{0}%'
       };
     });
 
@@ -491,7 +491,7 @@ describe('I18n', () => {
     beforeEach(() => {
       i18n.translationsLoaded = true;
       i18n.translations = {
-        'volume': 'Volume {0}%'
+        'volume': '{0}%'
       };
     });
 
