@@ -24,6 +24,7 @@ export default class VoiceCall {
         noiseSuppression: {
             legacy: true,
         },
+        autoGainControl: false,
         users: {},
     };
     static COMPRESSOR_SETTINGS = {
@@ -323,7 +324,7 @@ export default class VoiceCall {
                 audio: {
                     echoCancellation: false,
                     noiseSuppression: this.#settings.noiseSuppression.legacy,
-                    autoGainControl: false,
+                    autoGainControl: this.#settings.autoGainControl,
                 },
             }),
         );
