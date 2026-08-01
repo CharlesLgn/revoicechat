@@ -255,7 +255,8 @@ export default class UserSettingsController {
                 });
                 if (!recovered) {
                     await Modal.toggleError('')
-                } if (recovered.error) {
+                }
+                if (recovered.error) {
                     await Modal.toggleError(recovered.error)
                 } else {
                     await Modal.toggle({
@@ -491,7 +492,6 @@ export default class UserSettingsController {
 
     // Audio Input
     #audioInputEventHandler() {
-        document.getElementById('gate-default').addEventListener('click', () => this.#gateDefault());
         document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
         document.getElementById('rnoise-enabled').addEventListener('click', () => this.#rnoiseEnabled());
 
@@ -522,26 +522,16 @@ export default class UserSettingsController {
 
         // Compressor
         const buttonEnabled = document.getElementById('compressor-enabled')
+        buttonEnabled.classList.remove('active');
         if (this.voice.compressor.enabled) {
-            buttonEnabled.innerText = "Enabled";
-            buttonEnabled.classList.remove("background-red");
-            buttonEnabled.classList.add("background-green");
-        } else {
-            buttonEnabled.innerText = "Disabled";
-            buttonEnabled.classList.add("background-red");
-            buttonEnabled.classList.remove("background-green");
+            buttonEnabled.classList.add('active');
         }
 
         // Legacy noise removal
         const buttonRNoiseEnabled = document.getElementById('rnoise-enabled')
+        buttonRNoiseEnabled.classList.remove('active');
         if (this.voice.noiseSuppression.legacy) {
-            buttonRNoiseEnabled.innerText = "Enabled";
-            buttonRNoiseEnabled.classList.remove("background-red");
-            buttonRNoiseEnabled.classList.add("background-green");
-        } else {
-            buttonRNoiseEnabled.innerText = "Disabled";
-            buttonRNoiseEnabled.classList.add("background-red");
-            buttonRNoiseEnabled.classList.remove("background-green");
+            buttonRNoiseEnabled.classList.add('active');
         }
     }
 
@@ -587,13 +577,6 @@ export default class UserSettingsController {
 
         this.save();
         this.#room.voiceController.updateGate();
-    }
-
-    #gateDefault() {
-        this.voice.gate = structuredClone(VoiceCall.DEFAULT_SETTINGS.gate);
-        this.save();
-        this.#room.voiceController.updateGate();
-        this.#audioInputLoad();
     }
 
     async #audioInputTest(element) {
@@ -663,16 +646,13 @@ export default class UserSettingsController {
         this.#inputTest.gateNode.connect(analyser);
         const buffer = new Float32Array(analyser.fftSize);
 
-        function rmsToDb(rms) {
-            return 20 * Math.log10(rms);
-        }
-
-        function update(inputTest) {
+        function update() {
+            const rmsToDb = (rms) => 20 * Math.log10(rms);
             analyser.getFloatTimeDomainData(buffer);
 
             let sum = 0;
-            for (let i = 0; i < buffer.length; i++) {
-                sum += buffer[i] * buffer[i];
+            for (const element of buffer) {
+                sum += element * element;
             }
 
             const rms = Math.sqrt(sum / buffer.length);
