@@ -13,7 +13,6 @@ import {addEmoteViaDragAndDrop} from "../component/emoji.manager.component.js";
 export default class UserSettingsController {
     #user;
     #room;
-    #inputAdvanced = false;
     #inputTest = {
         active: false,
         animationId: null,
@@ -60,7 +59,6 @@ export default class UserSettingsController {
     async save() {
         const settings = {
             voice: this.voice,
-            inputAdvanced: this.#inputAdvanced,
             theme: this.#theme,
             lang: this.#lang,
             audioOutput: this.#audioOutput,
