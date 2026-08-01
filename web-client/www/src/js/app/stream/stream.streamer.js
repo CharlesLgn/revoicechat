@@ -325,6 +325,18 @@ export default class Streamer {
     }
 
     async stop() {
+        // Stop capture
+        if (this.#player?.srcObject) {
+            this.#player.srcObject.getTracks().forEach((track) => track.stop());
+            this.#player.srcObject = null;
+        }
+
+        // Stop playback
+        if (this.#player) {
+            await this.#player.pause();
+            this.#player = null;
+        }
+
         // Stop frame grabbing
         if (this.#videoEncoderInterval) {
             clearInterval(this.#videoEncoderInterval);
@@ -347,12 +359,6 @@ export default class Streamer {
         if (this.#audioContext && this.#audioContext.state !== "closed") {
             this.#audioContext.close();
             this.#audioContext = null;
-        }
-
-        // Close playback
-        if (this.#player) {
-            await this.#player.pause();
-            this.#player = null;
         }
 
         this.#state = Streamer.CLOSE;

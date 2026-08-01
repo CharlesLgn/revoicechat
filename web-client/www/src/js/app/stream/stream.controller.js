@@ -192,7 +192,7 @@ export default class StreamController {
             }
         } catch (error) {
             console.error(error);
-            await Modal.toggleError(i18n.translateOne("stream.start.error"));
+            await Modal.toggleError(i18n.translateOne("stream.stop.error"));
         }
     }
 
