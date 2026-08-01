@@ -67,7 +67,7 @@ export default class VoiceController {
             await this.#voiceCall.open(CoreServer.voiceUrl(), ReVoiceChat.getToken(), roomId, onlySelf, (reason) => this.#voiceError(reason));
 
             // Update self
-            this.updateSelf(this.#user.settings.voice);
+            this.updateSelf();
 
             // Update counter
             this.#updateUserCounter(roomId);
@@ -460,7 +460,7 @@ export default class VoiceController {
     }
 
     // Update user controls and UI
-    updateSelf(voiceSettings = null) {
+    updateSelf() {
         const voiceAction = document.getElementById("voice-join-action");
         const muteButton = document.getElementById("voice-self-mute");
         const deafButton = document.getElementById("voice-self-deaf");
@@ -505,14 +505,7 @@ export default class VoiceController {
                 deafButton.classList.remove('hidden');
                 webcamButton.classList.remove('hidden');
                 displayButton.classList.remove('hidden');
-                if (voiceSettings) {
-                    if (voiceSettings.muted) {
-                        muteButton.classList.add('red');
-                    }
-                    if (voiceSettings.deaf) {
-                        deafButton.classList.add('red');
-                    }
-                }
+
                 this.#updateSelfDeaf(false);
                 this.#updateSelfMute(false);
                 break;

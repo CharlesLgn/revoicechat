@@ -346,6 +346,7 @@ export default class VoiceCall {
         // Create Gain node
         this.#gainNode = this.#audioContext.createGain();
         this.#gainNode.gain.setValueAtTime(this.#settings.self.volume, this.#audioContext.currentTime);
+        await this.setSelfMute(this.#settings.self.muted);
 
         // Connect filter to gain
         filterLow.connect(this.#gainNode);
