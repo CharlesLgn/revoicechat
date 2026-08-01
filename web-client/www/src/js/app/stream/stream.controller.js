@@ -124,14 +124,16 @@ export default class StreamController {
 
                         div.className = "player";
                         div.appendChild(player);
+                        await player.play();
+
                         div.onclick = () => {
                             this.focus(div)
                         }
                         div.oncontextmenu = (event) => {
                             event.preventDefault();
                         }
+                        
                         document.getElementById('stream-container').appendChild(div);
-
                         this.#displayEnabled = true;
                         document.getElementById("stream-display").classList.add("green");
                     }
