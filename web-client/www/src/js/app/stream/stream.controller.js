@@ -208,7 +208,7 @@ export default class StreamController {
      * @param {StreamingRepresentation|StreamRepresentation} stream
      * @return {Promise<void>}
      */
-    async joinModal(stream) {
+    async joinModal(stream, roomIdBypassCheck = false) {
         const userId = stream.user;
         const streamName = stream.streamName;
 
@@ -222,19 +222,19 @@ export default class StreamController {
             }
         }
 
-        if (this.#room.voiceController.getActiveRoom() == stream.roomId && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
+        if ((roomIdBypassCheck || this.#room.voiceController.getActiveRoom() == stream.roomId) && this.#user.id != userId && !this.#viewer[`${userId}-${streamName}`]) {
             const displayName = (await CoreServer.fetch(`/user/${userId}`)).displayName;
-            const streamContainter = document.getElementById('stream-container');
-            const modal = document.createElement('div');
+            const streamContainter = document.getElementById("stream-container");
+            const modal = document.createElement("div");
             modal.id = `stream-modal-${userId}-${streamName}`;
             modal.className = "player join";
-            modal.dataset.i18n = "stream.join.button"
-            modal.dataset.i18nValue = displayName
-            modal.innerText = i18n.translateOne(modal.dataset.i18n, [displayName])
+            modal.dataset.i18n = "stream.join.button";
+            modal.dataset.i18nValue = displayName;
+            modal.innerText = i18n.translateOne(modal.dataset.i18n, [displayName]);
             modal.onclick = () => {
                 modal.remove();
-                this.join(userId, streamName)
-            }
+                this.join(userId, streamName);
+            };
             streamContainter.appendChild(modal);
         }
     }
@@ -356,7 +356,7 @@ export default class StreamController {
 
         for (const user of result.connectedUser) {
             for (const stream of user.streams) {
-                this.joinModal(stream);
+                this.joinModal(stream, true);
             }
         }
     }
