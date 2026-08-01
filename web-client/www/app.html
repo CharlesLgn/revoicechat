@@ -548,30 +548,32 @@
                     <form class="voice-settings">
                         <label for="gate-threshold" data-i18n="voice.sensitivity.label" data-i18n-value="0" id="gate-threshold-label">[THRESHOLD]</label>
                         <input type="range" id="gate-threshold" min="-80" max="0" step="1">
+                    </form>
 
-                        <div class="gate-meter">
+                    <h2 class="voice-toggleable">
+                        <button class="switch-toggle" type="button" id="compressor-enabled"
+                                data-i18n-title="compressor.enabled.tooltip"
+                                role="switch" aria-checked="false" aria-label="Enabled">
+                            <span class="switch-toggle-thumb"></span>
+                        </button>
+                        <label for="compressor-enabled" data-i18n="compressor.title">Compressor</label>
+                    </h2>
+
+                    <h2 class="voice-toggleable">
+                        <button class="switch-toggle" type="button" id="rnoise-enabled"
+                                data-i18n-title="compressor.enabled.tooltip"
+                                role="switch" aria-checked="false" aria-label="Enabled">
+                            <span class="switch-toggle-thumb"></span>
+                        </button>
+                        <label for="rnoise-enabled" data-i18n="rnoise.title">Noise reduction</label>
+                    </h2>
+                    <div class="gate-tester">
+                        <button class="config-button voice-toggleable" type="button" id="audio-input-test" data-i18n="voice.test">Start test</button>
+                        <div class="gate-meter" id="gate-level-holder">
                             <div class="gate-level" id="gate-level"></div>
                         </div>
-                    
-                        <div class="config-buttons">
-                            <button class="config-button voice-toggleable" type="button" id="audio-input-test" data-i18n="voice.test">Start test</button>
-                            <button class="config-button voice-toggleable" type="button" id="gate-default" data-i18n="voice.default">Default</button>
-                        </div>
-                    </form>
-
-                    <h2 class="voice-toggleable" data-i18n="compressor.title">Compressor</h2>
-                    <form class="voice-settings voice-toggleable">
-                        <div class="config-buttons">
-                            <button class="config-button" type="button" id="compressor-enabled" data-i18n="compressor.enabled" data-i18n-title="compressor.enabled.tooltip">Enabled</button>
-                        </div>
-                    </form>
-
-                    <h2 class="voice-toggleable" data-i18n="rnoise.title">Noise reduction</h2>
-                    <form class="voice-settings voice-toggleable">
-                        <div class="config-buttons">
-                            <button class="config-button" type="button" id="rnoise-enabled" data-i18n="rnoise.enabled" data-i18n-title="rnoise.enabled.tooltip">Enabled</button>
-                        </div>
-                    </form>
+                    </div>
+                    <br/>
                 </div>
 
                 <!-- Audio output -->

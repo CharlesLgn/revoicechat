@@ -1,4 +1,7 @@
 * {
+    --green: #22c55e;
+    --yellow: #e8d44d;
+    --red: #f0554f;
     --ter-button-bg-color: var(--danger-button-bg-color);
     --ter-button-hover-color: var(--danger-button-hover-color);
     --ter-button-text-color: var(--danger-button-text-color);
@@ -6,7 +9,7 @@
 
 *[data-theme="dark"] {
     --green-background: #1b4614;
-    --green-text: #22c55e;
+    --green-text: var(--green);
     --yellow-background: #483a0f;
     --yellow-text: #c7993d;
     --red-background: #602a28;
