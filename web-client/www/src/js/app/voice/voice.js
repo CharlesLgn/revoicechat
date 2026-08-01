@@ -60,6 +60,7 @@ export default class VoiceCall {
     #outputGain;
     #controller;
     #cryptoPacket = /** @type {CryptoPacket} */ null;
+    #mediaDevice;
 
     constructor(user, controller) {
         if (!user) {
@@ -135,8 +136,14 @@ export default class VoiceCall {
     async close() {
         this.#state = VoiceCall.CLOSE;
 
-        // Close WebSocket
+        // Stop mic capture
+        if (this.#mediaDevice) {
+            this.#mediaDevice.getTracks().forEach((track) => track.stop());
+        }
+
+        // Close socket
         if (this.#socket && (this.#socket.readyState === WebSocket.OPEN || this.#socket.readyState === WebSocket.CONNECTING)) {
+            // Close WebSocket
             await this.#socket.close();
             this.#socket = null;
         }
@@ -288,17 +295,7 @@ export default class VoiceCall {
         // Setup Encoder
         this.#encoder = new AudioEncoder({
             output: (chunk) => {
-                this.#cryptoPacket.encrypt(
-                    new EncodedVoiceTransport(
-                        Math.round(this.#audioTimestamp / 1000),
-                        this.#user.id,
-                        this.#gateState,
-                        this.#settings.self.muted,
-                        this.#settings.self.deaf,
-                        EncodedVoiceTransport.user,
-                        chunk,
-                    ).data
-                );
+                this.#cryptoPacket.encrypt(new EncodedVoiceTransport(Math.round(this.#audioTimestamp / 1000), this.#user.id, this.#gateState, this.#settings.self.muted, this.#settings.self.deaf, EncodedVoiceTransport.user, chunk).data);
             },
             error: (error) => {
                 throw new Error(`Encoder setup failed:\n${error.name}\nCurrent codec :${this.#codec.codec}`);
@@ -319,15 +316,15 @@ export default class VoiceCall {
          */
 
         // Init Mic capture
-        const micSource = this.#audioContext.createMediaStreamSource(
-            await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: false,
-                    noiseSuppression: this.#settings.noiseSuppression.legacy,
-                    autoGainControl: this.#settings.autoGainControl,
-                },
-            }),
-        );
+        this.#mediaDevice = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: false,
+                noiseSuppression: this.#settings.noiseSuppression.legacy,
+                autoGainControl: this.#settings.autoGainControl,
+            },
+        });
+
+        const micSource = this.#audioContext.createMediaStreamSource(this.#mediaDevice);
 
         // Create Filters around voice frequency
         const filterHigh = this.#audioContext.createBiquadFilter();
