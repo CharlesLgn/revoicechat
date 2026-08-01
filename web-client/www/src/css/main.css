@@ -1018,7 +1018,6 @@ hr.light-border {
 .config-right .subtitle {
     color: var(--pri-placeholder-color);
     font-size: 0.85rem;
-    padding-bottom: 0.85rem;
 }
 
 .config-container-left h2 {
@@ -1443,6 +1442,8 @@ textarea.config-item {
 .voice-toggleable {
     display: flex;
     gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.8rem;
 }
 
 .voice-toggleable label {
@@ -1517,6 +1518,15 @@ textarea.config-item {
 
 .switch-toggle.active .switch-toggle-thumb {
     transform: translateX(18px);
+}
+
+.toggleable-label {
+    display: flex;
+    flex-direction: column;
+}
+
+.toggleable-label .subtitle {
+    font-weight: normal;
 }
 
 .empty-state {
@@ -1815,6 +1825,10 @@ summary::marker {
     opacity: 1;
 }
 
+#user-setting-content-audio-input h2 {
+    margin-bottom: 0;
+}
+
 .audio-output-element-header {
     display: flex;
     justify-content: space-between;
@@ -1864,6 +1878,29 @@ summary::marker {
 .voice-settings label {
     width: 4rem;
     text-align: end;
+}
+
+.preview-sound-button {
+    background-color: var(--sec-bg-color)!important;
+    border: 1px solid var(--pri-placeholder-color)!important;
+    color: var(--pri-placeholder-color)!important;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.5rem;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+.preview-sound-button:hover {
+    background-color: var(--ter-bg-color)!important;
+}
+
+.preview-sound-button svg {
+    height: 20px;
+    width: 20px;
+}
+
+.preview-sound-button.active {
+    background-color: var(--green-background)!important;
 }
 
 .mp-modal-body {
@@ -1998,13 +2035,21 @@ revoice-message {
 
 .gate-tester {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 1rem;
+}
+
+.gate-tester-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1rem;
+    font-weight: 800;
 }
 
 .gate-meter{
     width: 100%;
-    height: 1.5rem;
+    min-height: 1.5rem;
     border-color: var(--control-panel-bd-color);
     border-top-width: 1px;
     border-radius: 55px;
