@@ -38,7 +38,7 @@ public class AffectedRiskServiceImpl implements AffectedRiskService {
           null,
           RiskMode.ENABLE,
           null,
-          Integer.MAX_VALUE
+          Integer.MIN_VALUE
       ));
     }
     List<ServerRoles> membership = serverRolesRepository.getServerRoles(userId);
