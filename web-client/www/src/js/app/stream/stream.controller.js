@@ -126,14 +126,20 @@ export default class StreamController {
                         div.appendChild(player);
                         await player.play();
 
+                        // Auto stop when user click on "stop sharing" in browser
+                        const videoTrack = player.srcObject.getVideoTracks()[0];
+                        videoTrack.addEventListener("ended", async () => {
+                            await this.#stopStream("display");
+                        });
+
                         div.onclick = () => {
-                            this.focus(div)
-                        }
+                            this.focus(div);
+                        };
                         div.oncontextmenu = (event) => {
                             event.preventDefault();
-                        }
-                        
-                        document.getElementById('stream-container').appendChild(div);
+                        };
+
+                        document.getElementById("stream-container").appendChild(div);
                         this.#displayEnabled = true;
                         document.getElementById("stream-display").classList.add("green");
                     }
