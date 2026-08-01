@@ -280,6 +280,7 @@
                     <div class="drag-and-drop"><div class="photo-like" data-i18n="drag.and.drop">Drop a file here</div></div>
                     <h1 data-i18n="server.overview">Overview</h1>
                     <p class="subtitle" data-i18n="server.overview.subtitle">Manage server profile</p>
+                    <br/>
 
                     <p class="copiable-input">
                         <button id="server-setting-uuid-copy" class="copy-button"><revoice-icon-clipboard></revoice-icon-clipboard></button>
@@ -392,15 +393,9 @@
                         <revoice-icon-emoji></revoice-icon-emoji> <span data-i18n="user.emotes">Emotes</span>
                     </button>
 
-                    <hr class="light-border"/>
-                    <!-- Input -->
+                    <!-- Audio -->
                     <button class="sub-category" id="user-setting-tab-audio-input">
-                        <revoice-icon-microphone></revoice-icon-microphone> <span data-i18n="user.audio.input">Audio input</span>
-                    </button>
-
-                    <!-- Output -->
-                    <button class="sub-category" id="user-setting-tab-audio-output">
-                        <revoice-icon-speaker></revoice-icon-speaker> <span data-i18n="user.audio.output">Audio output</span>
+                        <revoice-icon-microphone></revoice-icon-microphone> <span data-i18n="user.audio.input">Audio</span>
                     </button>
 
                     <hr class="light-border"/>
@@ -425,6 +420,7 @@
                     <div class="drag-and-drop"><div class="photo-like" data-i18n="drag.and.drop">Drop a file here</div></div>
                     <h1 data-i18n="user.overview">Overview</h1>
                     <p class="subtitle" data-i18n="user.overview.subtitle">Manage your profile and security settings</p>
+                    <br/>
                     <p class="copiable-input">
                         <button id="setting-user-uuid-copy" class="copy-button"><revoice-icon-clipboard></revoice-icon-clipboard></button>
                         <code id="setting-user-uuid" class="selectable">[USER UUID]</code>
@@ -485,6 +481,7 @@
                                 <span id="user-totp-status-inactive" data-i18n="user.totp.status.inactive" class="card-badge gray hidden">inactive</span>
                             </div>
                             <p class="subtitle" data-i18n="user.totp.subtitle">Use an app like Google Authenticator or Authy to generate one-time codes.</p>
+                            <br/>
                             <div>
                                 <button id="generate-totp-workflow" class="button second" data-i18n="new.totp.workflow">Setup new TOTP Workflow</button>
                             </div>
@@ -496,6 +493,7 @@
                                 <span id="user-recovery-code-left" data-i18n="user.recovery.code.left" data-i18n-value="0" class="card-badge yellow">1 unused codes</span>
                             </div>
                             <p class="subtitle" data-i18n="user.recovery.code.subtitle">Single-use codes to access your account if you lose your authenticator.</p>
+                            <br/>
                             <div>
                                 <button id="regenerate-recover-codes" class="button second" data-i18n="regenerate.recover.codes">Regenerate</button>
                             </div>
@@ -535,10 +533,10 @@
                     <revoice-emoji-manager path="me" id="user-setting-emotes-form"></revoice-emoji-manager>
                 </div>
 
-                <!-- Audio input -->
+                <!-- Audio -->
                 <div class="hidden" id="user-setting-content-audio-input">
                     <h1 data-i18n="audio.input">Audio input</h1>
-
+                    <p class="subtitle" data-i18n="audio.input.subtitle">Control how your microphone is picked up and processed.</p>
                     <h2 data-i18n="audio.volume">Volume</h2>
                     <form class="voice-settings">
                         <input type="range" id="input-volume" min="0" max="2" step="0.01">
@@ -546,50 +544,61 @@
                     </form>
 
                     <h2 data-i18n="voice.sensitivity">Sensitivity</h2>
+                    <span class="subtitle" data-i18n="voice.sensitivity.subtitle">Your mic activates once sound crosses this level.</span>
                     <form class="voice-settings">
                         <input type="range" id="gate-threshold" min="-80" max="0" step="1">
                         <label for="gate-threshold" data-i18n="voice.sensitivity.label" data-i18n-value="0" id="gate-threshold-label">[THRESHOLD]</label>
                     </form>
-
-                    <h2 class="voice-toggleable">
+                    <br/>
+                    <div class="voice-toggleable">
                         <button class="switch-toggle" type="button" id="compressor-enabled"
                                 data-i18n-title="compressor.enabled.tooltip"
                                 role="switch" aria-checked="false" aria-label="Enabled">
                             <span class="switch-toggle-thumb"></span>
                         </button>
-                        <label for="compressor-enabled" data-i18n="compressor.title">Compressor</label>
-                    </h2>
-
-                    <h2 class="voice-toggleable">
+                        <label for="compressor-enabled" class="toggleable-label">
+                            <span data-i18n="compressor.title">Compressor</span>
+                            <span class="subtitle" data-i18n="compressor.title.description">Evens out loud and quiet moments.</span>
+                        </label>
+                    </div>
+                    <div class="voice-toggleable">
                         <button class="switch-toggle" type="button" id="rnoise-enabled"
                                 role="switch" aria-checked="false" aria-label="Enabled">
                             <span class="switch-toggle-thumb"></span>
                         </button>
-                        <label for="rnoise-enabled" data-i18n="rnoise.title">Noise reduction</label>
-                    </h2>
-
-                    <h2 class="voice-toggleable">
+                        <label for="rnoise-enabled" class="toggleable-label">
+                            <span data-i18n="rnoise.title">Noise reduction</span>
+                            <span class="subtitle" data-i18n="rnoise.title.description">Filters out background hum and static.</span>
+                        </label>
+                    </div>
+                    <div class="voice-toggleable">
                         <button class="switch-toggle" type="button" id="agc-enabled"
                                 role="switch" aria-checked="false" aria-label="Enabled">
                             <span class="switch-toggle-thumb"></span>
                         </button>
-                        <label for="agc-enabled" data-i18n="agc.title">Auto gain control</label>
-                    </h2>
-
+                        <label for="agc-enabled" class="toggleable-label">
+                            <span data-i18n="agc.title">Auto gain control</span>
+                            <span class="subtitle" data-i18n="agc.title.description">Automatically raises quiet mic input.</span>
+                        </label>
+                    </div>
                     <div class="gate-tester">
-                        <button class="config-button voice-toggleable" type="button" id="audio-input-test" data-i18n="voice.test">Start test</button>
+                        <div class="gate-tester-title">
+                            <span data-i18n="voice.test.title">Test your mic</span>
+                            <button class="preview-sound-button" type="button" id="audio-input-test">
+                                <revoice-icon-microphone></revoice-icon-microphone>
+                                <span id="audio-input-test-text" data-i18n="voice.test">Start test</span>
+                            </button>
+                        </div>
                         <div class="gate-meter" id="gate-level-holder">
                             <div class="gate-level" id="gate-level"></div>
                         </div>
                     </div>
                     <br/>
-                </div>
-
-                <!-- Audio output -->
-                <div class="hidden" id="user-setting-content-audio-output">
+                    <hr class="light-border"/>
+                    <br/>
                     <h1 data-i18n="audio.output">Audio output</h1>
                     <p class="subtitle" data-i18n="audio.output.subtitle">Adjust volume for each sound category and preview the change instantly</p>
-
+                    <br/>
                     <div class="audio-output-element">
                         <div class="audio-output-element-header">
                             <div class="audio-output-element-header-title">
@@ -599,9 +608,10 @@
                                     <h2 data-i18n="audio.voice.subtitle">Other users talking</h2>
                                 </div>
                             </div>
-                            <div class="config-buttons">
-                                <button class="config-button" type="button" id="audio-output-try-voicechat" data-i18n="audio.try.voicechat">Try out !</button>
-                            </div>
+                            <button class="preview-sound-button" type="button" id="audio-output-try-voicechat">
+                                <revoice-icon-play></revoice-icon-play>
+                                <span data-i18n="audio.try.voicechat">Preview</span>
+                            </button>
                         </div>
                         <form class="voice-settings">
                             <input type="range" id="output-voice-volume" min="0" max="1" step="0.01">
@@ -618,9 +628,10 @@
                                     <h2 data-i18n="audio.notification.subtitle">Alerts and pings</h2>
                                 </div>
                             </div>
-                            <div class="config-buttons">
-                                <button class="config-button" type="button" id="audio-output-try-notification" data-i18n="audio.try.voicechat">Try out !</button>
-                            </div>
+                            <button class="preview-sound-button" type="button" id="audio-output-try-notification">
+                                <revoice-icon-play></revoice-icon-play>
+                                <span data-i18n="audio.try.voicechat">Preview</span>
+                            </button>
                         </div>
                         <form class="voice-settings">
                             <input type="range" id="output-notification-volume" min="0" max="1" step="0.01">
@@ -637,9 +648,10 @@
                                     <h2 data-i18n="audio.stream.subtitle">Shared audio during streams</h2>
                                 </div>
                             </div>
-                            <div class="config-buttons">
-                                <button class="config-button" type="button" id="audio-output-try-stream" data-i18n="audio.try.voicechat">Try out !</button>
-                            </div>
+                            <button class="preview-sound-button" type="button" id="audio-output-try-stream">
+                                <revoice-icon-play></revoice-icon-play>
+                                <span data-i18n="audio.try.voicechat">Preview</span>
+                            </button>
                         </div>
                         <form class="voice-settings">
                             <input type="range" id="output-stream-volume" min="0" max="1" step="0.01">

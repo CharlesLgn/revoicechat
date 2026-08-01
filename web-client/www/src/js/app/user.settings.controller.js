@@ -157,7 +157,7 @@ export default class UserSettingsController {
     }
 
     #selectEventHandler() {
-        const parameters = ['overview', 'appearance', 'emotes', 'audio-input', 'audio-output'];
+        const parameters = ['overview', 'appearance', 'emotes', 'audio-input'];
         for (const param of parameters) {
             document.getElementById(`user-setting-tab-${param}`).addEventListener('click', () => this.select(param));
         }
@@ -496,7 +496,7 @@ export default class UserSettingsController {
         document.getElementById('agc-enabled').addEventListener("click", () => this.#agcEnabled());
 
         const testElement = document.getElementById('audio-input-test');
-        testElement.addEventListener("click", async () => await this.#audioInputTest(testElement));
+        testElement.addEventListener("click", async () => await this.#audioInputTest());
 
         const parameters = [
             'input-volume',
@@ -586,16 +586,19 @@ export default class UserSettingsController {
         this.#room.voiceController.updateGate();
     }
 
-    async #audioInputTest(element) {
+    async #audioInputTest() {
         this.#inputTest.active = !this.#inputTest.active;
 
+        const elt = document.getElementById('audio-input-test');
+        elt.classList.remove('active');
         if (this.#inputTest.active) {
             await this.#startInputTest();
-            element.innerText = "Stop test";
+            document.getElementById('audio-input-test-text').innerText = "Stop test";
+            elt.classList.add('active');
         }
         else {
             await this.#stopInputTest();
-            element.innerText = "Start test";
+            document.getElementById('audio-input-test-text').innerText = "Start test";
         }
     }
 
