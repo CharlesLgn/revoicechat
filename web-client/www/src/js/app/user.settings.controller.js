@@ -20,6 +20,7 @@ export default class UserSettingsController {
         audioContext: null,
         gainNode: null,
         gateNode: null,
+        compressorNode: null,
     }
     #currentTab;
     #theme = 'dark';
@@ -494,6 +495,7 @@ export default class UserSettingsController {
     #audioInputEventHandler() {
         document.getElementById('compressor-enabled').addEventListener('click', () => this.#compressorEnabled());
         document.getElementById('rnoise-enabled').addEventListener('click', () => this.#rnoiseEnabled());
+        document.getElementById('agc-enabled').addEventListener("click", () => this.#agcEnabled());
 
         const testElement = document.getElementById('audio-input-test');
         testElement.addEventListener("click", async () => await this.#audioInputTest(testElement));
@@ -532,6 +534,13 @@ export default class UserSettingsController {
         buttonRNoiseEnabled.classList.remove('active');
         if (this.voice.noiseSuppression.legacy) {
             buttonRNoiseEnabled.classList.add('active');
+        }
+
+        // Legacy noise removal
+        const buttonAGCEnabled = document.getElementById('agc-enabled')
+        buttonAGCEnabled.classList.remove("active");
+        if (this.voice.autoGainControl) {
+            buttonAGCEnabled.classList.add("active");
         }
     }
 
@@ -603,7 +612,7 @@ export default class UserSettingsController {
             audio: {
                 echoCancellation: false,
                 noiseSuppression: this.voice.noiseSuppression.legacy,
-                autoGainControl: false,
+                autoGainControl: this.voice.autoGainControl,
             },
         });
         const micSource = this.#inputTest.audioContext.createMediaStreamSource(stream);
@@ -637,13 +646,31 @@ export default class UserSettingsController {
         });
         this.#inputTest.gainNode.connect(this.#inputTest.gateNode);
 
+        let previousNode = this.#inputTest.gainNode;
+
+        // Compressor
+        if (this.voice.compressor.enabled) {
+            this.#inputTest.compressorNode = this.#inputTest.audioContext.createDynamicsCompressor();
+            this.#inputTest.compressorNode.attack.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.attack, this.#inputTest.audioContext.currentTime);
+            this.#inputTest.compressorNode.knee.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.knee, this.#inputTest.audioContext.currentTime);
+            this.#inputTest.compressorNode.ratio.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.ratio, this.#inputTest.audioContext.currentTime);
+            this.#inputTest.compressorNode.release.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.release, this.#inputTest.audioContext.currentTime);
+            this.#inputTest.compressorNode.threshold.setValueAtTime(VoiceCall.COMPRESSOR_SETTINGS.threshold, this.#inputTest.audioContext.currentTime);
+
+            // Connect gate to compressor
+            this.#inputTest.gainNode.connect(this.#inputTest.compressorNode);
+            
+            previousNode = this.#inputTest.compressorNode;
+        }
+
         // Loopback
-        this.#inputTest.gateNode.connect(this.#inputTest.audioContext.destination);
+        previousNode.connect(this.#inputTest.audioContext.destination);        
 
         // Analyser
         const analyser = this.#inputTest.audioContext.createAnalyser();
         analyser.fftSize = 1024;
-        this.#inputTest.gateNode.connect(analyser);
+        previousNode.connect(analyser);
+
         const buffer = new Float32Array(analyser.fftSize);
 
         function update() {
@@ -676,12 +703,33 @@ export default class UserSettingsController {
         this.voice.compressor.enabled = !this.voice.compressor.enabled;
         this.save();
         this.#audioInputLoad();
+
+        if (this.#inputTest.active) {
+            this.#stopInputTest();
+            this.#startInputTest();
+        }
     }
 
     #rnoiseEnabled() {
         this.voice.noiseSuppression.legacy = !this.voice.noiseSuppression.legacy;
         this.save();
         this.#audioInputLoad();
+
+        if (this.#inputTest.active) {
+            this.#stopInputTest();
+            this.#startInputTest();
+        }
+    }
+
+    #agcEnabled() {
+        this.voice.autoGainControl = !this.voice.autoGainControl;
+        this.save();
+        this.#audioInputLoad();
+
+        if (this.#inputTest.active) {
+            this.#stopInputTest();
+            this.#startInputTest();
+        }
     }
 
     // Audio Output

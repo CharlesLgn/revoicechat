@@ -562,12 +562,20 @@
 
                     <h2 class="voice-toggleable">
                         <button class="switch-toggle" type="button" id="rnoise-enabled"
-                                data-i18n-title="compressor.enabled.tooltip"
                                 role="switch" aria-checked="false" aria-label="Enabled">
                             <span class="switch-toggle-thumb"></span>
                         </button>
                         <label for="rnoise-enabled" data-i18n="rnoise.title">Noise reduction</label>
                     </h2>
+
+                    <h2 class="voice-toggleable">
+                        <button class="switch-toggle" type="button" id="agc-enabled"
+                                role="switch" aria-checked="false" aria-label="Enabled">
+                            <span class="switch-toggle-thumb"></span>
+                        </button>
+                        <label for="agc-enabled" data-i18n="agc.title">Auto gain control</label>
+                    </h2>
+
                     <div class="gate-tester">
                         <button class="config-button voice-toggleable" type="button" id="audio-input-test" data-i18n="voice.test">Start test</button>
                         <div class="gate-meter" id="gate-level-holder">

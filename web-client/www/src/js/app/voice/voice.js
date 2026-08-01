@@ -24,6 +24,7 @@ export default class VoiceCall {
         noiseSuppression: {
             legacy: true,
         },
+        autoGainControl: false,
         users: {},
     };
     static COMPRESSOR_SETTINGS = {
@@ -323,7 +324,7 @@ export default class VoiceCall {
                 audio: {
                     echoCancellation: false,
                     noiseSuppression: this.#settings.noiseSuppression.legacy,
-                    autoGainControl: false,
+                    autoGainControl: this.#settings.autoGainControl,
                 },
             }),
         );
@@ -346,6 +347,7 @@ export default class VoiceCall {
         // Create Gain node
         this.#gainNode = this.#audioContext.createGain();
         this.#gainNode.gain.setValueAtTime(this.#settings.self.volume, this.#audioContext.currentTime);
+        await this.setSelfMute(this.#settings.self.muted);
 
         // Connect filter to gain
         filterLow.connect(this.#gainNode);
