@@ -867,11 +867,11 @@ svg {
     aspect-ratio: auto;
 }
 
-#user-status-container {
+#user-popover-container {
     anchor-name: --status-anchor;
 }
 
-.user-status-popover {
+.user-popover {
     position: fixed;
     inset: auto auto auto auto;
     margin: 0;
@@ -884,16 +884,17 @@ svg {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    width: 17rem;
 }
 
-.change-status-button {
+.user-parameters-button {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.3rem;
 }
 
-.change-status-button:hover {
+.user-parameters-button:hover {
     background-color: var(--sec-button-hover-color);
 }
 
