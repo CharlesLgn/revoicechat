@@ -13,10 +13,9 @@ import {addEmoteViaDragAndDrop} from "../component/emoji.manager.component.js";
 export default class UserSettingsController {
     #user;
     #room;
-    #inputAdvanced = false;
     #inputTest = {
         active: false,
-        animationId: null,
+        interval: null,
         audioContext: null,
         gainNode: null,
         gateNode: null,
@@ -60,7 +59,6 @@ export default class UserSettingsController {
     async save() {
         const settings = {
             voice: this.voice,
-            inputAdvanced: this.#inputAdvanced,
             theme: this.#theme,
             lang: this.#lang,
             audioOutput: this.#audioOutput,
@@ -689,14 +687,15 @@ export default class UserSettingsController {
             displayLevel = Math.max(0.001, Math.min(1, (displayLevel)));
 
             gateLevel.style.width = `${displayLevel * 100}%`;
-            requestAnimationFrame(update);
         }
 
-        update();
+        this.#inputTest.interval = setInterval(() => update(), 16);
     }
 
     async #stopInputTest() {
         await this.#inputTest.audioContext?.close();
+        clearInterval(this.#inputTest.interval);
+        document.getElementById("gate-level").style.width = "0%";
     }
 
     #compressorEnabled() {
