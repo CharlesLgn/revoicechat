@@ -113,6 +113,7 @@ class MessageComponent extends HTMLElement {
             this.reactions = reactions
             this.#renderReactions();
         }
+        renderEmojis(this.shadowRoot);
     }
 
     async #render() {
@@ -274,6 +275,7 @@ class MessageComponent extends HTMLElement {
         const REACTIONS = this.shadowRoot.getElementById('reactions');
         REACTIONS.innerHTML = ''
         const printReaction = (element, emoji, number) => {
+            element.innerHTML = ''
             if (number <= 0) {
                 element.remove()
             } else {
