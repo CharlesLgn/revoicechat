@@ -517,6 +517,15 @@ class PlayIcon extends HTMLElement {
     }
 }
 
+class ChevronIcon extends HTMLElement {
+    connectedCallback() {
+        this.innerHTML = `
+        <svg class="submenu-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 6 15 12 9 18"></polyline>
+        </svg>`
+    }
+}
+
 export const icons = {
     'revoice-icon-pencil': PencilIconComponent,
     'revoice-icon-trash': TrashIconComponent,
@@ -566,6 +575,7 @@ export const icons = {
     'revoice-icon-key': KeyIcon,
     'revoice-icon-notification-bell': NotificationBellIcon,
     'revoice-icon-play': PlayIcon,
+    'revoice-icon-chevron': ChevronIcon,
 }
 
 for (let iconsKey in icons) {

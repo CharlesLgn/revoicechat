@@ -754,24 +754,45 @@
         </div>
     </div>
 
-    <div id="user-popover" popover class="user-popover hidden">
-        <button class="user-parameters-button change-status" data-user-status="ONLINE">
-            <revoice-status-dot-green></revoice-status-dot-green><span data-i18n="user.status.online">Online</span>
-        </button>
-        <button class="user-parameters-button change-status" data-user-status="AWAY">
-            <revoice-status-dot-orange></revoice-status-dot-orange><span data-i18n="user.status.away">Away</span>
-        </button>
-        <button class="user-parameters-button change-status" data-user-status="DO_NOT_DISTURB">
-            <revoice-status-dot-red></revoice-status-dot-red><span data-i18n="user.status.donotdisturb">Do not disturb</span>
-        </button>
-        <button class="user-parameters-button change-status" data-user-status="OFFLINE">
-            <revoice-status-dot-gray></revoice-status-dot-gray><span data-i18n="user.status.offline">Offline</span>
+    <div id="user-popover" popover="manual" class="user-popover hidden">
+        <button class="user-parameters-button submenu-trigger" id="user-status-trigger">
+            <span class="user-parameters-button-title">
+                <span id="user-status-trigger-dot"><revoice-status-dot-gray></revoice-status-dot-gray></span>
+                <span data-i18n="user.status.change">Change status</span>
+            </span>
+            <revoice-icon-chevron></revoice-icon-chevron>
         </button>
 
         <hr class="light-border">
         
         <button class="user-parameters-button" id="user-setting-open">
-            <revoice-icon-cog-6></revoice-icon-cog-6> User parameters
+            <span class="user-parameters-button-title">
+                <revoice-icon-cog-6></revoice-icon-cog-6>
+                <span data-i18n="user.settings">User settings</span>
+            </span>
+        </button>
+    </div>
+
+    <div id="user-status-popover" popover class="user-popover user-status-popover hidden">
+        <button class="user-parameters-button change-status" data-user-status="ONLINE">
+            <span class="user-parameters-button-title">
+                <revoice-status-dot-green></revoice-status-dot-green><span data-i18n="user.status.online">Online</span>
+            </span>
+        </button>
+        <button class="user-parameters-button change-status" data-user-status="AWAY">
+            <span class="user-parameters-button-title">
+                <revoice-status-dot-orange></revoice-status-dot-orange><span data-i18n="user.status.away">Away</span>
+            </span>
+        </button>
+        <button class="user-parameters-button change-status" data-user-status="DO_NOT_DISTURB">
+            <span class="user-parameters-button-title">
+                <revoice-status-dot-red></revoice-status-dot-red><span data-i18n="user.status.donotdisturb">Do not disturb</span>
+            </span>
+        </button>
+        <button class="user-parameters-button change-status" data-user-status="OFFLINE">
+            <span class="user-parameters-button-title">
+                <revoice-status-dot-gray></revoice-status-dot-gray><span data-i18n="user.status.offline">Offline</span>
+            </span>
         </button>
     </div>
 
