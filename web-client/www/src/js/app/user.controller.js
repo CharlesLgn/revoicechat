@@ -45,7 +45,9 @@ export default class UserController {
             const userStatusElement = document.getElementById("user-status");
             userStatusElement.dataset.i18n = statusToI18n(this.activeStatus);
             i18n.translateElement(userStatusElement);
-            document.getElementById("user-dot").setAttribute('color', statusToColor(this.activeStatus));
+            const color = statusToColor(this.activeStatus);
+            document.getElementById("user-dot").setAttribute('color', color);
+            document.getElementById("user-status-trigger-dot").innerHTML = `<revoice-status-dot-${color}></revoice-status-dot-${color}>`;
 
             const userPicture = document.getElementById("user-picture");
             userPicture.src = MediaServer.profiles(this.id);
@@ -143,7 +145,9 @@ export default class UserController {
             const userStatusElement = document.getElementById("user-status");
             userStatusElement.dataset.i18n = statusToI18n(this.activeStatus);
             i18n.translateElement(userStatusElement);
-            document.getElementById("user-dot").setAttribute('color', statusToColor(data.status));
+            const color = statusToColor(data.status);
+            document.getElementById("user-dot").setAttribute('color', color);
+            document.getElementById("user-status-trigger-dot").innerHTML = `<revoice-status-dot-${color}></revoice-status-dot-${color}>`;
         }
     }
 
