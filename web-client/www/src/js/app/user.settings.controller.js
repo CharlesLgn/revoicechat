@@ -162,7 +162,19 @@ export default class UserSettingsController {
             document.getElementById(`user-setting-tab-${param}`).addEventListener('click', () => this.select(param));
         }
 
-        document.getElementById(`user-setting-tab-logout`).addEventListener('click', () => this.#user.logout());
+        document.getElementById(`user-setting-tab-logout`).addEventListener('click', () => {
+            Modal.toggle({
+                title: i18n.translateOne('user.logout.title'),
+                showCancelButton: true,
+                focusCancel: true,
+                confirmButtonText: i18n.translateOne('user.logout'),
+                confirmButtonClass: "danger",
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    this.#user.logout();
+                }
+            });
+        });
     }
 
     #overviewLoad() {

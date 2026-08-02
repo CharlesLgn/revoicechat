@@ -27,7 +27,10 @@
                     </button>
                 </div>
             </div>
-            <div class="instances scrollbar" id="instances"></div>
+            <div class="server-menu-bar">
+              <div class="instances scrollbar" id="instances"></div>
+              <div class="instances" id="admin-parameters"></div>
+            </div>
         </div>
 
         <!-- Private Container -->
@@ -95,12 +98,9 @@
             <!-- Sidebar server -->
             <div class="sidebar togglable server">
                 <!-- Server info -->
-                <div class="header">
+                <div class="header server-header" id="server-setting-open">
                     <img id="server-picture" src="src/img/favicon.png" alt="Server profile" />
                     <h2 id="server-name">[SERVER-NAME]</h2>
-                    <div class="pull-right">
-                        <button id="server-setting-open"><revoice-icon-cog-6></revoice-icon-cog-6></button>
-                    </div>
                 </div>
 
                 <!-- Room List -->
@@ -390,10 +390,6 @@
                     <!-- Exit -->
                     <button class="sub-category" id="user-setting-close">
                         <revoice-icon-circle-x></revoice-icon-circle-x> <span data-i18n="common.exit">Exit</span>
-                    </button>
-                    <!-- Logout -->
-                    <button class="sub-category red background-darkred" id="user-setting-tab-logout">
-                        <revoice-icon-logout></revoice-icon-logout> <span data-i18n="user.logout">Logout</span>
                     </button>
                 </div>
             </div>
@@ -745,13 +741,19 @@
             </span>
             <revoice-icon-chevron></revoice-icon-chevron>
         </button>
-
         <hr class="light-border">
-        
         <button class="user-parameters-button" id="user-setting-open">
             <span class="user-parameters-button-title">
                 <revoice-icon-cog-6></revoice-icon-cog-6>
                 <span data-i18n="user.settings">User settings</span>
+            </span>
+        </button>
+        <hr class="light-border">
+        <!-- Logout -->
+        <button class="user-parameters-button red" id="user-setting-tab-logout">
+            <span class="user-parameters-button-title">
+                <revoice-icon-logout></revoice-icon-logout>
+                <span data-i18n="user.logout">Logout</span>
             </span>
         </button>
     </div>
