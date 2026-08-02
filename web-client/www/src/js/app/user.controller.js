@@ -55,12 +55,14 @@ export default class UserController {
         await this.settings.load();
         await this.privateRooms.load();
 
-        const popover = document.getElementById('user-status-popover');
-        const anchor = document.getElementById('user-status-container');
+        const popover = document.getElementById('user-popover');
+        const anchor = document.getElementById("user-popover-container");
+
         anchor.addEventListener('click', () => {
             popover.togglePopover();
             popover.classList.remove('hidden');
         });
+
         popover.addEventListener('beforetoggle', (e) => {
             if (e.newState === 'open') {
                 const rect = anchor.getBoundingClientRect();
@@ -69,7 +71,7 @@ export default class UserController {
             }
         });
 
-        document.querySelectorAll('.change-status-button').forEach(button => {
+        document.querySelectorAll('.change-status').forEach(button => {
             button.addEventListener('click', async () => {
                 /** {@type ActiveStatus} */
                 const status = button.dataset.userStatus;

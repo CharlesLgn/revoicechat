@@ -6,7 +6,11 @@ export default class Router {
     static ADMIN = 'admin';
 
     constructor(){
-        document.getElementById('user-setting-open').addEventListener('click', () => this.routeTo(Router.USER_SETTINGS));
+        document.getElementById('user-setting-open').addEventListener('click', () => {
+            this.routeTo(Router.USER_SETTINGS)
+            document.getElementById("user-popover").togglePopover();
+        }
+        );
         document.getElementById('user-setting-close').addEventListener('click', () => this.routeTo(Router.APP));
 
         document.getElementById('server-setting-open').addEventListener('click', () => this.routeTo(Router.SERVER_SETTINGS));
