@@ -165,6 +165,15 @@ class MessageComponent extends HTMLElement {
             console.error('Markdown parsing error:', error);
             contentDiv.innerHTML = `<p style="color: #ff6b6b;">Error parsing markdown: ${error.message}</p>`;
         }
+
+        contentDiv.querySelectorAll(".invitation-button").forEach((element) => {
+            element.addEventListener('click', async () => {
+                const id = element.dataset.invitation;
+                if (await CoreServer.fetch(`/server/join/${id}`, 'POST')) {
+                    await this.load();
+                }
+            })
+        })
     }
 
     #renderCodeTemplate(contentDiv) {
@@ -203,6 +212,22 @@ class MessageComponent extends HTMLElement {
         } else if (textPattern.type === "EMOTE") {
             const emote = /** @type EmoteRepresentation */ textPattern.data
             return `<img class="emoji" src="${MediaServer.emote(emote.id)}" alt="${emote.name}" title=":${emote.name}:">`
+        } else if (textPattern.type === "SERVER_INVITATION") {
+            const invitation = /** @type ServerInvitationPattern */ textPattern.data
+            if (invitation.server) {
+                return `<div class="invitation-thumb">
+                            <img class="icon" src="${MediaServer.serverProfiles(invitation.server.id)}" alt="${invitation.server.name}">
+                            <div class="invitation-server-name">
+                                <span>You have been invited to :</span>
+                                <b>${invitation.server.name}</b>
+                            </div>
+                            <button class="invitation-button" data-invitation="${invitation.invitation.id}">Join</button>
+                        </div>`
+            } else {
+                return `<div>
+                            <span>This invitation does not exist anymore</span>
+                        </div>`
+            }
         }
         return '';
     }

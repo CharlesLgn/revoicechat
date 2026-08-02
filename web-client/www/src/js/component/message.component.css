@@ -213,3 +213,35 @@ svg {
 .mention.connectedUser:hover {
     background-color: var(--yellow-background);
 }
+
+.invitation-thumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: fit-content;
+    padding: 1rem;
+    background-color: var(--pri-bg-color);
+    border-radius: 20px;
+}
+
+.invitation-server-name {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+}
+
+.invitation-button {
+    background-color: var(--pri-button-bg-color);
+    color: var(--pri-button-text-color);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    text-align: center;
+    border: none;
+}
+
+.invitation-button:hover {
+    background-color: var(--pri-button-hover-color);
+}

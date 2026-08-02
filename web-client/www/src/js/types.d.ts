@@ -2,10 +2,10 @@ export type ActiveStatus = "ONLINE" | "AWAY" | "DO_NOT_DISTURB" | "OFFLINE"
 export type UserType = "ADMIN" | "USER" | "BOT"
 export type RoomType = "TEXT" | "WEBRTC" | "VOICE"
 export type NotificationActionType = "ADD" | "MODIFY" | "REMOVE"
-export type InvitationLinkStatus = "CREATED" | "USED" | "REVOKED"
+export type InvitationLinkStatus = "CREATED" | "USED" | "REVOKED" | "PERMANENT" | "DELETED"
 export type InvitationType = "APPLICATION_JOIN" | "SERVER_JOIN"
 export type MentionType = "USER" | "ROLE"
-export type PatternType = "USER_MENTION" | "ROLE_MENTION" | "EMOTE"
+export type PatternType = "USER_MENTION" | "ROLE_MENTION" | "EMOTE" | "SERVER_INVITATION"
 
 export interface TextPatternData {}
 
@@ -117,6 +117,21 @@ export class MessageMention implements TextPatternData {
     id: string
     mentionName: string;
     currentUserMentioned: boolean;
+}
+
+export class ServerInvitationPattern implements TextPatternData {
+    invitation: LightInvitationRepresentation;
+    server: LightServerRepresentation;
+}
+
+export class LightInvitationRepresentation {
+    id: string;
+    status: InvitationLinkStatus;
+}
+
+export class LightServerRepresentation {
+    id: string;
+    name: string;
 }
 
 export class MessageAnsweredRepresentation {
