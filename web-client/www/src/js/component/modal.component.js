@@ -3,6 +3,7 @@
  *   title: string,
  *   text: string,
  *   html: string,
+ *   htmlAfterButton: string,
  *   width: string,
  *   showCancelButton: boolean,
  *   confirmButtonText: string,
@@ -49,6 +50,7 @@ class ModalOptions {
         modalOptions.title = options.title
         modalOptions.text = options.text
         modalOptions.html = options.html
+        modalOptions.htmlAfterButton = options.htmlAfterButton
         modalOptions.width = options.width
         modalOptions.showCancelButton = options.showCancelButton
         modalOptions.confirmButtonText = options.confirmButtonText
@@ -103,6 +105,7 @@ export default class Modal {
                         <button value="confirm" class="dialog-confirm" data-i18n="modal.ok">OK</button>
                         <button value="cancel" class="dialog-cancel" style="display: none;" data-i18n="modal.cancel">Cancel</button>
                     </form>
+                    <div class="dialog-after-buttons"></div>
                 </div>
             </dialog>
         `;
@@ -179,6 +182,14 @@ export default class Modal {
             } else {
                 textEl.textContent = '';
                 textEl.style.display = 'none';
+            }
+            const afterButton = this.dialog.querySelector('.dialog-after-buttons');
+            afterButton.innerHTML = '';
+            if (options.htmlAfterButton) {
+                afterButton.style.display = 'block';
+                afterButton.innerHTML = options.htmlAfterButton;
+            } else {
+                afterButton.style.display = 'none';
             }
 
             // Set buttons

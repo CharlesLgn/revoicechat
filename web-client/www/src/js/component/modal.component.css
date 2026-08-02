@@ -98,6 +98,12 @@
     width: 100%;
 }
 
+.dialog-after-buttons {
+    display: none;
+    color: var(--pri-text-color);
+    margin-top: 2rem;
+}
+
 @media (max-width: 768px) {
     .custom-dialog {
         width: -webkit-fill-available;

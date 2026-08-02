@@ -36,7 +36,9 @@ export default class ServerController {
 
         // Create instances list
         const instancesList = document.getElementById('instances');
+        const adminParameters = document.getElementById('admin-parameters');
         instancesList.innerHTML = "";
+        adminParameters.innerHTML = "";
 
         const instancesSortedByName = [...result].sort((a, b) => {
             return a.name.localeCompare(b.name);
@@ -48,12 +50,10 @@ export default class ServerController {
                 instancesList.appendChild(element);
             }
         }
-        instancesList.appendChild(this.#joinInstanceElement());
         instancesList.appendChild(this.#discorverInstanceElement());
 
         if (this.user.isAdmin()) {
-            instancesList.appendChild(this.#miscElement('revoice-icon-square-plus', "server.create.title", () => this.#create()));
-            instancesList.appendChild(this.#miscElement('revoice-icon-wrench', "admin.title", () => this.router.routeTo(Router.ADMIN)));
+            adminParameters.appendChild(this.#miscElement('revoice-icon-wrench', "admin.title", () => this.router.routeTo(Router.ADMIN)));
         }
 
         // Select default server
@@ -158,13 +158,15 @@ export default class ServerController {
     #joinInstanceElement() {
         const BUTTON = document.createElement('button');
 
-        BUTTON.className = "element";
-        BUTTON.dataset.i18nTitle = "server.join.title";
+        BUTTON.className = "more-action-modal-button";
         BUTTON.onclick = () => this.#join();
 
         const IMG = document.createElement('revoice-icon-circle-plus');
         IMG.className = "icon";
+        const SPAN = document.createElement('span');
+        SPAN.innerText = i18n.translateOne("server.join.title");
         BUTTON.appendChild(IMG);
+        BUTTON.appendChild(SPAN);
 
         return BUTTON;
     }
@@ -176,9 +178,25 @@ export default class ServerController {
         BUTTON.dataset.i18nTitle = "server.discover.title";
         BUTTON.onclick = () => this.#discover();
 
-        const IMG = document.createElement('revoice-icon-telescope');
+        const IMG = document.createElement('revoice-icon-square-plus');
         IMG.className = "icon";
         BUTTON.appendChild(IMG);
+
+        return BUTTON;
+    }
+
+    #createNewServer() {
+        const BUTTON = document.createElement('button');
+
+        BUTTON.className = "more-action-modal-button";
+        BUTTON.onclick = () => this.#create();
+
+        const IMG = document.createElement('revoice-icon-square-plus');
+        IMG.className = "icon";
+        const SPAN = document.createElement('span');
+        SPAN.innerText = i18n.translateOne("server.create.title");
+        BUTTON.appendChild(IMG);
+        BUTTON.appendChild(SPAN);
 
         return BUTTON;
     }
@@ -241,10 +259,17 @@ export default class ServerController {
                     </select>
                 </div>
             </form>`,
+            htmlAfterButton: `
+                    <span>You want more than public servers ?</span>
+                    <div id="discover-other-action" style="display:flex; justify-content: center; gap: 1rem;"></div>`,
             didOpen: async () => {
+                const otherActions = document.getElementById('discover-other-action');
+                otherActions.appendChild(this.#joinInstanceElement());
+                if (this.user.isAdmin()) {
+                    otherActions.appendChild(this.#createNewServer());
+                }
                 const select = document.getElementById('modal-serverId');
                 select.oninput = () => { this.#popupData = select.value };
-
                 /** @type {ServerRepresentation[]} */
                 const publicServers = await CoreServer.fetch('/server/discover');
                 for (const instance of publicServers) {

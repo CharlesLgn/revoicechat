@@ -371,9 +371,24 @@ svg {
     overflow-y: auto;
     display: flex;
     position: relative;
-    flex: 1 1 0%;
     flex-direction: column;
     padding: 0.5rem;
+}
+
+.server-header {
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.server-header:hover {
+    background-color: var(--sec-bg-color);
+}
+
+.server-menu-bar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: -webkit-fill-available;
 }
 
 .instances .element {
@@ -1887,6 +1902,23 @@ summary::marker {
 .voice-settings label {
     width: 4rem;
     text-align: end;
+}
+
+.more-action-modal-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--sec-bg-color)!important;
+    border: 1px solid var(--pri-placeholder-color)!important;
+    color: var(--pri-placeholder-color)!important;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.5rem;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+.more-action-modal-button:hover {
+    background-color: var(--ter-bg-color)!important;
 }
 
 .preview-sound-button {
