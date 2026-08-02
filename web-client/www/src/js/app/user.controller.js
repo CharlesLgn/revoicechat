@@ -77,7 +77,8 @@ export default class UserController {
         const subPopoverAnchor = document.getElementById("user-status-trigger");
 
         subPopoverAnchor.addEventListener('click', () => {
-            subPopover.togglePopover();
+            subPopover.showPopover();
+            popover.showPopover();
             subPopover.classList.remove('hidden');
         });
 
@@ -103,6 +104,20 @@ export default class UserController {
                 });
             })
         })
+
+        document.addEventListener('click', (e) => {
+            if (popover.matches(':popover-open') &&
+                !popover.contains(e.target) &&
+                !anchor.contains(e.target)) {
+                popover.hidePopover();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && popover.matches(':popover-open')) {
+                popover.hidePopover();
+            }
+        });
     }
 
     /** @param {UserRepresentation} data */
