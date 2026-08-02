@@ -161,7 +161,7 @@ export default class ServerController {
         BUTTON.className = "more-action-modal-button";
         BUTTON.onclick = () => this.#join();
 
-        const IMG = document.createElement('revoice-icon-circle-plus');
+        const IMG = document.createElement('revoice-icon-link');
         IMG.className = "icon";
         const SPAN = document.createElement('span');
         SPAN.innerText = i18n.translateOne("server.join.title");
@@ -260,7 +260,8 @@ export default class ServerController {
                 </div>
             </form>`,
             htmlAfterButton: `
-                    <span>You want more than public servers ?</span>
+                    <hr class="light-border"/>
+                    <br/>
                     <div id="discover-other-action" style="display:flex; justify-content: center; gap: 1rem;"></div>`,
             didOpen: async () => {
                 const otherActions = document.getElementById('discover-other-action');
