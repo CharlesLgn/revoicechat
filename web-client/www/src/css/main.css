@@ -892,6 +892,14 @@ svg {
     align-items: center;
     gap: 0.5rem;
     padding: 0.3rem;
+    justify-content: space-between;
+    height: 3rem;
+}
+
+.user-parameters-button-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .user-parameters-button:hover {

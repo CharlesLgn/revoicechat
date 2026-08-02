@@ -71,11 +71,29 @@ export default class UserController {
             }
         });
 
+        const subPopover = document.getElementById('user-status-popover');
+        const subPopoverAnchor = document.getElementById("user-status-trigger");
+
+        subPopoverAnchor.addEventListener('click', () => {
+            subPopover.togglePopover();
+            subPopover.classList.remove('hidden');
+        });
+
+        subPopover.addEventListener('beforetoggle', (e) => {
+            if (e.newState === 'open') {
+                const rect = subPopoverAnchor.getBoundingClientRect();
+                subPopover.style.left = `${rect.right+8}px`;
+                subPopover.style.bottom = `${window.innerHeight - rect.bottom}px`;
+            } else if (e.newState === 'closed') {
+                popover.togglePopover();
+            }
+        });
+
         document.querySelectorAll('.change-status').forEach(button => {
             button.addEventListener('click', async () => {
                 /** {@type ActiveStatus} */
                 const status = button.dataset.userStatus;
-                popover.togglePopover();
+                subPopover.togglePopover();
                 await CoreServer.fetch(`/user/me`, 'PATCH', {status: status});
                 this.setStatus({
                     userId: result.id,
