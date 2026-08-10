@@ -8,6 +8,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tags;
 
 import fr.revoicechat.core.representation.InvitationRepresentation;
+import fr.revoicechat.core.representation.MessageRepresentation;
+
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -27,6 +29,15 @@ public interface ServerInvitationController {
   @Path("/{id}/invitation")
   InvitationRepresentation generateServerInvitation(@PathParam("id") UUID id,
                                                     @QueryParam("category") @DefaultValue("UNIQUE") String category);
+
+  @Tags(refs = { "Server", "Invitation" })
+  @Operation(summary = "Generate server invitation for a user", description = "Create a new invitation link for users to join the server. Requires appropriate server permissions.")
+  @APIResponse(responseCode = "200", description = "Server invitation generated successfully")
+  @APIResponse(responseCode = "403", description = "Insufficient permissions to generate server invitations")
+  @APIResponse(responseCode = "404", description = "Server not found")
+  @POST
+  @Path("/{id}/invitation/{userId}")
+  MessageRepresentation inviteUser(@PathParam("id") UUID id, @PathParam("userId") UUID userId);
 
   @Tags(refs = { "Server", "Invitation" })
   @Operation(summary = "Get server invitations", description = "Retrieve all active invitation links for a specific server. Requires appropriate server permissions.")
