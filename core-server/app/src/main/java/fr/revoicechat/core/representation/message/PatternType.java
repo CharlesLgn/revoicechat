@@ -4,4 +4,5 @@ public enum PatternType {
   EMOTE,
   USER_MENTION,
   ROLE_MENTION,
+  SERVER_INVITATION,
 }
